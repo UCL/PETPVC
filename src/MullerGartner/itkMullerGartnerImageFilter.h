@@ -28,6 +28,7 @@
 #ifndef __itkMullerGartnerImageFilter_h
 #define __itkMullerGartnerImageFilter_h
 
+#include "itkImage.h"
 #include "itkInPlaceImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkDiscreteGaussianImageFilter.h"
@@ -41,6 +42,8 @@
 #include "itkBinaryBallStructuringElement.h"
 
 using namespace itk;
+
+typedef typename itk::Vector<float, 3> VectorType;
 
 namespace petpvc
 {
@@ -74,8 +77,6 @@ public:
   itkNewMacro(Self);
   
   itkTypeMacro(MullerGartnerImageFilter, InPlaceImageFilter);
-
-  typedef itk::Vector<float, 3> VectorType;
 
   //PET image
   typedef TInputImage1                           Input1ImageType;
@@ -223,7 +224,7 @@ private:
 	 
 	 typename InternalImageType::Pointer 			m_imgErodedWM;
 	 
-	 typename VectorType m_dVariance;
+	 VectorType m_dVariance;
 
 	 bool m_bQuietMode;
 	 double m_fGivenWM;
