@@ -75,9 +75,9 @@ int main(int argc, char *argv[]) {
 
     command.SetCategory("PETPVC");
 
-    command.AddField("petfile", "PET filename", MetaCommand::FILE, MetaCommand::DATA_IN);
-    command.AddField("maskfile", "mask filename", MetaCommand::FILE, MetaCommand::DATA_IN);
-    command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
+    command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
+    command.AddField("maskfile", "mask filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
+    command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
             "The full-width at half maximum in mm along x-axis");

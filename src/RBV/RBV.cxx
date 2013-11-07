@@ -47,7 +47,7 @@
 
 const char * const VERSION_NO = "0.0.1";
 const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
+const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -100,9 +100,9 @@ int main(int argc, char *argv[]) {
 
     command.SetCategory("PETPVC");
 
-    command.AddField("petfile", "PET filename", MetaCommand::FILE, MetaCommand::DATA_IN);
-    command.AddField("maskfile", "mask filename", MetaCommand::FILE, MetaCommand::DATA_IN);
-    command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
+    command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
+    command.AddField("maskfile", "mask filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
+    command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
             "The full-width at half maximum in mm along x-axis");
