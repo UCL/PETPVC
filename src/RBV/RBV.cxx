@@ -82,7 +82,7 @@ PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
         const PETImageType::Pointer syntheticPET, BlurringFilterType::Pointer pBlurFilter);
 
 //Produces the text for the acknowledgment dialog in Slicer. 
-std::string getAcknowledgements(void);
+std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     command.SetDescription(
             "Performs Geometric Transfer Matrix (GTM) partial volume correction");
 
-    std::string sAcks = getAcknowledgements();
+    std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
 
     command.SetCategory("PETPVC");
@@ -175,11 +175,11 @@ int main(int argc, char *argv[]) {
     vVariance[0] = pow((vVariance[0] / vVoxelSize[0]), 2);
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
-    
+
     GTMFilterType::Pointer gtmFilter = GTMFilterType::New();
     gtmFilter->SetInput(maskReader->GetOutput());
-    gtmFilter->SetPSF( vVariance );
-    
+    gtmFilter->SetPSF(vVariance);
+
     //Calculate GTM.
     try {
         gtmFilter->Update();
@@ -207,30 +207,30 @@ int main(int argc, char *argv[]) {
     MaskImageType::IndexType desiredStart;
     desiredStart.Fill(0);
     MaskImageType::SizeType desiredSize = imageSize;
-    
-        //Extract filter used to extract 3D volume from 4D file.
+
+    //Extract filter used to extract 3D volume from 4D file.
     ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     extractFilter->SetInput(maskReader->GetOutput());
     extractFilter->SetDirectionCollapseToIdentity(); // This is required.
 
     //Stats. filter used to calculate statistics for an image.
     StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
-    
+
     //Multiplies two images together.
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
-    
+
     PETImageType::Pointer imageExtractedRegion = PETImageType::New();
-    
+
     float fSumOfPETReg;
-    
+
     //Vector to contain the current estimate of the regional mean values.
     vnl_vector<float> vecRegMeansCurrent;
-    vecRegMeansCurrent.set_size( nClasses );
-    
+    vecRegMeansCurrent.set_size(nClasses);
+
     //Vector to contain the estimated means after fuzziness correction.
     vnl_vector<float> vecRegMeansUpdated;
-    vecRegMeansUpdated.set_size( nClasses );
-    
+    vecRegMeansUpdated.set_size(nClasses);
+
     for (int i = 1; i <= nClasses; i++) {
 
         //Starts reading from 4D volume at index (0,0,0,i) through to 
@@ -247,10 +247,9 @@ int main(int argc, char *argv[]) {
         imageExtractedRegion->SetDirection(petReader->GetOutput()->GetDirection());
         imageExtractedRegion->UpdateOutputData();
 
-
         //Multiply current image estimate by region mask. To clip PET values
         //to mask.
-        multiplyFilter->SetInput1( petReader->GetOutput() );
+        multiplyFilter->SetInput1(petReader->GetOutput());
         multiplyFilter->SetInput2(imageExtractedRegion);
 
         statsFilter->SetInput(multiplyFilter->GetOutput());
@@ -267,31 +266,31 @@ int main(int argc, char *argv[]) {
 
     std::cout << std::endl << "Regional means:" << std::endl;
     std::cout << vecRegMeansCurrent << std::endl << std::endl;
-     
+
     std::cout << "GTM:" << std::endl;
-    gtmFilter->GetMatrix().print( std::cout ); 
-    
+    gtmFilter->GetMatrix().print(std::cout);
+
     //Apply GTM to regional mean values.
-    vecRegMeansUpdated = vnl_matrix_inverse<float>( gtmFilter->GetMatrix() )* vecRegMeansCurrent;
+    vecRegMeansUpdated = vnl_matrix_inverse<float>(gtmFilter->GetMatrix()) * vecRegMeansCurrent;
 
     std::cout << std::endl << "Corrected means:" << std::endl;
-    std::cout << vecRegMeansUpdated << std::endl;  
-    
+    std::cout << vecRegMeansUpdated << std::endl;
+
     PETImageType::Pointer imageRBV = PETImageType::New();
     PETImageType::Pointer imageSynthPET = PETImageType::New();
-     
+
     //Create blurring filter to apply PSF.
     BlurringFilterType::Pointer blurFilter = BlurringFilterType::New();
-    blurFilter->SetVariance( vVariance );
+    blurFilter->SetVariance(vVariance);
 
     //Take the mask image and create pseudo PET image. This image contains the
     //correction factors.
     imageSynthPET = getSyntheticPET(maskReader->GetOutput(),
-                vecRegMeansUpdated);
-    
+            vecRegMeansUpdated);
+
     //Perform voxel-wise correction step.
-    imageRBV = getRBVImage( petReader->GetOutput(), imageSynthPET, blurFilter );
-          
+    imageRBV = getRBVImage(petReader->GetOutput(), imageSynthPET, blurFilter);
+
     //Write out result of final iteration.
     PETWriterType::Pointer petWriter = PETWriterType::New();
     petWriter->SetFileName(sOutputFileName);
@@ -311,11 +310,11 @@ int main(int argc, char *argv[]) {
 
 PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
         const vnl_vector<float> vRegMeans) {
-    
+
     //Takes the 4D mask file along with the fuzziness-corrected mean values 
     //and creates the pseudo PET image.
 
-    PETImageType::Pointer imageResult;// = PETImageType::New();
+    PETImageType::Pointer imageResult; // = PETImageType::New();
 
     ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
@@ -367,7 +366,7 @@ PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
 
     //Takes the original PET data and the pseudo PET image, calculates the
     //correction factors  and returns the PV-corrected PET image.
-    
+
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
     DivideFilterType::Pointer divideFilter = DivideFilterType::New();
 
@@ -379,8 +378,8 @@ PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
     //Take ratio of pseudo PET and smoothed pseudo PET. These are the correction
     //factors.
     divideFilter->SetInput1(syntheticPET);
-    divideFilter->SetInput2( pBlurFilter->GetOutput() );
-    
+    divideFilter->SetInput2(pBlurFilter->GetOutput());
+
     //Multiply original PET by correction factors.
     multiplyFilter->SetInput1(origPET);
     multiplyFilter->SetInput2(divideFilter->GetOutput());
@@ -391,10 +390,10 @@ PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
 
 }
 
-std::string getAcknowledgements(void) {
-    //Produces acknowledgements string for 3DSlicer.
+std::string getAcknowledgments(void) {
+    //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
-        "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
-        "of appropriate partial\n\tvolume correction for PET quantiï¬?cation in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
+            "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
+            "of appropriate partial\n\tvolume correction for PET quantiï¬?cation in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }

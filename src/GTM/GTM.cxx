@@ -71,8 +71,8 @@ typedef petpvc::GTMFilter<MaskImageType> GTMFilterType;
 
 //Function definitions:
 
-//Produces the text for the acknowledgements dialog in Slicer. 
-std::string getAcknowledgements(void);
+//Produces the text for the acknowledgments dialog in Slicer. 
+std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     command.SetDescription(
             "Performs Geometric Transfer Matrix (GTM) partial volume correction");
 
-    std::string sAcks = getAcknowledgements();
+    std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
 
     command.SetCategory("PETPVC");
@@ -165,11 +165,11 @@ int main(int argc, char *argv[]) {
     vVariance[0] = pow((vVariance[0] / vVoxelSize[0]), 2);
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
-    
+
     GTMFilterType::Pointer gtmFilter = GTMFilterType::New();
     gtmFilter->SetInput(maskReader->GetOutput());
-    gtmFilter->SetPSF( vVariance );
-    
+    gtmFilter->SetPSF(vVariance);
+
     //Calculate GTM.
     try {
         gtmFilter->Update();
@@ -197,30 +197,30 @@ int main(int argc, char *argv[]) {
     MaskImageType::IndexType desiredStart;
     desiredStart.Fill(0);
     MaskImageType::SizeType desiredSize = imageSize;
-    
-        //Extract filter used to extract 3D volume from 4D file.
+
+    //Extract filter used to extract 3D volume from 4D file.
     ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     extractFilter->SetInput(maskReader->GetOutput());
     extractFilter->SetDirectionCollapseToIdentity(); // This is required.
 
     //Stats. filter used to calculate statistics for an image.
     StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
-    
+
     //Multiplies two images together.
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
-    
+
     PETImageType::Pointer imageExtractedRegion = PETImageType::New();
-    
+
     float fSumOfPETReg;
-    
+
     //Vector to contain the current estimate of the regional mean values.
     vnl_vector<float> vecRegMeansCurrent;
-    vecRegMeansCurrent.set_size( nClasses );
-    
+    vecRegMeansCurrent.set_size(nClasses);
+
     //Vector to contain the estimated means after GTM correction.
     vnl_vector<float> vecRegMeansUpdated;
-    vecRegMeansUpdated.set_size( nClasses );
-    
+    vecRegMeansUpdated.set_size(nClasses);
+
     for (int i = 1; i <= nClasses; i++) {
 
         //Starts reading from 4D volume at index (0,0,0,i) through to 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
 
         //Multiply current image estimate by region mask. To clip PET values
         //to mask.
-        multiplyFilter->SetInput1( petReader->GetOutput() );
+        multiplyFilter->SetInput1(petReader->GetOutput());
         multiplyFilter->SetInput2(imageExtractedRegion);
 
         statsFilter->SetInput(multiplyFilter->GetOutput());
@@ -256,41 +256,39 @@ int main(int argc, char *argv[]) {
 
     std::cout << std::endl << "Regional means:" << std::endl;
     std::cout << vecRegMeansCurrent << std::endl << std::endl;
-     
+
     std::cout << "GTM:" << std::endl;
-    gtmFilter->GetMatrix().print( std::cout ); 
-    
+    gtmFilter->GetMatrix().print(std::cout);
+
     //Apply GTM to regional mean values.
-    vecRegMeansUpdated = vnl_matrix_inverse<float>( gtmFilter->GetMatrix() )* vecRegMeansCurrent;
+    vecRegMeansUpdated = vnl_matrix_inverse<float>(gtmFilter->GetMatrix()) * vecRegMeansCurrent;
 
     std::cout << std::endl << "Corrected means:" << std::endl;
-    std::cout << vecRegMeansUpdated << std::endl;  
-    
-    
+    std::cout << vecRegMeansUpdated << std::endl;
+
+
     //Write out PV-corrected mean values to text file.
     std::ofstream outputFileStream;
     outputFileStream.open(sOutputFileName.c_str(), std::ofstream::out);
-    
-    if (outputFileStream.is_open() )
-    {
+
+    if (outputFileStream.is_open()) {
         outputFileStream << vecRegMeansUpdated << std::endl;
         outputFileStream.close();
-    }
-    else 
-    {
-        std::cerr << "[Error]\tFailed to open " << sOutputFileName << "to write results!" <<std::endl;
+    } else {
+        std::cerr << "[Error]\tFailed to open " << sOutputFileName << "to write results!" << std::endl;
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
-std::string getAcknowledgements(void) {
-    //Produces acknowledgements string for 3DSlicer.
-	std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
-		"The method is described in:\n"
-        "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n" 
-        "\tpartial volume effects in PET: principle and validation\". Journal of\n" 
-        "\tNuclear Medicine, 39(5):904-11.";
+
+std::string getAcknowledgments(void) {
+    //Produces acknowledgments string for 3DSlicer.
+    std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
+            "The method is described in:\n"
+            "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
+            "\tpartial volume effects in PET: principle and validation\". Journal of\n"
+            "\tNuclear Medicine, 39(5):904-11.";
 
     return sAck;
 }

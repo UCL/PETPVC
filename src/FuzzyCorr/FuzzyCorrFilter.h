@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __itkFuzzyCorrFilter_h
-#define __itkFuzzyCorrFilter_h
+#ifndef __FuzzyCorrFilter_h
+#define __FuzzyCorrFilter_h
 
 #include "itkImageToImageFilter.h"
 #include "vnl/vnl_matrix.h" 
@@ -32,52 +32,57 @@
 
 using namespace itk;
 
-
 namespace petpvc {
-template<class TImage>
-class FuzzyCorrFilter: public ImageToImageFilter<TImage, TImage> {
-public:
 
-	typedef FuzzyCorrFilter Self;
-	typedef ImageToImageFilter<TImage, TImage> Superclass;
-	typedef SmartPointer<Self> Pointer;
-        
+    template<class TImage>
+    class FuzzyCorrFilter : public ImageToImageFilter<TImage, TImage> {
+    public:
+
+        typedef FuzzyCorrFilter Self;
+        typedef ImageToImageFilter<TImage, TImage> Superclass;
+        typedef SmartPointer<Self> Pointer;
+
         //Matrix to hold correction factors
-	typedef vnl_matrix<float> MatrixType;
-        
+        typedef vnl_matrix<float> MatrixType;
+
         //Vector containing size of region.
-	typedef vnl_vector<float> VectorType;
+        typedef vnl_vector<float> VectorType;
 
-	itkNewMacro(Self);
+        itkNewMacro(Self);
 
-	itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
+        itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
 
         //Returns correction factors.
-	vnl_matrix<float> GetMatrix() {	return *this->matFuzz;	};
-        
+
+        vnl_matrix<float> GetMatrix() {
+            return *this->matFuzz;
+        };
+
         //Returns region size.
-	vnl_vector<float> GetSumOfRegions() { return *this->vecSumOfRegions; };
 
-protected:
-	FuzzyCorrFilter();
-	~FuzzyCorrFilter() {
-	}
+        vnl_vector<float> GetSumOfRegions() {
+            return *this->vecSumOfRegions;
+        };
 
-	/** Does the real work. */
-	virtual void GenerateData();
+    protected:
+        FuzzyCorrFilter();
+        ~FuzzyCorrFilter();
 
-private:
-	FuzzyCorrFilter(const Self &); //purposely not implemented
-	void operator=(const Self &); //purposely not implemented
+        /** Does the real work. */
+        virtual void GenerateData();
 
-	MatrixType *matFuzz;
-	VectorType *vecSumOfRegions;
+    private:
+        FuzzyCorrFilter(const Self &); //purposely not implemented
+        void operator=(const Self &); //purposely not implemented
 
-};
+        MatrixType *matFuzz;
+        VectorType *vecSumOfRegions;
+
+    };
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "FuzzyCorrFilter.hxx"
+#include "FuzzyCorrFilter.txx"
 #endif
 
-#endif // __itkFuzzyCorrFilter_h
+#endif // __FuzzyCorrFilter_h
