@@ -22,8 +22,8 @@
 
         Thomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and
         Vandenberghe, R. and Ourselin, S. and Hutton, B. (2011). "The importance
-        of appropriate partial volume correction for PET quantiﬁcation in 
-        Alzheimer’s disease". European Journal of Nuclear Medicine and 
+        of appropriate partial volume correction for PET quantification in 
+        Alzheimer's disease". European Journal of Nuclear Medicine and 
         Molecular Imaging, 38:1104-1119.
  
  */
@@ -81,7 +81,7 @@ PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
 PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
         const PETImageType::Pointer syntheticPET, BlurringFilterType::Pointer pBlurFilter);
 
-//Produces the text for the acknowledgements dialog in Slicer. 
+//Produces the text for the acknowledgment dialog in Slicer. 
 std::string getAcknowledgements(void);
 
 int main(int argc, char *argv[]) {
@@ -395,6 +395,6 @@ std::string getAcknowledgements(void) {
     //Produces acknowledgements string for 3DSlicer.
     std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
         "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
-        "of appropriate partial\n\tvolume correction for PET quantiﬁcation in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
+        "of appropriate partial\n\tvolume correction for PET quanti�?cation in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }
