@@ -30,7 +30,7 @@
 
 #include "itkImage.h"
 #include "itkInPlaceImageFilter.h"
-#include "itkImageRegionIteratorWithIndex.h"
+#include "itkImageRegionConstIterator.h"
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkSubtractImageFilter.h"
 #include "itkMultiplyImageFilter.h"
@@ -166,7 +166,7 @@ namespace petpvc {
         typedef InternalPixelType StepType;
 
         /*! Defines image iterator. */
-        typedef itk::ImageRegionIterator<InternalImageType> ItType;
+        typedef itk::ImageRegionConstIterator<InternalImageType> ItType;
 
         /*! Defines Gaussian filter type.
          * Blurs an image with a Gaussian. The variance (sigma squared) specifies the width. */

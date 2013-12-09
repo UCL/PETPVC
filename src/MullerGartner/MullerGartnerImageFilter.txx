@@ -147,12 +147,16 @@ namespace petpvc {
         double sumVWM = 0.0;
         double sumErodedWM = 0.0;
 
-        for (iteratorVirtualWM = iteratorVirtualWM.Begin(); !iteratorVirtualWM.IsAtEnd(); ++iteratorVirtualWM) {
+        while (!iteratorVirtualWM.IsAtEnd() )
+        {
             sumVWM += iteratorVirtualWM.Value();
+            ++iteratorVirtualWM;
         }
 
-        for (iteratorErodedWM = iteratorErodedWM.Begin(); !iteratorErodedWM.IsAtEnd(); ++iteratorErodedWM) {
-            sumErodedWM += iteratorErodedWM.Value();
+        while (!iteratorErodedWM.IsAtEnd() )
+        {
+                sumErodedWM += iteratorErodedWM.Value();
+                ++iteratorErodedWM;
         }
 
         //Calculate mean value in WM.
