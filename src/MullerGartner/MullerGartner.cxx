@@ -20,9 +20,9 @@
    This program implements the Muller-Gartner (MG) partial volume 
    correction (PVC) technique. The method is described in:
         Muller-Gartner, H. W. et al. (1992). Measurement of radiotracer 
-		concentration in brain gray matter using positron emission 
-		tomography: MRI-based correction for partial volume effects. 
-		J Cereb Blood Flow Metab, 12(4), 571-83.
+                concentration in brain gray matter using positron emission 
+                tomography: MRI-based correction for partial volume effects. 
+                J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
 
@@ -31,7 +31,7 @@
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkExtractImageFilter.h>
-#include "itkMullerGartnerImageFilter.h"
+#include "MullerGartnerImageFilter.h"
 
 #include <metaCommand.h>
 
@@ -56,8 +56,8 @@ typedef itk::ImageDuplicator<PETImageType> DuplicatorType;
 typedef petpvc::MullerGartnerImageFilter< PETImageType, PETImageType, PETImageType, PETImageType > MGFilterType;
 //Function definitions:
 
-//Produces the text for the acknowledgements dialog in Slicer. 
-std::string getAcknowledgements(void);
+//Produces the text for the acknowledgments dialog in Slicer. 
+std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     command.SetDescription(
             "Performs Muller-Gartner (MG) partial volume correction");
 
-    std::string sAcks = getAcknowledgements();
+    std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
 
     command.SetCategory("PETPVC");
@@ -209,34 +209,34 @@ int main(int argc, char *argv[]) {
     desiredStart[3] = 2;
 
     //Get CSF mask.
-	/*
-    extractFilter->SetExtractionRegion(
-            MaskImageType::RegionType(desiredStart, desiredSize));
-    extractFilter->Update();
+    /*
+extractFilter->SetExtractionRegion(
+        MaskImageType::RegionType(desiredStart, desiredSize));
+extractFilter->Update();
 
-    imageCSF = extractFilter->GetOutput();
-    imageCSF->SetDirection(petReader->GetOutput()->GetDirection());
-    imageCSF->UpdateOutputData();
-    imageCSF->DisconnectPipeline();*/
+imageCSF = extractFilter->GetOutput();
+imageCSF->SetDirection(petReader->GetOutput()->GetDirection());
+imageCSF->UpdateOutputData();
+imageCSF->DisconnectPipeline();*/
 
-	//Set-up Muller-Gartner filter
-	MGFilterType::Pointer MGFilter = MGFilterType::New();
+    //Set-up Muller-Gartner filter
+    MGFilterType::Pointer MGFilter = MGFilterType::New();
 
-	MGFilter->SetInput1( petReader->GetOutput()  );
-	MGFilter->SetInput2( imageGM );
-	MGFilter->SetInput3( imageWM );
-	MGFilter->SetQuietMode( false );
-	MGFilter->SetPSF( vVariance );
-	MGFilter->SetWM( 0 );
+    MGFilter->SetInput1(petReader->GetOutput());
+    MGFilter->SetInput2(imageGM);
+    MGFilter->SetInput3(imageWM);
+    MGFilter->SetQuietMode(false);
+    MGFilter->SetPSF(vVariance);
+    MGFilter->SetWM(0);
 
-	//Set-up output file writer
+    //Set-up output file writer
     PETWriterType::Pointer petWriter = PETWriterType::New();
 
-	petWriter->SetInput( MGFilter->GetOutput() );
-	petWriter->SetFileName( sOutputFileName.c_str() );
-    
-	//Write file
-	try {
+    petWriter->SetInput(MGFilter->GetOutput());
+    petWriter->SetFileName(sOutputFileName.c_str());
+
+    //Write file
+    try {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
@@ -244,17 +244,17 @@ int main(int argc, char *argv[]) {
 
         return EXIT_FAILURE;
     }
-    
+
     return EXIT_SUCCESS;
 }
 
-std::string getAcknowledgements(void) {
-    //Produces acknowledgements string for 3DSlicer.
+std::string getAcknowledgments(void) {
+    //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the Muller-Gartner (MG) partial volume correction (PVC) technique.\n"
-		"The method is described in:\n"
-        "\tMuller-Gartner, H. W. et al. (1992). \"Measurement of radiotracer\n" 
-		"\tconcentration in brain gray matter using positron emission\n" 
-		"\ttomography: MRI-based correction for partial volume effects.\"\n" 
-		"\tJ Cereb Blood Flow Metab, 12(4), 571-83.";
+            "The method is described in:\n"
+            "\tMuller-Gartner, H. W. et al. (1992). \"Measurement of radiotracer\n"
+            "\tconcentration in brain gray matter using positron emission\n"
+            "\ttomography: MRI-based correction for partial volume effects.\"\n"
+            "\tJ Cereb Blood Flow Metab, 12(4), 571-83.";
     return sAck;
 }

@@ -32,64 +32,80 @@ using namespace itk;
 
 
 namespace petpvc {
-template<class TImage>
-class GTMFilter: public ImageToImageFilter<TImage, TImage> {
-public:
 
-	typedef GTMFilter Self;
-	typedef ImageToImageFilter<TImage, TImage> Superclass;
-	typedef SmartPointer<Self> Pointer;
-        
+    template<class TImage>
+    class GTMFilter : public ImageToImageFilter<TImage, TImage> {
+    public:
+
+        typedef GTMFilter Self;
+        typedef ImageToImageFilter<TImage, TImage> Superclass;
+        typedef SmartPointer<Self> Pointer;
+
         //Matrix to hold correction factors
-	typedef vnl_matrix<float> MatrixType;
-        
+        typedef vnl_matrix<float> MatrixType;
+
         //Vector containing size of region.
-	typedef vnl_vector<float> VectorType;
+        typedef vnl_vector<float> VectorType;
         typedef itk::Vector<float, 3> ITKVectorType;
-   
+
         typedef itk::Image<float, 4> MskImageType;
 
-	itkNewMacro(Self);
+        itkNewMacro(Self);
 
-	itkTypeMacro(GTMFilter, ImageToImageFilter);
+        itkTypeMacro(GTMFilter, ImageToImageFilter);
 
         //Returns correction factors.
-	vnl_matrix<float> GetMatrix() {	return *this->matCorrFactors;	};
-        
+
+        vnl_matrix<float> GetMatrix() {
+            return *this->matCorrFactors;
+        };
+
         //Returns fuzziness correction factors.
-        vnl_matrix<float> GetFuzzyMatrix() { return this->pFuzzy->GetMatrix(); };
-        
+
+        vnl_matrix<float> GetFuzzyMatrix() {
+            return this->pFuzzy->GetMatrix();
+        };
+
         //Returns region size.
-	vnl_vector<float> GetSumOfRegions() { return *this->vecSumOfRegions; };
-        
+
+        vnl_vector<float> GetSumOfRegions() {
+            return *this->vecSumOfRegions;
+        };
+
         //Returns region size.
-	vnl_vector<float> GetSumOfFuzzyRegions() { return this->pFuzzy->GetSumOfRegions(); };
-        
-        void SetPSF( ITKVectorType vec ){ this->vecVariance = vec; };
-                                         
-        ITKVectorType GetPSF() {return this->vecVariance;};
-        
 
-protected:
-	GTMFilter();
-	~GTMFilter() {
-	}
+        vnl_vector<float> GetSumOfFuzzyRegions() {
+            return this->pFuzzy->GetSumOfRegions();
+        };
 
-	/** Does the real work. */
-	virtual void GenerateData();
+        void SetPSF(ITKVectorType vec) {
+            this->vecVariance = vec;
+        };
 
-private:
-	GTMFilter(const Self &); //purposely not implemented
-	void operator=(const Self &); //purposely not implemented
+        ITKVectorType GetPSF() {
+            return this->vecVariance;
+        };
 
-	MatrixType *matCorrFactors;
-	VectorType *vecSumOfRegions;
-        ITKVectorType vecVariance;   
-};
+
+    protected:
+        GTMFilter();
+        ~GTMFilter();
+
+        /** Does the real work. */
+        virtual void GenerateData();
+
+    private:
+        GTMFilter(const Self &); //purposely not implemented
+        void operator=(const Self &); //purposely not implemented
+
+        MatrixType *matCorrFactors;
+        VectorType *vecSumOfRegions;
+        ITKVectorType vecVariance;
+    };
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "GTMFilter.hxx"
+#include "GTMFilter.txx"
 #endif
 
 #endif // __GTMFilterFilter_h

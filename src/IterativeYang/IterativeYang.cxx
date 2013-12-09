@@ -45,9 +45,9 @@
 #include <vnl/algo/vnl_svd.h>
 #include "FuzzyCorrFilter.h"
 
-const char * const VERSION_NO="0.0.3";
-const char * const AUTHOR="Benjamin A. Thomas";
-const char * const APP_TITLE="Iterative Yang PVC";
+const char * const VERSION_NO = "0.0.3";
+const char * const AUTHOR = "Benjamin A. Thomas";
+const char * const APP_TITLE = "Iterative Yang PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -85,8 +85,8 @@ PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
 PETImageType::Pointer getCurrentEstimate(const PETImageType::Pointer origPET,
         const PETImageType::Pointer syntheticPET, BlurringFilterType::Pointer pBlurFilter);
 
-//Produces the text for the acknowledgements dialog in Slicer. 
-std::string getAcknowledgements(void);
+//Produces the text for the acknowledgments dialog in Slicer. 
+std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
 
@@ -99,9 +99,9 @@ int main(int argc, char *argv[]) {
     command.SetDescription(
             "Performs iterative Yang (IY) partial volume correction");
 
-    std::string sAcks = getAcknowledgements();
+    std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
-    
+
     command.SetCategory("PETPVC");
 
     command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     command.SetOption("FWHMz", "z", true,
             "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
-    
+
     command.SetOption("Iterations", "i", false, "Number of iterations");
     command.SetOptionLongTag("Iterations", "iter");
     command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "5");
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
     float fFWHM_x = command.GetValueAsFloat("FWHMx", "X");
     float fFWHM_y = command.GetValueAsFloat("FWHMy", "Y");
     float fFWHM_z = command.GetValueAsFloat("FWHMz", "Z");
-    
+
     //Get number of iterations
     int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    
+
     //Get fuzziness correction factors.
     vnl_matrix<float> fuzzCorrMat = fuzzyCorr->GetMatrix();
     vnl_vector<float> vecRegSize = fuzzyCorr->GetSumOfRegions();
@@ -243,13 +243,13 @@ int main(int argc, char *argv[]) {
 
     //Stats. filter used to calculate statistics for an image.
     StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
-    
+
     //Multiplies two images together.
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
-    
+
     //Create blurring filter to apply PSF.
     BlurringFilterType::Pointer blurFilter = BlurringFilterType::New();
-    blurFilter->SetVariance( vVariance );
+    blurFilter->SetVariance(vVariance);
 
     float fSumOfPETReg = 0.0;
 
@@ -269,7 +269,7 @@ int main(int argc, char *argv[]) {
         std::flush(std::cout);
 
         for (int i = 1; i <= nClasses; i++) {
-            
+
             //Starts reading from 4D volume at index (0,0,0,i) through to 
             //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
             desiredStart[3] = i - 1;
@@ -284,18 +284,18 @@ int main(int argc, char *argv[]) {
             imageExtractedRegion->SetDirection(imageEstimate->GetDirection());
             imageExtractedRegion->UpdateOutputData();
 
-            
+
             //Multiply current image estimate by region mask. To clip PET values
             //to mask.
             multiplyFilter->SetInput1(imageEstimate);
             multiplyFilter->SetInput2(imageExtractedRegion);
-            
+
             statsFilter->SetInput(multiplyFilter->GetOutput());
             statsFilter->Update();
 
             //Get sum of the clipped image.
             fSumOfPETReg = statsFilter->GetSum();
-            
+
             //Place regional mean into vector.
             vecRegMeansCurrent.put(i - 1, fSumOfPETReg / vecRegSize.get(i - 1));
             //std::cout << "Sum = " << fSumOfPETReg << " , " << "Mean = " << vecRegMeansCurrent.get( i-1 ) << std::endl;
@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
         //Apply fuzziness correction to current mean value estimates.
         vecRegMeansUpdated = vnl_matrix_inverse<float>(fuzzCorrMat)
                 * vecRegMeansCurrent;
-        
+
         //vecRegMeansUpdated = vnl_svd< float >( fuzzCorrMat ).solve( vecRegMeansCurrent );
         //std::cout << vecRegMeansCurrent << std::endl;
 
@@ -320,7 +320,7 @@ int main(int argc, char *argv[]) {
         //The result of getCurrentEstimate() is the new image estimate for 
         //iteration k+1.
         imageEstimate = getCurrentEstimate(petReader->GetOutput(), imageSynthPET,
-                        blurFilter);
+                blurFilter);
 
     }
 
@@ -345,11 +345,11 @@ int main(int argc, char *argv[]) {
 
 PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
         const vnl_vector<float> vRegMeans) {
-    
+
     //Takes the 4D mask file along with the fuzziness-corrected mean values 
     //and creates the pseudo PET image.
 
-    PETImageType::Pointer imageResult;// = PETImageType::New();
+    PETImageType::Pointer imageResult; // = PETImageType::New();
 
     ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
@@ -401,7 +401,7 @@ PETImageType::Pointer getCurrentEstimate(const PETImageType::Pointer origPET,
 
     //Takes the original PET data and the pseudo PET image, calculates the
     //correction factors  and returns the PV-corrected PET image.
-    
+
     MultiplyFilterType::Pointer multiplyFilter = MultiplyFilterType::New();
     DivideFilterType::Pointer divideFilter = DivideFilterType::New();
 
@@ -413,8 +413,8 @@ PETImageType::Pointer getCurrentEstimate(const PETImageType::Pointer origPET,
     //Take ratio of pseudo PET and smoothed pseudo PET. These are the correction
     //factors.
     divideFilter->SetInput1(syntheticPET);
-    divideFilter->SetInput2( pBlurFilter->GetOutput() );
-    
+    divideFilter->SetInput2(pBlurFilter->GetOutput());
+
     //Multiply original PET by correction factors.
     multiplyFilter->SetInput1(origPET);
     multiplyFilter->SetInput2(divideFilter->GetOutput());
@@ -425,8 +425,8 @@ PETImageType::Pointer getCurrentEstimate(const PETImageType::Pointer origPET,
 
 }
 
-std::string getAcknowledgements(void) {
-    //Produces acknowledgements string for 3DSlicer.
+std::string getAcknowledgments(void) {
+    //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the Iterative Yang (IY) partial volume correction (PVC) technique. Please cite the following paper:\n"
             "\tErlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A. and Hutton, B.F., (2012).\n\t\"A review of partial volume correction techniques "
             "for emission tomography and their applications in neurology, cardiology and oncology\", \n\tPhysics in Medicine and Biology, vol. 57, no. 21, R119-59.";

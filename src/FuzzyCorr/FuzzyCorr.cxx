@@ -23,58 +23,50 @@
 #include <itkImageFileReader.h>
 #include "FuzzyCorrFilter.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-        //A simple application that applies fuzziness 'correction' and prints
-        //the matrix to std out. This could be useful if you simply need the 
-        //correction factors to apply as part of some correction technique.
-    
-	typedef itk::Image<float, 4>   ImageType;
-	typedef petpvc::FuzzyCorrFilter<ImageType>  FilterType;
-	typedef itk::ImageFileReader<ImageType> ReaderType;
- 
-	ReaderType::Pointer reader = ReaderType::New();
-	FilterType::Pointer filter = FilterType::New();
+    //A simple application that applies fuzziness 'correction' and prints
+    //the matrix to std out. This could be useful if you simply need the 
+    //correction factors to apply as part of some correction technique.
 
-        if ( argc == 2)
-                reader->SetFileName( argv[1] );
-        else
-        {
-            std::cerr << "Usage: pvc_fuzzyCorr <maskfile>" << std::endl;
-            return EXIT_FAILURE;
-        }
-	
-	try 
-	{
-		reader->Update();
-	}
-	catch( itk::ExceptionObject & err )
-	{
-		std::cerr << "ExceptionObject caught !" << std::endl;
-		std::cerr << err << std::endl;
+    typedef itk::Image<float, 4> ImageType;
+    typedef petpvc::FuzzyCorrFilter<ImageType> FilterType;
+    typedef itk::ImageFileReader<ImageType> ReaderType;
 
-		return EXIT_FAILURE;
-	}
+    ReaderType::Pointer reader = ReaderType::New();
+    FilterType::Pointer filter = FilterType::New();
 
-	filter->SetInput( reader->GetOutput() );
+    if (argc == 2)
+        reader->SetFileName(argv[1]);
+    else {
+        std::cerr << "Usage: pvc_fuzzyCorr <maskfile>" << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	try
-	{
-		filter->Update();
-	}
-	catch( itk::ExceptionObject & err )
-	{
-		std::cerr << "ExceptionObject caught !" << std::endl;
-		std::cerr << err << std::endl;
+    try {
+        reader->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "ExceptionObject caught !" << std::endl;
+        std::cerr << err << std::endl;
 
-		return EXIT_FAILURE;
-	}
+        return EXIT_FAILURE;
+    }
 
-	vnl_matrix<float> test = filter->GetMatrix();
+    filter->SetInput(reader->GetOutput());
 
-	test.print( std::cout );
+    try {
+        filter->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "ExceptionObject caught !" << std::endl;
+        std::cerr << err << std::endl;
 
-	
-	return EXIT_SUCCESS;
+        return EXIT_FAILURE;
+    }
+
+    vnl_matrix<float> test = filter->GetMatrix();
+
+    test.print(std::cout);
+
+
+    return EXIT_SUCCESS;
 }
