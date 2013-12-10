@@ -1,6 +1,6 @@
    PET Partial Volume Correction (PVC) toolbox
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
-   This product includes software developed the Institute of Nuclear 
+   This product includes software developed at the Institute of Nuclear 
    Medicine (http://www.ucl.ac.uk/medicine/nuclear-medicine).
 
