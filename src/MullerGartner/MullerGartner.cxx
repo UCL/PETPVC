@@ -19,10 +19,10 @@
 
    This program implements the Muller-Gartner (MG) partial volume 
    correction (PVC) technique. The method is described in:
-        Muller-Gartner, H. W. et al. (1992). Measurement of radiotracer 
-                concentration in brain gray matter using positron emission 
-                tomography: MRI-based correction for partial volume effects. 
-                J Cereb Blood Flow Metab, 12(4), 571-83.
+        Muller-Gartner, H. W. et al. (1992). "Measurement of radiotracer 
+        concentration in brain gray matter using positron emission 
+        tomography: MRI-based correction for partial volume effects". 
+        J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
 
