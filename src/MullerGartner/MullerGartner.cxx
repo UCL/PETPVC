@@ -2,7 +2,7 @@
    MullerGartner.cxx
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Muller-Gartner (MG) partial volume 
+   This program implements the Muller-Gartner (MG) partial volume
    correction (PVC) technique. The method is described in:
-        Muller-Gartner, H. W. et al. (1992). "Measurement of radiotracer 
-        concentration in brain gray matter using positron emission 
-        tomography: MRI-based correction for partial volume effects". 
+        Muller-Gartner, H. W. et al. (1992). "Measurement of radiotracer
+        concentration in brain gray matter using positron emission
+        tomography: MRI-based correction for partial volume effects".
         J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
@@ -56,7 +56,7 @@ typedef itk::ImageDuplicator<PETImageType> DuplicatorType;
 typedef petpvc::MullerGartnerImageFilter< PETImageType, PETImageType, PETImageType, PETImageType > MGFilterType;
 //Function definitions:
 
-//Produces the text for the acknowledgments dialog in Slicer. 
+//Produces the text for the acknowledgments dialog in Slicer.
 std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
     PETImageType::Pointer imageWM = PETImageType::New();
     //PETImageType::Pointer imageCSF = PETImageType::New();
 
-    //Starts reading from 4D volume at index (0,0,0,i) through to 
+    //Starts reading from 4D volume at index (0,0,0,i) through to
     //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
     desiredStart[3] = 0;
     desiredSize[3] = 0;
@@ -210,14 +210,14 @@ int main(int argc, char *argv[]) {
 
     //Get CSF mask.
     /*
-extractFilter->SetExtractionRegion(
+    extractFilter->SetExtractionRegion(
         MaskImageType::RegionType(desiredStart, desiredSize));
-extractFilter->Update();
+    extractFilter->Update();
 
-imageCSF = extractFilter->GetOutput();
-imageCSF->SetDirection(petReader->GetOutput()->GetDirection());
-imageCSF->UpdateOutputData();
-imageCSF->DisconnectPipeline();*/
+    imageCSF = extractFilter->GetOutput();
+    imageCSF->SetDirection(petReader->GetOutput()->GetDirection());
+    imageCSF->UpdateOutputData();
+    imageCSF->DisconnectPipeline();*/
 
     //Set-up Muller-Gartner filter
     MGFilterType::Pointer MGFilter = MGFilterType::New();

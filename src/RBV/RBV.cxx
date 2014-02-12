@@ -2,7 +2,7 @@
    RBV.cxx
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,19 +17,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the region-based voxel-wise (RBV) partial volume 
+   This program implements the region-based voxel-wise (RBV) partial volume
    correction (PVC) technique. The method is described in:
 
         Thomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and
         Vandenberghe, R. and Ourselin, S. and Hutton, B. (2011). "The importance
-        of appropriate partial volume correction for PET quantification in 
-        Alzheimer's disease". European Journal of Nuclear Medicine and 
+        of appropriate partial volume correction for PET quantification in
+        Alzheimer's disease". European Journal of Nuclear Medicine and
         Molecular Imaging, 38:1104-1119.
- 
+
  */
 
 #include <string>
-#include <fstream>   
+#include <fstream>
 #include <itkImage.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -81,7 +81,7 @@ PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
 PETImageType::Pointer getRBVImage(const PETImageType::Pointer origPET,
         const PETImageType::Pointer syntheticPET, BlurringFilterType::Pointer pBlurFilter);
 
-//Produces the text for the acknowledgment dialog in Slicer. 
+//Produces the text for the acknowledgment dialog in Slicer.
 std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i <= nClasses; i++) {
 
-        //Starts reading from 4D volume at index (0,0,0,i) through to 
+        //Starts reading from 4D volume at index (0,0,0,i) through to
         //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
         desiredStart[3] = i - 1;
         desiredSize[3] = 0;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 PETImageType::Pointer getSyntheticPET(const MaskImageType::Pointer maskImage,
         const vnl_vector<float> vRegMeans) {
 
-    //Takes the 4D mask file along with the fuzziness-corrected mean values 
+    //Takes the 4D mask file along with the fuzziness-corrected mean values
     //and creates the pseudo PET image.
 
     PETImageType::Pointer imageResult; // = PETImageType::New();
@@ -394,6 +394,6 @@ std::string getAcknowledgments(void) {
     //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
             "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
-            "of appropriate partial\n\tvolume correction for PET quantiï¬?cation in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
+            "of appropriate partial\n\tvolume correction for PET quantification in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }
