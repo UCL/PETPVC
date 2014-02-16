@@ -1,6 +1,6 @@
 /*
    GTMFilter.hxx
- 
+
    Author:      Benjamin A. Thomas
 
    Copyright 2013 Institute of Nuclear Medicine, University College London.
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __GTMFilter_hxx
-#define __GTMFilter_hxx
+#ifndef __GTMFilter_txx
+#define __GTMFilter_txx
 
 #include "GTMFilter.h"
 #include "itkObjectFactory.h"
@@ -31,7 +31,7 @@
 #include <itkMultiplyImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
 #include <itkImageDuplicator.h>
-#include "vnl/vnl_matrix.h" 
+#include "vnl/vnl_matrix.h"
 
 using namespace itk;
 
@@ -123,7 +123,7 @@ namespace petpvc {
             statsFilter->SetInput(blurringFilter->GetOutput());
             statsFilter->Update();
 
-            //Calculate the sum of non-zero voxels. 
+            //Calculate the sum of non-zero voxels.
             fSumTarget = statsFilter->GetSum();
 
             vecSumOfRegions->put(i - 1, fSumTarget);
@@ -140,7 +140,7 @@ namespace petpvc {
                 extractNeighbourFilter->SetDirectionCollapseToIdentity(); // This is required.
                 extractNeighbourFilter->Update();
 
-                //Multiply i by j. 
+                //Multiply i by j.
                 multiplyFilter->SetInput1(blurringFilter->GetOutput());
                 multiplyFilter->SetInput2(extractNeighbourFilter->GetOutput());
 
@@ -150,7 +150,7 @@ namespace petpvc {
                 //Calculate the sum of the remaining voxels.
                 fSumNeighbour = statsFilter->GetSum();
 
-                //Fill location in matrix with sum of remaining voxels 
+                //Fill location in matrix with sum of remaining voxels
                 //normalised by size of i.
                 matCorrFactors->put(i - 1, j - 1, fSumNeighbour / fSumTarget);
 
