@@ -112,10 +112,7 @@ namespace petpvc {
         //Setup blurring filters
         m_filterGaussian->SetVariance(this->m_dVariance);
         m_filterGaussian2->SetVariance(this->m_dVariance);
-        m_filterGaussian->SetMaximumError(0.0000001);
-        m_filterGaussian->SetMaximumKernelWidth(200);
-        m_filterGaussian2->SetMaximumError(0.0000001);
-        m_filterGaussian2->SetMaximumKernelWidth(200);
+
 
         //Setup WM erosion filter
         StructuringElementType structuringElement;
