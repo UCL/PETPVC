@@ -26,6 +26,11 @@
 #include "itkImageToImageFilter.h"
 #include "petpvcGTMImageFilter.h"
 
+#include <itkExtractImageFilter.h>
+#include <itkMultiplyImageFilter.h>
+#include <itkStatisticsImageFilter.h>
+
+
 using namespace itk;
 
 namespace petpvc
@@ -46,6 +51,7 @@ public:
   itkTypeMacro(RoussetPVCImageFilter, ImageToImageFilter);
 
   /** Image related typedefs. */
+	typedef TInputImage             InputImageType;
   typedef typename TInputImage::ConstPointer    InputImagePointer;
   typedef typename TInputImage::RegionType RegionType;
   typedef typename TInputImage::SizeType   SizeType;
@@ -60,7 +66,12 @@ public:
   typedef typename TMaskImage::IndexType  MaskIndexType;
   typedef typename TMaskImage::PixelType  MaskPixelType;
 
-  
+  //For calculating mean values from image
+	typedef itk::StatisticsImageFilter<TInputImage> StatisticsFilterType;
+	//Extracts a 3D volume from 4D file.
+	typedef itk::ExtractImageFilter<TMaskImage, TInputImage> ExtractFilterType;
+	typedef itk::MultiplyImageFilter<InputImageType, TInputImage> MultiplyFilterType;
+
 	typedef GTMImageFilter<TMaskImage> GTMImageFilterType;
 	typedef itk::Vector<float, 3> ITKVectorType;
 
