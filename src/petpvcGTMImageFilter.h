@@ -1,5 +1,5 @@
 /*
-   GTMFilter.h
+   petpvcGTMImageFilter.h
 
    Author:      Benjamin A. Thomas
  
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __GTMFilter_h
-#define __GTMFilter_h
+#ifndef __PETPVCGTMIMAGEFILTER_H
+#define __PETPVCGTMIMAGEFILTER_H
 
 #include "itkImageToImageFilter.h"
 #include "vnl/vnl_matrix.h" 
@@ -34,10 +34,10 @@ using namespace itk;
 namespace petpvc {
 
     template<class TImage>
-    class GTMFilter : public ImageToImageFilter<TImage, TImage> {
+    class GTMImageFilter : public ImageToImageFilter<TImage, TImage> {
     public:
 
-        typedef GTMFilter Self;
+        typedef GTMImageFilter Self;
         typedef ImageToImageFilter<TImage, TImage> Superclass;
         typedef SmartPointer<Self> Pointer;
 
@@ -48,34 +48,19 @@ namespace petpvc {
         typedef vnl_vector<float> VectorType;
         typedef itk::Vector<float, 3> ITKVectorType;
 
-        typedef itk::Image<float, 4> MskImageType;
-
         itkNewMacro(Self);
 
-        itkTypeMacro(GTMFilter, ImageToImageFilter);
+        itkTypeMacro(GTMImageFilter, ImageToImageFilter);
 
         //Returns correction factors.
-
         vnl_matrix<float> GetMatrix() {
             return *this->matCorrFactors;
-        };
-
-        //Returns fuzziness correction factors.
-
-        vnl_matrix<float> GetFuzzyMatrix() {
-            return this->pFuzzy->GetMatrix();
         };
 
         //Returns region size.
 
         vnl_vector<float> GetSumOfRegions() {
             return *this->vecSumOfRegions;
-        };
-
-        //Returns region size.
-
-        vnl_vector<float> GetSumOfFuzzyRegions() {
-            return this->pFuzzy->GetSumOfRegions();
         };
 
         void SetPSF(ITKVectorType vec) {
@@ -88,14 +73,14 @@ namespace petpvc {
 
 
     protected:
-        GTMFilter();
-        ~GTMFilter();
+        GTMImageFilter();
+        ~GTMImageFilter();
 
         /** Does the real work. */
         virtual void GenerateData();
 
     private:
-        GTMFilter(const Self &); //purposely not implemented
+        GTMImageFilter(const Self &); //purposely not implemented
         void operator=(const Self &); //purposely not implemented
 
         MatrixType *matCorrFactors;
@@ -105,7 +90,7 @@ namespace petpvc {
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "GTMFilter.txx"
+#include "petpvcGTMImageFilter.txx"
 #endif
 
-#endif // __GTMFilterFilter_h
+#endif // __PETPVCGTMIMAGEFILTER_H
