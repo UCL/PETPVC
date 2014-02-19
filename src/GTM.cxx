@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
   typedef itk::Image<float, 3>   ImageType;
 	typedef itk::Image<float, 4>   MaskImageType;
 
-
   typedef petpvc::RoussetPVCImageFilter<ImageType, MaskImageType>  FilterType;
  
   ImageType::Pointer image = ImageType::New();
@@ -123,18 +122,12 @@ int main(int argc, char *argv[])
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
-    FilterType::Pointer gtmFilter = FilterType::New();
-		gtmFilter->SetInput( petReader->GetOutput() );
-    gtmFilter->SetMaskInput( maskReader->GetOutput() );
-    gtmFilter->SetPSF( vVariance );
-		gtmFilter->Update();
+    FilterType::Pointer roussetFilter = FilterType::New();
+		roussetFilter->SetInput( petReader->GetOutput() );
+    roussetFilter->SetMaskInput( maskReader->GetOutput() );
+    roussetFilter->SetPSF( vVariance );
+		roussetFilter->Update();
 
-  // Create and the filter
- /* FilterType::Pointer filter = FilterType::New();
-  filter->SetInput(image);
-  filter->Update();
-
-	std::cout << filter->GetCorrectedMeans() << std::endl;*/
   return EXIT_SUCCESS;
 }
 
