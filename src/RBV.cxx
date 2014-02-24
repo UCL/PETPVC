@@ -1,8 +1,8 @@
 /*
-   GTM.cxx
+   RBV.cxx
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Geometric Transfer Matrix (GTM) partial volume 
+   This program implements the region-based voxel-wise (RBV) partial volume
    correction (PVC) technique. The method is described in:
-        Rousset, O. G. and Ma, Y. and Evans, A. C. (1998). "Correction for 
-        partial volume effects in PET: principle and validation". Journal of 
-        Nuclear Medicine, 39(5):904-11.
+
+        Thomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and
+        Vandenberghe, R. and Ourselin, S. and Hutton, B. (2011). "The importance
+        of appropriate partial volume correction for PET quantification in
+        Alzheimer's disease". European Journal of Nuclear Medicine and
+        Molecular Imaging, 38:1104-1119.
+
  */
 
 #include "itkImage.h"
@@ -29,11 +33,11 @@
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
-#include "petpvcRoussetPVCImageFilter.h"
+#include "petpvcRBVPVCImageFilter.h"
  
 const char * const VERSION_NO = "0.0.2";
 const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
+const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -43,26 +47,21 @@ typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
 typedef itk::ImageFileReader<PETImageType> PETReaderType;
 typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 
-//Produces the text for the acknowledgments dialog in Slicer. 
+//Produces the text for the acknowledgment dialog in Slicer.
 std::string getAcknowledgments(void);
 
-using namespace petpvc;
+int main(int argc, char *argv[]) {
 
-int main(int argc, char *argv[])
-{
+	typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
-  typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  FilterType;
- 
-  PETImageType::Pointer image = PETImageType::New();
-
-//Setting up command line argument list.
+    //Setting up command line argument list.
     MetaCommand command;
 
     command.SetVersion(VERSION_NO);
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-            "Performs Geometric Transfer Matrix (GTM) partial volume correction");
+            "Performs Region-based voxel-wise (RBV) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 
     command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
     command.AddField("maskfile", "mask filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
-    command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
+    command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
             "The full-width at half maximum in mm along x-axis");
@@ -145,23 +144,40 @@ int main(int argc, char *argv[])
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
-    FilterType::Pointer roussetFilter = FilterType::New();
-		roussetFilter->SetInput( petReader->GetOutput() );
-    roussetFilter->SetMaskInput( maskReader->GetOutput() );
-    roussetFilter->SetPSF( vVariance );
-		roussetFilter->Update();
+    FilterType::Pointer rbvFilter = FilterType::New();
+	rbvFilter->SetInput( petReader->GetOutput() );
+    rbvFilter->SetMaskInput( maskReader->GetOutput() );
+    rbvFilter->SetPSF(vVariance);
 
-  return EXIT_SUCCESS;
+    //Perform RBV.
+    try {
+        rbvFilter->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
+                << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    PETWriterType::Pointer petWriter = PETWriterType::New();
+    petWriter->SetFileName(sOutputFileName);
+    petWriter->SetInput( rbvFilter->GetOutput() );
+
+    try {
+        petWriter->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
+                << std::endl;
+
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 std::string getAcknowledgments(void) {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
-            "The method is described in:\n"
-            "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
-            "\tpartial volume effects in PET: principle and validation\". Journal of\n"
-            "\tNuclear Medicine, 39(5):904-11.";
-
+    std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
+            "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
+            "of appropriate partial\n\tvolume correction for PET quantification in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }
-

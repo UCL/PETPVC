@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __PETPVCGTMIMAGEFILTER_txx
-#define __PETPVCGTMIMAGEFILTER_txx
+#ifndef __PETPVCGTMIMAGEFILTER_TXX
+#define __PETPVCGTMIMAGEFILTER_TXX
 
 #include "petpvcGTMImageFilter.h"
 #include "itkObjectFactory.h"

@@ -1,5 +1,5 @@
 /*
-   petpvcRoussetPVCImageFilter.h
+   petpvcRBVPVCImageFilter.h
 
    Author:      Benjamin A. Thomas
 
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __PETPVCROUSSETPVCIMAGEFILTER_H
-#define __PETPVCROUSSETPVCIMAGEFILTER_H
+#ifndef __PETPVCRBVPVCImageFilter_H
+#define __PETPVCRBVPVCImageFilter_H
  
 #include "itkImage.h"
 #include "itkImageToImageFilter.h"
@@ -28,6 +28,9 @@
 
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
+#include <itkDivideImageFilter.h>
+#include <itkAddImageFilter.h>
+#include <itkDiscreteGaussianImageFilter.h>
 #include <itkStatisticsImageFilter.h>
 
 
@@ -36,11 +39,11 @@ using namespace itk;
 namespace petpvc
 {
 template< class TInputImage, typename TMaskImage>
-class RoussetPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
+class RBVPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
 {
 public:
   /** Standard class typedefs. */
-  typedef RoussetPVCImageFilter             Self;
+  typedef RBVPVCImageFilter             Self;
   typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
   typedef SmartPointer< Self >        Pointer;
  
@@ -48,7 +51,7 @@ public:
   itkNewMacro(Self);
  
   /** Run-time type information (and related methods). */
-  itkTypeMacro(RoussetPVCImageFilter, ImageToImageFilter);
+  itkTypeMacro(RBVPVCImageFilter, ImageToImageFilter);
 
   /** Image related typedefs. */
 	typedef TInputImage             InputImageType;
@@ -70,7 +73,10 @@ public:
 	typedef itk::StatisticsImageFilter<TInputImage> StatisticsFilterType;
 	//Extracts a 3D volume from 4D file.
 	typedef itk::ExtractImageFilter<TMaskImage, TInputImage> ExtractFilterType;
-	typedef itk::MultiplyImageFilter<InputImageType, TInputImage> MultiplyFilterType;
+	typedef itk::MultiplyImageFilter<TInputImage, TInputImage> MultiplyFilterType;
+	typedef itk::DivideImageFilter<TInputImage,TInputImage, TInputImage> DivideFilterType;
+	typedef itk::AddImageFilter<TInputImage, TInputImage> AddFilterType;
+	typedef itk::DiscreteGaussianImageFilter<TInputImage, TInputImage> BlurringFilterType;
 
 	typedef GTMImageFilter<TMaskImage> GTMImageFilterType;
 	typedef itk::Vector<float, 3> ITKVectorType;
@@ -118,10 +124,12 @@ public:
     return this->m_vecVariance;
   };
 
+  void ApplyYang();
+
 
 protected:
-  RoussetPVCImageFilter(){}
-  ~RoussetPVCImageFilter(){}
+  RBVPVCImageFilter(){}
+  ~RBVPVCImageFilter(){}
  
   /** Does the real work. */
   virtual void GenerateData();	
@@ -131,7 +139,7 @@ protected:
   ITKVectorType m_vecVariance;
  
 private:
-  RoussetPVCImageFilter(const Self &); //purposely not implemented
+  RBVPVCImageFilter(const Self &); //purposely not implemented
   void operator=(const Self &);  //purposely not implemented
 
 
@@ -141,8 +149,8 @@ private:
  
  
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "petpvcRoussetPVCImageFilter.txx"
+#include "petpvcRBVPVCImageFilter.txx"
 #endif
  
  
-#endif // __PETPVCROUSSETIMAGEFILTER_H
+#endif // __PETPVCRBVIMAGEFILTER_H

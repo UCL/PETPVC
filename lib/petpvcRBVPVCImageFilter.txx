@@ -1,5 +1,5 @@
 /*
-   petpvcRoussetPVCImageFilter.txx
+   petpvcRBVPVCImageFilter.txx
 
    Author:      Benjamin A. Thomas
 
@@ -19,10 +19,10 @@
 
  */
 
-#ifndef __PETPVCROUSSETPVCIMAGEFILTER_TXX
-#define __PETPVCROUSSETPVCIMAGEFILTER_TXX
+#ifndef __PETPVCRBVPVCIMAGEFILTER_TXX
+#define __PETPVCRBVPVCIMAGEFILTER_TXX
  
-#include "petpvcRoussetPVCImageFilter.h"
+#include "petpvcRBVPVCImageFilter.h"
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
@@ -33,7 +33,7 @@ namespace petpvc
 {
  
 template< class TInputImage, class TMaskImage >
-void RoussetPVCImageFilter< TInputImage, TMaskImage>
+void RBVPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
   typename TInputImage::ConstPointer input = this->GetInput();
@@ -108,12 +108,12 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
         desiredSize[3] = 0;
 
         //Get region mask.
-				MaskRegionType maskReg;
-				maskReg.SetSize(desiredSize );
-			  maskReg.SetIndex(0,desiredStart[0] );
-				maskReg.SetIndex(1,desiredStart[1] );
-				maskReg.SetIndex(2,desiredStart[2] );
-				maskReg.SetIndex(3,desiredStart[3] );
+		MaskRegionType maskReg;
+		maskReg.SetSize(desiredSize );
+		maskReg.SetIndex(0,desiredStart[0] );
+		maskReg.SetIndex(1,desiredStart[1] );
+		maskReg.SetIndex(2,desiredStart[2] );
+		maskReg.SetIndex(3,desiredStart[3] );
 
         extractFilter->SetExtractionRegion( maskReg );
         extractFilter->Update();
@@ -152,18 +152,88 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
     std::cout << vecRegMeansUpdated << std::endl;
 
 
+	
+	//Applying the Yang correction step:
+	
+	typename TInputImage::Pointer imageYang;
+	typename AddFilterType::Pointer addFilter = AddFilterType::New();
+	
+	for (int i = 1; i <= nClasses; i++) {
 
+        //Starts reading from 4D volume at index (0,0,0,i) through to 
+        //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
+        desiredStart[3] = i - 1;
+        desiredSize[3] = 0;
+
+        //Get region mask.
+		MaskRegionType maskReg;
+		maskReg.SetSize(desiredSize );
+		maskReg.SetIndex(0,desiredStart[0] );
+		maskReg.SetIndex(1,desiredStart[1] );
+		maskReg.SetIndex(2,desiredStart[2] );
+		maskReg.SetIndex(3,desiredStart[3] );
+
+        extractFilter->SetExtractionRegion( maskReg );
+        extractFilter->Update();
+
+        imageExtractedRegion = extractFilter->GetOutput();
+        imageExtractedRegion->SetDirection( pPET->GetDirection() );
+        imageExtractedRegion->UpdateOutputData();
+
+        //Multiply current image estimate by region mask. To clip PET values
+        //to mask.
+        multiplyFilter->SetInput1( vecRegMeansUpdated.get(i-1) );
+        multiplyFilter->SetInput2( imageExtractedRegion );
+        multiplyFilter->Update();
+
+        //If this is the first region, create imageYang,
+        //else add the current region to the previous contents of imageYang.
+        if (i == 1) {
+            imageYang = multiplyFilter->GetOutput();
+            imageYang->DisconnectPipeline();
+        } else {
+            addFilter->SetInput1(imageYang);
+            addFilter->SetInput2(multiplyFilter->GetOutput());
+            addFilter->Update();
+
+            imageYang = addFilter->GetOutput();
+        }
+
+    }
+   
+    //Takes the original PET data and the pseudo PET image, calculates the
+    //correction factors  and returns the PV-corrected PET image.
+
+    typename MultiplyFilterType::Pointer multiplyFilter2 = MultiplyFilterType::New();
+    typename DivideFilterType::Pointer divideFilter = DivideFilterType::New();
+
+    //Smooth the pseudo PET by the PSF.
+    typename BlurringFilterType::Pointer pBlurFilter = BlurringFilterType::New();
+    
+    pBlurFilter->SetInput(imageYang);
+    pBlurFilter->SetVariance( this->GetPSF() );
+
+    //Take ratio of pseudo PET and smoothed pseudo PET. These are the correction
+    //factors.
+    divideFilter->SetInput1( imageYang );
+    divideFilter->SetInput2(pBlurFilter->GetOutput());
+
+    //Multiply original PET by correction factors.
+    multiplyFilter2->SetInput1( pPET );
+    multiplyFilter2->SetInput2(divideFilter->GetOutput());
+    multiplyFilter2->Update();
+    
+    
 	/////////////////////////////////////////////
 
- 
   this->AllocateOutputs();
  
-  ImageAlgorithm::Copy(input.GetPointer(), output.GetPointer(), output->GetRequestedRegion(),
+  ImageAlgorithm::Copy( multiplyFilter2->GetOutput(), output.GetPointer(), output->GetRequestedRegion(),
                        output->GetRequestedRegion() );
 
 
 }
- 
+
 }// end namespace
  
  
