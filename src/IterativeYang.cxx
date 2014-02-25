@@ -32,7 +32,8 @@
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
-#include "petpvcRBVPVCImageFilter.h"
+#include "petpvcFuzzyCorrectionFilter.h"
+#include "petpvcIterativeYangPVCImageFilter.h"
 
 const char * const VERSION_NO = "0.0.4";
 const char * const AUTHOR = "Benjamin A. Thomas";
@@ -51,7 +52,8 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
 
-	typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
+	typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  FilterType;
+	typedef petpvc::FuzzyCorrectionFilter< MaskImageType>  FuzzyFilterType;
 
     //Setting up command line argument list.
     MetaCommand command;
@@ -150,14 +152,15 @@ int main(int argc, char *argv[]) {
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
-    FilterType::Pointer rbvFilter = FilterType::New();
-	rbvFilter->SetInput( petReader->GetOutput() );
-    rbvFilter->SetMaskInput( maskReader->GetOutput() );
-    rbvFilter->SetPSF(vVariance);
+    FilterType::Pointer iyFilter = FilterType::New();
+	iyFilter->SetInput( petReader->GetOutput() );
+    iyFilter->SetMaskInput( maskReader->GetOutput() );
+    iyFilter->SetPSF(vVariance);
+    iyFilter->SetIterations( nNumOfIters );
 
-    //Perform RBV.
+    //Perform IY.
     try {
-        rbvFilter->Update();
+        iyFilter->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
                 << std::endl;
@@ -166,7 +169,7 @@ int main(int argc, char *argv[]) {
 
     PETWriterType::Pointer petWriter = PETWriterType::New();
     petWriter->SetFileName(sOutputFileName);
-    petWriter->SetInput( rbvFilter->GetOutput() );
+    petWriter->SetInput( iyFilter->GetOutput() );
 
     try {
         petWriter->Update();
