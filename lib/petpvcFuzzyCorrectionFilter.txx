@@ -1,5 +1,5 @@
 /*
-   FuzzyCorrectionFilter.hxx
+   petpvcFuzzyCorrectionFilter.hxx
  
    Author:      Benjamin A. Thomas
 
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef __FuzzyCorrectionFilter_txx
-#define __FuzzyCorrectionFilter_txx
+#ifndef __PETPVCFUZZYCORRECTIONFILTER_TXX
+#define __PETPVCFUZZYCORRECTIONFILTER_TXX
 
 #include "petpvcFuzzyCorrectionFilter.h"
 #include "itkObjectFactory.h"
