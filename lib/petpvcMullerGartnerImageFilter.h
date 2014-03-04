@@ -1,5 +1,5 @@
 /*
-   MullerGartnerImageFilter.h
+   petpvcMullerGartnerImageFilter.h
 
    Author:      Benjamin A. Thomas
  
@@ -25,8 +25,8 @@
                 J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
-#ifndef __MullerGartnerImageFilter_h
-#define __MullerGartnerImageFilter_h
+#ifndef __MULLERGARTNERIMAGEFILTER_H
+#define __MULLERGARTNERIMAGEFILTER_H
 
 #include "itkImage.h"
 #include "itkInPlaceImageFilter.h"
@@ -241,7 +241,7 @@ namespace petpvc {
 } // end namespace petpvc
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "MullerGartnerImageFilter.txx"
+#include "petpvcMullerGartnerImageFilter.txx"
 #endif
 
 #endif

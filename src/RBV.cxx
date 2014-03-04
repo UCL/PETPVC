@@ -1,5 +1,5 @@
 /*
-   MullerGartner.cxx
+   RBV.cxx
 
    Author:      Benjamin A. Thomas
 
@@ -17,49 +17,42 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Muller-Gartner (MG) partial volume
+   This program implements the region-based voxel-wise (RBV) partial volume
    correction (PVC) technique. The method is described in:
-        Muller-Gartner, H. W. et al. (1992). "Measurement of radiotracer
-        concentration in brain gray matter using positron emission
-        tomography: MRI-based correction for partial volume effects".
-        J Cereb Blood Flow Metab, 12(4), 571-83.
+
+        Thomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and
+        Vandenberghe, R. and Ourselin, S. and Hutton, B. (2011). "The importance
+        of appropriate partial volume correction for PET quantification in
+        Alzheimer's disease". European Journal of Nuclear Medicine and
+        Molecular Imaging, 38:1104-1119.
 
  */
 
-#include <string>
-#include <itkImage.h>
-#include <itkImageFileReader.h>
-#include <itkImageFileWriter.h>
-#include <itkExtractImageFilter.h>
-#include "MullerGartnerImageFilter.h"
-
+#include "itkImage.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
-const char * const VERSION_NO = "0.0.1";
+#include "petpvcRBVPVCImageFilter.h"
+ 
+const char * const VERSION_NO = "0.0.2";
 const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Muller-Gartner (MG) PVC";
+const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
 typedef itk::Image<float, 3> PETImageType;
 
 typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
-
 typedef itk::ImageFileReader<PETImageType> PETReaderType;
 typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 
-//Extracts a 3D volume from 4D file.
-typedef itk::ExtractImageFilter<MaskImageType, PETImageType> ExtractFilterType;
-
-typedef itk::ImageDuplicator<PETImageType> DuplicatorType;
-
-typedef petpvc::MullerGartnerImageFilter< PETImageType, PETImageType, PETImageType, PETImageType > MGFilterType;
-//Function definitions:
-
-//Produces the text for the acknowledgments dialog in Slicer.
+//Produces the text for the acknowledgment dialog in Slicer.
 std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[]) {
+
+	typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
     //Setting up command line argument list.
     MetaCommand command;
@@ -68,7 +61,7 @@ int main(int argc, char *argv[]) {
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-            "Performs Muller-Gartner (MG) partial volume correction");
+            "Performs Region-based voxel-wise (RBV) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -151,91 +144,24 @@ int main(int argc, char *argv[]) {
     vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
-    //Get mask image size.
-    MaskImageType::SizeType imageSize =
-            maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
+    FilterType::Pointer rbvFilter = FilterType::New();
+	rbvFilter->SetInput( petReader->GetOutput() );
+    rbvFilter->SetMaskInput( maskReader->GetOutput() );
+    rbvFilter->SetPSF(vVariance);
 
-    int nClasses = 0;
-
-    //If mask is not 4D, then quit.
-    if (imageSize.Dimension == 4) {
-        nClasses = imageSize[3];
-    } else {
-        std::cerr << "[Error]\tMask file: " << sMaskFileName << " must be 4-D!"
+    //Perform RBV.
+    try {
+        rbvFilter->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
                 << std::endl;
         return EXIT_FAILURE;
     }
 
-    MaskImageType::IndexType desiredStart;
-    desiredStart.Fill(0);
-    MaskImageType::SizeType desiredSize = imageSize;
-
-    //Extract filter used to extract 3D volume from 4D file.
-    ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
-    extractFilter->SetInput(maskReader->GetOutput());
-    extractFilter->SetDirectionCollapseToIdentity(); // This is required.
-
-    PETImageType::Pointer imageGM = PETImageType::New();
-    PETImageType::Pointer imageWM = PETImageType::New();
-    //PETImageType::Pointer imageCSF = PETImageType::New();
-
-    //Starts reading from 4D volume at index (0,0,0,i) through to
-    //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
-    desiredStart[3] = 0;
-    desiredSize[3] = 0;
-
-    //Get GM mask.
-    extractFilter->SetExtractionRegion(
-            MaskImageType::RegionType(desiredStart, desiredSize));
-    extractFilter->Update();
-
-    imageGM = extractFilter->GetOutput();
-    imageGM->SetDirection(petReader->GetOutput()->GetDirection());
-    imageGM->UpdateOutputData();
-    imageGM->DisconnectPipeline();
-
-    desiredStart[3] = 1;
-
-    //Get WM mask.
-    extractFilter->SetExtractionRegion(
-            MaskImageType::RegionType(desiredStart, desiredSize));
-    extractFilter->Update();
-
-    imageWM = extractFilter->GetOutput();
-    imageWM->SetDirection(petReader->GetOutput()->GetDirection());
-    imageWM->UpdateOutputData();
-    imageWM->DisconnectPipeline();
-
-    desiredStart[3] = 2;
-
-    //Get CSF mask.
-    /*
-    extractFilter->SetExtractionRegion(
-        MaskImageType::RegionType(desiredStart, desiredSize));
-    extractFilter->Update();
-
-    imageCSF = extractFilter->GetOutput();
-    imageCSF->SetDirection(petReader->GetOutput()->GetDirection());
-    imageCSF->UpdateOutputData();
-    imageCSF->DisconnectPipeline();*/
-
-    //Set-up Muller-Gartner filter
-    MGFilterType::Pointer MGFilter = MGFilterType::New();
-
-    MGFilter->SetInput1(petReader->GetOutput());
-    MGFilter->SetInput2(imageGM);
-    MGFilter->SetInput3(imageWM);
-    MGFilter->SetQuietMode(false);
-    MGFilter->SetPSF(vVariance);
-    MGFilter->SetWM(0);
-
-    //Set-up output file writer
     PETWriterType::Pointer petWriter = PETWriterType::New();
+    petWriter->SetFileName(sOutputFileName);
+    petWriter->SetInput( rbvFilter->GetOutput() );
 
-    petWriter->SetInput(MGFilter->GetOutput());
-    petWriter->SetFileName(sOutputFileName.c_str());
-
-    //Write file
     try {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
@@ -250,11 +176,8 @@ int main(int argc, char *argv[]) {
 
 std::string getAcknowledgments(void) {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Muller-Gartner (MG) partial volume correction (PVC) technique.\n"
-            "The method is described in:\n"
-            "\tMuller-Gartner, H. W. et al. (1992). \"Measurement of radiotracer\n"
-            "\tconcentration in brain gray matter using positron emission\n"
-            "\ttomography: MRI-based correction for partial volume effects.\"\n"
-            "\tJ Cereb Blood Flow Metab, 12(4), 571-83.";
+    std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
+            "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
+            "of appropriate partial\n\tvolume correction for PET quantification in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }

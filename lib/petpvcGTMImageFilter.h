@@ -1,5 +1,5 @@
 /*
-   FuzzyCorrFilter.h
+   petpvcGTMImageFilter.h
 
    Author:      Benjamin A. Thomas
  
@@ -19,26 +19,25 @@
 
  */
 
-#ifndef __FuzzyCorrFilter_h
-#define __FuzzyCorrFilter_h
+#ifndef __PETPVCGTMIMAGEFILTER_H
+#define __PETPVCGTMIMAGEFILTER_H
 
 #include "itkImageToImageFilter.h"
 #include "vnl/vnl_matrix.h" 
+#include <itkImage.h>
 
-//A class to perform fuzziness 'correction'. This is required to weight the 
-//mean values correctly when using probabilistic segmentations. For binary
-//(piece-wise constant) segmentations, this is not necessary and will return
-//the identity matrix.
+//A class to perform GTM.
 
 using namespace itk;
+
 
 namespace petpvc {
 
     template<class TImage>
-    class FuzzyCorrFilter : public ImageToImageFilter<TImage, TImage> {
+    class GTMImageFilter : public ImageToImageFilter<TImage, TImage> {
     public:
 
-        typedef FuzzyCorrFilter Self;
+        typedef GTMImageFilter Self;
         typedef ImageToImageFilter<TImage, TImage> Superclass;
         typedef SmartPointer<Self> Pointer;
 
@@ -47,15 +46,15 @@ namespace petpvc {
 
         //Vector containing size of region.
         typedef vnl_vector<float> VectorType;
+        typedef itk::Vector<float, 3> ITKVectorType;
 
         itkNewMacro(Self);
 
-        itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
+        itkTypeMacro(GTMImageFilter, ImageToImageFilter);
 
         //Returns correction factors.
-
         vnl_matrix<float> GetMatrix() {
-            return *this->matFuzz;
+            return *this->matCorrFactors;
         };
 
         //Returns region size.
@@ -64,25 +63,34 @@ namespace petpvc {
             return *this->vecSumOfRegions;
         };
 
+        void SetPSF(ITKVectorType vec) {
+            this->vecVariance = vec;
+        };
+
+        ITKVectorType GetPSF() {
+            return this->vecVariance;
+        };
+
+
     protected:
-        FuzzyCorrFilter();
-        ~FuzzyCorrFilter();
+        GTMImageFilter();
+        ~GTMImageFilter();
 
         /** Does the real work. */
         virtual void GenerateData();
 
     private:
-        FuzzyCorrFilter(const Self &); //purposely not implemented
+        GTMImageFilter(const Self &); //purposely not implemented
         void operator=(const Self &); //purposely not implemented
 
-        MatrixType *matFuzz;
+        MatrixType *matCorrFactors;
         VectorType *vecSumOfRegions;
-
+        ITKVectorType vecVariance;
     };
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "FuzzyCorrFilter.txx"
+#include "petpvcGTMImageFilter.txx"
 #endif
 
-#endif // __FuzzyCorrFilter_h
+#endif // __PETPVCGTMIMAGEFILTER_H

@@ -1,5 +1,5 @@
 /*
-   FuzzyCorrFilter.hxx
+   FuzzyCorrectionFilter.hxx
  
    Author:      Benjamin A. Thomas
 
@@ -19,10 +19,10 @@
 
  */
 
-#ifndef __FuzzyCorrFilter_txx
-#define __FuzzyCorrFilter_txx
+#ifndef __FuzzyCorrectionFilter_txx
+#define __FuzzyCorrectionFilter_txx
 
-#include "FuzzyCorrFilter.h"
+#include "petpvcFuzzyCorrectionFilter.h"
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
@@ -36,7 +36,7 @@ using namespace itk;
 namespace petpvc {
 
     template<class TImage>
-    FuzzyCorrFilter<TImage>::FuzzyCorrFilter() {
+    FuzzyCorrectionFilter<TImage>::FuzzyCorrectionFilter() {
         //Constructor. Just initialises the matrix and vector that will
         //contain the results of the correction that the filter implements.
         this->matFuzz = new MatrixType;
@@ -44,7 +44,7 @@ namespace petpvc {
     }
 
     template<class TImage>
-    void FuzzyCorrFilter<TImage>::GenerateData() {
+    void FuzzyCorrectionFilter<TImage>::GenerateData() {
 
         //Get pointers to input and output.
         typename TImage::ConstPointer input = this->GetInput();
@@ -150,7 +150,7 @@ namespace petpvc {
     }
 
     template<class TImage>
-    FuzzyCorrFilter<TImage>::~FuzzyCorrFilter(void) {
+    FuzzyCorrectionFilter<TImage>::~FuzzyCorrectionFilter(void) {
         //Destructor. 
         delete this->matFuzz;
         delete this->vecSumOfRegions;

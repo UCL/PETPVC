@@ -1,5 +1,5 @@
 /*
-   MullerGartnerImageFilter.txx
+   petpvcMullerGartnerImageFilter.txx
 
    Author:      Benjamin A. Thomas
  
@@ -25,10 +25,10 @@
                 J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
-#ifndef __MullerGartnerImageFilter_txx
-#define __MullerGartnerImageFilter_txx
+#ifndef __MULLERGARTNERIMAGEFILTER_TXX
+#define __MULLERGARTNERIMAGEFILTER_TXX
 
-#include "MullerGartnerImageFilter.h"
+#include "petpvcMullerGartnerImageFilter.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
 #include "itkProgressReporter.h"
