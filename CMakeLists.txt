@@ -16,3 +16,6 @@ TARGET_LINK_LIBRARIES(pvc_rbv ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(pvc_iy src/IterativeYang.cxx  )
 TARGET_LINK_LIBRARIES(pvc_iy ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_mg src/MullerGartner.cxx  )
+TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
