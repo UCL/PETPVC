@@ -25,8 +25,8 @@
                 J Cereb Blood Flow Metab, 12(4), 571-83.
 
  */
-#ifndef __PETPVCMULLERGARTNERIMAGEFILTER_TXX
-#define __PETPVCMULLERGARTNERIMAGEFILTER_TXX
+#ifndef __MULLERGARTNERIMAGEFILTER_TXX
+#define __MULLERGARTNERIMAGEFILTER_TXX
 
 #include "petpvcMullerGartnerImageFilter.h"
 #include "itkImageRegionIterator.h"
