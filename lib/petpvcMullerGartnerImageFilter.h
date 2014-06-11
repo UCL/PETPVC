@@ -43,7 +43,9 @@
 
 using namespace itk;
 
-typedef typename itk::Vector<float, 3> VectorType;
+#ifndef VectorType
+typedef itk::Vector<float, 3> VectorType;
+#endif
 
 namespace petpvc {
 

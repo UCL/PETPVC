@@ -24,6 +24,8 @@
 
 #include "itkImageToImageFilter.h"
 #include "vnl/vnl_matrix.h" 
+#include <vnl/algo/vnl_svd.h>
+#include <vnl/algo/vnl_matrix_inverse.h>
 #include <itkImage.h>
 
 //A class to perform GTM.
