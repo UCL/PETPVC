@@ -175,8 +175,11 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
             fSumOfPETReg = statsFilter->GetSum();
 
             //Place regional mean into vector.
-            vecRegMeansCurrent.put(i - 1, fSumOfPETReg / vecRegSize.get(i - 1));
-            //std::cout << "Sum = " << fSumOfPETReg << " , " << "Mean = " << vecRegMeansCurrent.get( i-1 ) << std::endl;
+
+			float fNewRegMean = fmax( fSumOfPETReg / vecRegSize.get(i - 1), 0.0);
+            vecRegMeansCurrent.put(i - 1, fNewRegMean );
+
+            //std::cout << std::endl << "Sum = " << fSumOfPETReg << " , " << "Mean = " << vecRegMeansCurrent.get( i-1 ) << " , Size = " << vecRegSize.get(i - 1) << std::endl;
 
         }
 
@@ -185,7 +188,16 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
         vecRegMeansUpdated = vnl_matrix_inverse<float>( matFuzzyCorr )
                 * vecRegMeansCurrent;
 
-        std::cout << vecRegMeansCurrent << std::endl;
+        //std::cout << vecRegMeansCurrent << std::endl;
+		std::cout << vecRegMeansUpdated << std::endl;
+
+		/*
+		for (int n = 0; n < vecRegMeansUpdated.size(); n++) {
+			float fNewRegMean = fmax ( vecRegMeansUpdated.get(n) , 0.0 );
+			vecRegMeansUpdated.put(n, fNewRegMean);
+		}*/
+		
+		//std::cout << vecRegMeansUpdated << std::endl;
 
 			for (int i = 1; i <= nClasses; i++) {
 
@@ -249,7 +261,7 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
     
     imageEstimate = multiplyFilter2->GetOutput(); 
     imageEstimate->UpdateOutputData();
-    
+    imageEstimate->DisconnectPipeline();
     }
 
     std::cout << std::endl;

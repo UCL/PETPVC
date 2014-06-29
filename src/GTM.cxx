@@ -31,7 +31,7 @@
 
 #include "petpvcRoussetPVCImageFilter.h"
  
-const char * const VERSION_NO = "0.0.2";
+const char * const VERSION_NO = "0.0.3";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
     command.AddField("maskfile", "mask filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
-    command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
+    //command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
             "The full-width at half maximum in mm along x-axis");
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     //Get image filenames
     std::string sPETFileName = command.GetValueAsString("petfile");
     std::string sMaskFileName = command.GetValueAsString("maskfile");
-    std::string sOutputFileName = command.GetValueAsString("outputfile");
+    //std::string sOutputFileName = command.GetValueAsString("outputfile");
 
     //Get values for PSF.
     float fFWHM_x = command.GetValueAsFloat("FWHMx", "X");
