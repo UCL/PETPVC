@@ -19,3 +19,6 @@ TARGET_LINK_LIBRARIES(pvc_iy ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(pvc_mg src/MullerGartner.cxx  )
 TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_simulate src/Simulate.cxx  )
+TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
