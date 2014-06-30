@@ -1,5 +1,5 @@
 #=========================================================================
-#  Authors:      Benjamin A. Thomas, Kris Thielemans
+#  Author:      Benjamin A. Thomas
 # 
 #  Copyright University College London
 #
@@ -17,17 +17,19 @@
 #
 #=========================================================================
 
-cmake_minimum_required(VERSION 2.8)
- 
-PROJECT(PETPVC)
+ADD_EXECUTABLE(pvc_gtm GTM.cxx  )
+TARGET_LINK_LIBRARIES(pvc_gtm ${ITK_LIBRARIES})
 
-ENABLE_TESTING()
- 
-FIND_PACKAGE(ITK REQUIRED)
-INCLUDE(${ITK_USE_FILE})
+ADD_EXECUTABLE(pvc_rbv RBV.cxx  )
+TARGET_LINK_LIBRARIES(pvc_rbv ${ITK_LIBRARIES})
 
-INCLUDE_DIRECTORIES(src)
-INCLUDE_DIRECTORIES(lib)
+ADD_EXECUTABLE(pvc_iy IterativeYang.cxx  )
+TARGET_LINK_LIBRARIES(pvc_iy ${ITK_LIBRARIES})
 
-ADD_SUBDIRECTORY(test)
-ADD_SUBDIRECTORY(src)
+ADD_EXECUTABLE(pvc_mg MullerGartner.cxx  )
+TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
+TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
+
+install(TARGETS pvc_gtm pvc_rbv pvc_iy pvc_mg pvc_simulate DESTINATION bin)

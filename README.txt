@@ -28,7 +28,20 @@ The following are required to build this software:
 	- A C++ compiler
 
 
-Building for Linux / Unix:
+Building for Linux / Unix /  etc:
+
+step 1: Run CMake
+
+   a) Using the CMake GUI :
+
+		cmake-gui
+
+	Set the build type CMAKE_BUILD_TYPE to 'Release' and choose an installation directory.
+
+	Generate project files for the appropriate compiler. 
+
+
+   b) Using a terminal-driven CMake (Unix / Linux)
 
 	Create a build directory e.g. :
 
@@ -42,31 +55,31 @@ Building for Linux / Unix:
 	
 		ccmake /path/to/src
 
-	Set the build type CMAKE_BUILD_TYPE to 'Release'.
+	Set the build type CMAKE_BUILD_TYPE to 'Release' and choose an installation directory.
 
 	Generate the project files.
 
-	To build the executables run from the build directory:
+step 2: building
+
+	This step depends on which type of "generator" for the project you used.
+
+	If you used "unix makefiles" (default on Linux), you need to build
+	the executables run from the build directory:
 
 		make
+		make test
+		make install
 
+	(If you used a system path for the installation directory, you might need to
+	use "sudo" or change user for the installation step.)
 
-Building for Windows:
+	If you created project files for an IDE (e.g. Visual Studio, XCode, Eclipse),
+	you will need to open them in your IDE (e.g. PETPVC.sln for Visual Studio) and
+        build the targets BUILD_ALL, RUN_TESTS, INSTALL	
 
-	Run the CMake GUI :
+The executables will be installed in the bin subdirectory of your chosen installation-prefix.
 
-		cmake-gui
-
-	Specify the source directory as the path to the directory this file is in.
-
-	Choose or create a build directory. 
-
-	Set the build type CMAKE_BUILD_TYPE to 'Release'.
-
-	Generate project files for the appropriate compiler. This project has been 
-	tested with Visual Studio 2010 Express, mingw-w32 and mingw-64. 
-
-	Build the executables accordingly.
+This project has been tested with gcc, Visual Studio 2010 Express, mingw-w32 and mingw-64.
 
 --------------------------------
 Notes on input and output files
