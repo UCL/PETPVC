@@ -153,8 +153,9 @@ int main(int argc, char *argv[]) {
     try {
         rbvFilter->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                << std::endl;
+        std::cerr << "\n[Error]\tfailure applying RBV on: " << sPETFileName
+		  << "\n" << err
+		  << std::endl;
         return EXIT_FAILURE;
     }
 

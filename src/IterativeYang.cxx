@@ -162,8 +162,9 @@ int main(int argc, char *argv[]) {
     try {
         iyFilter->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                << std::endl;
+        std::cerr << "[Error]\tfailure applying Iterative Yang on: " << sPETFileName
+		  << "\n" << err
+		  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -174,7 +175,7 @@ int main(int argc, char *argv[]) {
     try {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
+        std::cerr << "\n[Error]\tCannot write output file: " << sOutputFileName
                 << std::endl;
 
         return EXIT_FAILURE;
