@@ -34,7 +34,7 @@
 #include <metaCommand.h>
 
 #include "petpvcRBVPVCImageFilter.h"
- 
+
 const char * const VERSION_NO = "0.0.3";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
@@ -50,9 +50,10 @@ typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 //Produces the text for the acknowledgment dialog in Slicer.
 std::string getAcknowledgments(void);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
-	typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
+    typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
     //Setting up command line argument list.
     MetaCommand command;
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-            "Performs Region-based voxel-wise (RBV) partial volume correction");
+        "Performs Region-based voxel-wise (RBV) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -73,15 +74,15 @@ int main(int argc, char *argv[]) {
     command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
-            "The full-width at half maximum in mm along x-axis");
+                      "The full-width at half maximum in mm along x-axis");
     command.AddOptionField("FWHMx", "X", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMy", "y", true,
-            "The full-width at half maximum in mm along y-axis");
+                      "The full-width at half maximum in mm along y-axis");
     command.AddOptionField("FWHMy", "Y", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMz", "z", true,
-            "The full-width at half maximum in mm along z-axis");
+                      "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
     command.SetOption("debug", "d", false,"Prints debug information");
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read mask input file: " << sMaskFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
         petReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -151,18 +152,18 @@ int main(int argc, char *argv[]) {
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
     FilterType::Pointer rbvFilter = FilterType::New();
-	rbvFilter->SetInput( petReader->GetOutput() );
+    rbvFilter->SetInput( petReader->GetOutput() );
     rbvFilter->SetMaskInput( maskReader->GetOutput() );
     rbvFilter->SetPSF(vVariance);
-	rbvFilter->SetVerbose( bDebug );
+    rbvFilter->SetVerbose( bDebug );
 
     //Perform RBV.
     try {
         rbvFilter->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "\n[Error]\tfailure applying RBV on: " << sPETFileName
-		  << "\n" << err
-		  << std::endl;
+                  << "\n" << err
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -174,7 +175,7 @@ int main(int argc, char *argv[]) {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
-                << std::endl;
+                  << std::endl;
 
         return EXIT_FAILURE;
     }
@@ -182,10 +183,11 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-std::string getAcknowledgments(void) {
+std::string getAcknowledgments(void)
+{
     //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the region-based voxel-wise (RBV) partial volume correction (PVC) technique.\nThe method is described in:\n"
-            "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
-            "of appropriate partial\n\tvolume correction for PET quantification in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
+                       "\tThomas, B. and Erlandsson, K. and Modat, M. and Thurfjell, L. and Vandenberghe, R.\n\tand Ourselin, S. and Hutton, B. (2011). \"The importance "
+                       "of appropriate partial\n\tvolume correction for PET quantification in Alzheimer\'s disease\".\n\tEuropean Journal of Nuclear Medicine and Molecular Imaging, 38:1104-1119.";
     return sAck;
 }

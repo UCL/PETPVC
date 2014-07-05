@@ -59,7 +59,8 @@ typedef petpvc::MullerGartnerImageFilter< PETImageType, PETImageType, PETImageTy
 //Produces the text for the acknowledgments dialog in Slicer.
 std::string getAcknowledgments(void);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
     //Setting up command line argument list.
     MetaCommand command;
@@ -68,7 +69,7 @@ int main(int argc, char *argv[]) {
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-            "Performs Muller-Gartner (MG) partial volume correction");
+        "Performs Muller-Gartner (MG) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -80,15 +81,15 @@ int main(int argc, char *argv[]) {
     command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
-            "The full-width at half maximum in mm along x-axis");
+                      "The full-width at half maximum in mm along x-axis");
     command.AddOptionField("FWHMx", "X", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMy", "y", true,
-            "The full-width at half maximum in mm along y-axis");
+                      "The full-width at half maximum in mm along y-axis");
     command.AddOptionField("FWHMy", "Y", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMz", "z", true,
-            "The full-width at half maximum in mm along z-axis");
+                      "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
     command.SetOption("debug", "d", false,"Prints debug information");
@@ -113,9 +114,9 @@ int main(int argc, char *argv[]) {
     VectorType vFWHM;
     vFWHM[0] = fFWHM_x;
     vFWHM[1] = fFWHM_y;
-    vFWHM[2] = fFWHM_z;    
+    vFWHM[2] = fFWHM_z;
 
-	//Toggle debug mode
+    //Toggle debug mode
     bool bDebug = command.GetValueAsBool("debug");
 
     //Create reader for mask image.
@@ -127,7 +128,7 @@ int main(int argc, char *argv[]) {
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read mask input file: " << sMaskFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -140,7 +141,7 @@ int main(int argc, char *argv[]) {
         petReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -159,7 +160,7 @@ int main(int argc, char *argv[]) {
 
     //Get mask image size.
     MaskImageType::SizeType imageSize =
-            maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
+        maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
     int nClasses = 0;
 
@@ -168,7 +169,7 @@ int main(int argc, char *argv[]) {
         nClasses = imageSize[3];
     } else {
         std::cerr << "[Error]\tMask file: " << sMaskFileName << " must be 4-D!"
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -192,7 +193,7 @@ int main(int argc, char *argv[]) {
 
     //Get GM mask.
     extractFilter->SetExtractionRegion(
-            MaskImageType::RegionType(desiredStart, desiredSize));
+        MaskImageType::RegionType(desiredStart, desiredSize));
     extractFilter->Update();
 
     imageGM = extractFilter->GetOutput();
@@ -204,7 +205,7 @@ int main(int argc, char *argv[]) {
 
     //Get WM mask.
     extractFilter->SetExtractionRegion(
-            MaskImageType::RegionType(desiredStart, desiredSize));
+        MaskImageType::RegionType(desiredStart, desiredSize));
     extractFilter->Update();
 
     imageWM = extractFilter->GetOutput();
@@ -246,7 +247,7 @@ int main(int argc, char *argv[]) {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
-                << std::endl;
+                  << std::endl;
 
         return EXIT_FAILURE;
     }
@@ -254,13 +255,14 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-std::string getAcknowledgments(void) {
+std::string getAcknowledgments(void)
+{
     //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the Muller-Gartner (MG) partial volume correction (PVC) technique.\n"
-            "The method is described in:\n"
-            "\tMuller-Gartner, H. W. et al. (1992). \"Measurement of radiotracer\n"
-            "\tconcentration in brain gray matter using positron emission\n"
-            "\ttomography: MRI-based correction for partial volume effects.\"\n"
-            "\tJ Cereb Blood Flow Metab, 12(4), 571-83.";
+                       "The method is described in:\n"
+                       "\tMuller-Gartner, H. W. et al. (1992). \"Measurement of radiotracer\n"
+                       "\tconcentration in brain gray matter using positron emission\n"
+                       "\ttomography: MRI-based correction for partial volume effects.\"\n"
+                       "\tJ Cereb Blood Flow Metab, 12(4), 571-83.";
     return sAck;
 }

@@ -2,7 +2,7 @@
    petpvcFuzzyCorrectionFilter.h
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,63 +23,65 @@
 #define __PETPVCFUZZYCORRECTIONFILTER_H
 
 #include "itkImageToImageFilter.h"
-#include "vnl/vnl_matrix.h" 
+#include "vnl/vnl_matrix.h"
 
-//A class to perform fuzziness 'correction'. This is required to weight the 
+//A class to perform fuzziness 'correction'. This is required to weight the
 //mean values correctly when using probabilistic segmentations. For binary
 //(piece-wise constant) segmentations, this is not necessary and will return
 //the identity matrix.
 
 using namespace itk;
 
-namespace petpvc {
+namespace petpvc
+{
 
-    template<class TImage>
-    class FuzzyCorrectionFilter : public ImageToImageFilter<TImage, TImage> {
-    public:
+template<class TImage>
+class FuzzyCorrectionFilter : public ImageToImageFilter<TImage, TImage>
+{
+public:
 
-        typedef FuzzyCorrectionFilter Self;
-        typedef ImageToImageFilter<TImage, TImage> Superclass;
-        typedef SmartPointer<Self> Pointer;
+    typedef FuzzyCorrectionFilter Self;
+    typedef ImageToImageFilter<TImage, TImage> Superclass;
+    typedef SmartPointer<Self> Pointer;
 
-        //Matrix to hold correction factors
-        typedef vnl_matrix<float> MatrixType;
+    //Matrix to hold correction factors
+    typedef vnl_matrix<float> MatrixType;
 
-        //Vector containing size of region.
-        typedef vnl_vector<float> VectorType;
+    //Vector containing size of region.
+    typedef vnl_vector<float> VectorType;
 
-        itkNewMacro(Self);
+    itkNewMacro(Self);
 
-        itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
+    itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
 
-        //Returns correction factors.
+    //Returns correction factors.
 
-        vnl_matrix<float> GetMatrix() {
-            return *this->matFuzz;
-        };
-
-        //Returns region size.
-
-        vnl_vector<float> GetSumOfRegions() {
-            return *this->vecSumOfRegions;
-        };
-
-    protected:
-        FuzzyCorrectionFilter();
-        ~FuzzyCorrectionFilter();
-
-        /** Does the real work. */
-        virtual void GenerateData();
-
-
-    private:
-        FuzzyCorrectionFilter(const Self &); //purposely not implemented
-        void operator=(const Self &); //purposely not implemented
-
-        MatrixType *matFuzz;
-        VectorType *vecSumOfRegions;
-
+    vnl_matrix<float> GetMatrix() {
+        return *this->matFuzz;
     };
+
+    //Returns region size.
+
+    vnl_vector<float> GetSumOfRegions() {
+        return *this->vecSumOfRegions;
+    };
+
+protected:
+    FuzzyCorrectionFilter();
+    ~FuzzyCorrectionFilter();
+
+    /** Does the real work. */
+    virtual void GenerateData();
+
+
+private:
+    FuzzyCorrectionFilter(const Self &); //purposely not implemented
+    void operator=(const Self &); //purposely not implemented
+
+    MatrixType *matFuzz;
+    VectorType *vecSumOfRegions;
+
+};
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION

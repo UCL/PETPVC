@@ -1,6 +1,6 @@
 /*=========================================================================
  *  Author:      Kris Thielemans
- * 
+ *
  *  Copyright University College London
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,59 +30,54 @@
 
 int main( int argc, char *argv[] )
 {
-  if( argc != 4 )
-    {
-      std::cerr << "Usage: " << argv[0] << " imagefile1 imagefile2 absolute_diff_threshold" << std::endl;
-      return EXIT_FAILURE;
+    if( argc != 4 ) {
+        std::cerr << "Usage: " << argv[0] << " imagefile1 imagefile2 absolute_diff_threshold" << std::endl;
+        return EXIT_FAILURE;
     }
-  //  We declare the pixel type and dimension of the image to be produced as
-  //  output.
-  typedef float  PixelType;
-  const unsigned int    Dimension = 3;
+    //  We declare the pixel type and dimension of the image to be produced as
+    //  output.
+    typedef float  PixelType;
+    const unsigned int    Dimension = 3;
 
-  typedef itk::Image< PixelType, Dimension >       ImageType;
-  typedef itk::ImageFileReader<ImageType> ReaderType;
+    typedef itk::Image< PixelType, Dimension >       ImageType;
+    typedef itk::ImageFileReader<ImageType> ReaderType;
 
-  try
-    {
-      ReaderType::Pointer reader = ReaderType::New();
-      reader->SetFileName(argv[1]);
-      reader->Update();
-      ImageType::Pointer image1 = reader->GetOutput();
-      image1->DisconnectPipeline();
-      reader->SetFileName(argv[2]);
-      reader->Update();
-      ImageType::Pointer image2 = reader->GetOutput();
-      const float threshold = atof(argv[3]);
+    try {
+        ReaderType::Pointer reader = ReaderType::New();
+        reader->SetFileName(argv[1]);
+        reader->Update();
+        ImageType::Pointer image1 = reader->GetOutput();
+        image1->DisconnectPipeline();
+        reader->SetFileName(argv[2]);
+        reader->Update();
+        ImageType::Pointer image2 = reader->GetOutput();
+        const float threshold = atof(argv[3]);
 
 
-      typedef itk::AbsoluteValueDifferenceImageFilter<ImageType, ImageType, ImageType> AbsDiffFilterType;
-      AbsDiffFilterType::Pointer absdifffilter = AbsDiffFilterType::New();
-      absdifffilter->SetInput1(image1);
-      absdifffilter->SetInput2(image2);
-      ImageType::Pointer absdiff = absdifffilter->GetOutput();
+        typedef itk::AbsoluteValueDifferenceImageFilter<ImageType, ImageType, ImageType> AbsDiffFilterType;
+        AbsDiffFilterType::Pointer absdifffilter = AbsDiffFilterType::New();
+        absdifffilter->SetInput1(image1);
+        absdifffilter->SetInput2(image2);
+        ImageType::Pointer absdiff = absdifffilter->GetOutput();
 
-      absdifffilter->Update();
+        absdifffilter->Update();
 
-      typedef itk::MinimumMaximumImageCalculator<ImageType> minmaxCalculatorType;
-      minmaxCalculatorType::Pointer minmaxCalculator = minmaxCalculatorType::New();
-      minmaxCalculator->SetImage(absdiff);
-      minmaxCalculator->ComputeMaximum();
+        typedef itk::MinimumMaximumImageCalculator<ImageType> minmaxCalculatorType;
+        minmaxCalculatorType::Pointer minmaxCalculator = minmaxCalculatorType::New();
+        minmaxCalculator->SetImage(absdiff);
+        minmaxCalculator->ComputeMaximum();
 
-      const float absmax = minmaxCalculator->GetMaximum();
-      std::cerr << "max " << absmax << '\n';
-      if (absmax > threshold)
-	{
-	  std::cerr << "Absolute difference too large (" << absmax << ")\n";
-	  return EXIT_FAILURE;
-	}
-      
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << excp << std::endl;
-    return EXIT_FAILURE;
+        const float absmax = minmaxCalculator->GetMaximum();
+        std::cerr << "max " << absmax << '\n';
+        if (absmax > threshold) {
+            std::cerr << "Absolute difference too large (" << absmax << ")\n";
+            return EXIT_FAILURE;
+        }
+
+    } catch( itk::ExceptionObject & excp ) {
+        std::cerr << excp << std::endl;
+        return EXIT_FAILURE;
     }
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

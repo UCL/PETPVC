@@ -2,7 +2,7 @@
    petpvcGTMImageFilter.h
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 #define __PETPVCGTMIMAGEFILTER_H
 
 #include "itkImageToImageFilter.h"
-#include "vnl/vnl_matrix.h" 
+#include "vnl/vnl_matrix.h"
 #include <vnl/algo/vnl_svd.h>
 #include <vnl/algo/vnl_matrix_inverse.h>
 #include <itkImage.h>
@@ -33,62 +33,64 @@
 using namespace itk;
 
 
-namespace petpvc {
+namespace petpvc
+{
 
-    template<class TImage>
-    class GTMImageFilter : public ImageToImageFilter<TImage, TImage> {
-    public:
+template<class TImage>
+class GTMImageFilter : public ImageToImageFilter<TImage, TImage>
+{
+public:
 
-        typedef GTMImageFilter Self;
-        typedef ImageToImageFilter<TImage, TImage> Superclass;
-        typedef SmartPointer<Self> Pointer;
+    typedef GTMImageFilter Self;
+    typedef ImageToImageFilter<TImage, TImage> Superclass;
+    typedef SmartPointer<Self> Pointer;
 
-        //Matrix to hold correction factors
-        typedef vnl_matrix<float> MatrixType;
+    //Matrix to hold correction factors
+    typedef vnl_matrix<float> MatrixType;
 
-        //Vector containing size of region.
-        typedef vnl_vector<float> VectorType;
-        typedef itk::Vector<float, 3> ITKVectorType;
+    //Vector containing size of region.
+    typedef vnl_vector<float> VectorType;
+    typedef itk::Vector<float, 3> ITKVectorType;
 
-        itkNewMacro(Self);
+    itkNewMacro(Self);
 
-        itkTypeMacro(GTMImageFilter, ImageToImageFilter);
+    itkTypeMacro(GTMImageFilter, ImageToImageFilter);
 
-        //Returns correction factors.
-        vnl_matrix<float> GetMatrix() {
-            return *this->matCorrFactors;
-        };
-
-        //Returns region size.
-
-        vnl_vector<float> GetSumOfRegions() {
-            return *this->vecSumOfRegions;
-        };
-
-        void SetPSF(ITKVectorType vec) {
-            this->vecVariance = vec;
-        };
-
-        ITKVectorType GetPSF() {
-            return this->vecVariance;
-        };
-
-
-    protected:
-        GTMImageFilter();
-        ~GTMImageFilter();
-
-        /** Does the real work. */
-        virtual void GenerateData();
-
-    private:
-        GTMImageFilter(const Self &); //purposely not implemented
-        void operator=(const Self &); //purposely not implemented
-
-        MatrixType *matCorrFactors;
-        VectorType *vecSumOfRegions;
-        ITKVectorType vecVariance;
+    //Returns correction factors.
+    vnl_matrix<float> GetMatrix() {
+        return *this->matCorrFactors;
     };
+
+    //Returns region size.
+
+    vnl_vector<float> GetSumOfRegions() {
+        return *this->vecSumOfRegions;
+    };
+
+    void SetPSF(ITKVectorType vec) {
+        this->vecVariance = vec;
+    };
+
+    ITKVectorType GetPSF() {
+        return this->vecVariance;
+    };
+
+
+protected:
+    GTMImageFilter();
+    ~GTMImageFilter();
+
+    /** Does the real work. */
+    virtual void GenerateData();
+
+private:
+    GTMImageFilter(const Self &); //purposely not implemented
+    void operator=(const Self &); //purposely not implemented
+
+    MatrixType *matCorrFactors;
+    VectorType *vecSumOfRegions;
+    ITKVectorType vecVariance;
+};
 } //namespace PETPVC
 
 #ifndef ITK_MANUAL_INSTANTIATION

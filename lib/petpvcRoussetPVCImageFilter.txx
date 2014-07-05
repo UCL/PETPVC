@@ -21,7 +21,7 @@
 
 #ifndef __PETPVCROUSSETPVCIMAGEFILTER_TXX
 #define __PETPVCROUSSETPVCIMAGEFILTER_TXX
- 
+
 #include "petpvcRoussetPVCImageFilter.h"
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
@@ -36,40 +36,40 @@ template< class TInputImage, class TMaskImage >
 RoussetPVCImageFilter< TInputImage, TMaskImage>
 ::RoussetPVCImageFilter()
 {
-	this->m_bVerbose = false;
+    this->m_bVerbose = false;
 }
- 
+
 template< class TInputImage, class TMaskImage >
 void RoussetPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
-  typename TInputImage::ConstPointer input = this->GetInput();
-  typename TInputImage::Pointer output = this->GetOutput();
+    typename TInputImage::ConstPointer input = this->GetInput();
+    typename TInputImage::Pointer output = this->GetOutput();
 
-	typename GTMImageFilterType::Pointer pGTM = GTMImageFilterType::New();
+    typename GTMImageFilterType::Pointer pGTM = GTMImageFilterType::New();
 
-	InputImagePointer pPET = dynamic_cast<const TInputImage*> (ProcessObject::GetInput(0));
-	MaskImagePointer pMask = dynamic_cast<const TMaskImage*> (ProcessObject::GetInput(1));
+    InputImagePointer pPET = dynamic_cast<const TInputImage*> (ProcessObject::GetInput(0));
+    MaskImagePointer pMask = dynamic_cast<const TMaskImage*> (ProcessObject::GetInput(1));
 
-  pGTM->SetInput( pMask );
-  pGTM->SetPSF( this->GetPSF() );
-  //Calculate GTM.
-  try {
-      pGTM->Update();
-  } catch (itk::ExceptionObject & err) {
-      std::cerr << "[Error]\tCannot calculate GTM"
-              << std::endl;
+    pGTM->SetInput( pMask );
+    pGTM->SetPSF( this->GetPSF() );
+    //Calculate GTM.
+    try {
+        pGTM->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "[Error]\tCannot calculate GTM"
+                  << std::endl;
     }
 
-	if ( this->m_bVerbose ) {
-		std::cout << pGTM->GetMatrix() << std::endl;
-	}
+    if ( this->m_bVerbose ) {
+        std::cout << pGTM->GetMatrix() << std::endl;
+    }
 
-	/////////////////////////////////////////////
- 
-   //Get mask image size.
+    /////////////////////////////////////////////
+
+    //Get mask image size.
     typename MaskImageType::SizeType imageSize =
-            pMask->GetLargestPossibleRegion().GetSize();
+        pMask->GetLargestPossibleRegion().GetSize();
 
     int nClasses = 0;
 
@@ -78,7 +78,7 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
         nClasses = imageSize[3];
     } else {
         std::cerr << "[Error]\tMask file must be 4-D!"
-                << std::endl;
+                  << std::endl;
     }
 
     MaskSizeType desiredStart;
@@ -110,18 +110,18 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
 
     for (int i = 1; i <= nClasses; i++) {
 
-        //Starts reading from 4D volume at index (0,0,0,i) through to 
+        //Starts reading from 4D volume at index (0,0,0,i) through to
         //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
         desiredStart[3] = i - 1;
         desiredSize[3] = 0;
 
         //Get region mask.
-				MaskRegionType maskReg;
-				maskReg.SetSize(desiredSize );
-			  maskReg.SetIndex(0,desiredStart[0] );
-				maskReg.SetIndex(1,desiredStart[1] );
-				maskReg.SetIndex(2,desiredStart[2] );
-				maskReg.SetIndex(3,desiredStart[3] );
+        MaskRegionType maskReg;
+        maskReg.SetSize(desiredSize );
+        maskReg.SetIndex(0,desiredStart[0] );
+        maskReg.SetIndex(1,desiredStart[1] );
+        maskReg.SetIndex(2,desiredStart[2] );
+        maskReg.SetIndex(3,desiredStart[3] );
 
         extractFilter->SetExtractionRegion( maskReg );
         extractFilter->Update();
@@ -150,28 +150,28 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
     //Apply GTM to regional mean values.
     vecRegMeansUpdated = vnl_matrix_inverse<float>(pGTM->GetMatrix()) * vecRegMeansCurrent;
 
-	if ( this->m_bVerbose ) {
-    	std::cout << std::endl << "Regional means:" << std::endl;
-	    std::cout << vecRegMeansCurrent << std::endl << std::endl;
+    if ( this->m_bVerbose ) {
+        std::cout << std::endl << "Regional means:" << std::endl;
+        std::cout << vecRegMeansCurrent << std::endl << std::endl;
 
-    	std::cout << "GTM:" << std::endl;
-    	pGTM->GetMatrix().print(std::cout);
+        std::cout << "GTM:" << std::endl;
+        pGTM->GetMatrix().print(std::cout);
 
-    	std::cout << std::endl << "Corrected means:" << std::endl;
-    	
-	}
+        std::cout << std::endl << "Corrected means:" << std::endl;
 
-	std::cout << vecRegMeansUpdated << std::endl;
+    }
 
-  this->AllocateOutputs();
- 
-  ImageAlgorithm::Copy(input.GetPointer(), output.GetPointer(), output->GetRequestedRegion(),
-                       output->GetRequestedRegion() );
+    std::cout << vecRegMeansUpdated << std::endl;
+
+    this->AllocateOutputs();
+
+    ImageAlgorithm::Copy(input.GetPointer(), output.GetPointer(), output->GetRequestedRegion(),
+                         output->GetRequestedRegion() );
 
 
 }
- 
+
 }// end namespace
- 
- 
+
+
 #endif

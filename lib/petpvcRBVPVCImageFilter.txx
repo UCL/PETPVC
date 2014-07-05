@@ -21,7 +21,7 @@
 
 #ifndef __PETPVCRBVPVCIMAGEFILTER_TXX
 #define __PETPVCRBVPVCIMAGEFILTER_TXX
- 
+
 #include "petpvcRBVPVCImageFilter.h"
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
@@ -31,45 +31,45 @@ using namespace itk;
 
 namespace petpvc
 {
- 
+
 template< class TInputImage, class TMaskImage >
 RBVPVCImageFilter< TInputImage, TMaskImage>
 ::RBVPVCImageFilter()
 {
-	this->m_bVerbose = false;
+    this->m_bVerbose = false;
 }
-    
+
 
 template< class TInputImage, class TMaskImage >
 void RBVPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
-  typename TInputImage::ConstPointer input = this->GetInput();
-  typename TInputImage::Pointer output = this->GetOutput();
+    typename TInputImage::ConstPointer input = this->GetInput();
+    typename TInputImage::Pointer output = this->GetOutput();
 
-	typename GTMImageFilterType::Pointer pGTM = GTMImageFilterType::New();
+    typename GTMImageFilterType::Pointer pGTM = GTMImageFilterType::New();
 
-	InputImagePointer pPET = dynamic_cast<const TInputImage*> (ProcessObject::GetInput(0));
-	MaskImagePointer pMask = dynamic_cast<const TMaskImage*> (ProcessObject::GetInput(1));
+    InputImagePointer pPET = dynamic_cast<const TInputImage*> (ProcessObject::GetInput(0));
+    MaskImagePointer pMask = dynamic_cast<const TMaskImage*> (ProcessObject::GetInput(1));
 
-  pGTM->SetInput( pMask );
-  pGTM->SetPSF( this->GetPSF() );
-  //Calculate GTM.
-  try {
-      pGTM->Update();
-  } catch (itk::ExceptionObject & err) {
-      std::cerr << "[Error]\tCannot calculate GTM"
-              << std::endl;
+    pGTM->SetInput( pMask );
+    pGTM->SetPSF( this->GetPSF() );
+    //Calculate GTM.
+    try {
+        pGTM->Update();
+    } catch (itk::ExceptionObject & err) {
+        std::cerr << "[Error]\tCannot calculate GTM"
+                  << std::endl;
     }
 
 
     //if ( this->m_bVerbose ) {
-	//    std::cout << pGTM->GetMatrix() << std::endl;
+    //    std::cout << pGTM->GetMatrix() << std::endl;
     //}
 
-   //Get mask image size.
+    //Get mask image size.
     typename MaskImageType::SizeType imageSize =
-            pMask->GetLargestPossibleRegion().GetSize();
+        pMask->GetLargestPossibleRegion().GetSize();
 
     int nClasses = 0;
 
@@ -78,7 +78,7 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
         nClasses = imageSize[3];
     } else {
         std::cerr << "[Error]\tMask file must be 4-D!"
-                << std::endl;
+                  << std::endl;
     }
 
     MaskSizeType desiredStart;
@@ -110,18 +110,18 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
 
     for (int i = 1; i <= nClasses; i++) {
 
-        //Starts reading from 4D volume at index (0,0,0,i) through to 
+        //Starts reading from 4D volume at index (0,0,0,i) through to
         //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
         desiredStart[3] = i - 1;
         desiredSize[3] = 0;
 
         //Get region mask.
-		MaskRegionType maskReg;
-		maskReg.SetSize(desiredSize );
-		maskReg.SetIndex(0,desiredStart[0] );
-		maskReg.SetIndex(1,desiredStart[1] );
-		maskReg.SetIndex(2,desiredStart[2] );
-		maskReg.SetIndex(3,desiredStart[3] );
+        MaskRegionType maskReg;
+        maskReg.SetSize(desiredSize );
+        maskReg.SetIndex(0,desiredStart[0] );
+        maskReg.SetIndex(1,desiredStart[1] );
+        maskReg.SetIndex(2,desiredStart[2] );
+        maskReg.SetIndex(3,desiredStart[3] );
 
         extractFilter->SetExtractionRegion( maskReg );
         extractFilter->Update();
@@ -151,36 +151,36 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
     vecRegMeansUpdated = vnl_matrix_inverse<float>(pGTM->GetMatrix()) * vecRegMeansCurrent;
 
     if ( this->m_bVerbose ) {
-    std::cout << std::endl << "Regional means:" << std::endl;
-    std::cout << vecRegMeansCurrent << std::endl << std::endl;
+        std::cout << std::endl << "Regional means:" << std::endl;
+        std::cout << vecRegMeansCurrent << std::endl << std::endl;
 
-    std::cout << "GTM:" << std::endl;
-    pGTM->GetMatrix().print(std::cout);
+        std::cout << "GTM:" << std::endl;
+        pGTM->GetMatrix().print(std::cout);
 
-    std::cout << std::endl << "Corrected means:" << std::endl;
-    std::cout << vecRegMeansUpdated << std::endl;
+        std::cout << std::endl << "Corrected means:" << std::endl;
+        std::cout << vecRegMeansUpdated << std::endl;
     }
 
-	
-	//Applying the Yang correction step:
-	
-	typename TInputImage::Pointer imageYang;
-	typename AddFilterType::Pointer addFilter = AddFilterType::New();
-	
-	for (int i = 1; i <= nClasses; i++) {
 
-        //Starts reading from 4D volume at index (0,0,0,i) through to 
+    //Applying the Yang correction step:
+
+    typename TInputImage::Pointer imageYang;
+    typename AddFilterType::Pointer addFilter = AddFilterType::New();
+
+    for (int i = 1; i <= nClasses; i++) {
+
+        //Starts reading from 4D volume at index (0,0,0,i) through to
         //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
         desiredStart[3] = i - 1;
         desiredSize[3] = 0;
 
         //Get region mask.
-		MaskRegionType maskReg;
-		maskReg.SetSize(desiredSize );
-		maskReg.SetIndex(0,desiredStart[0] );
-		maskReg.SetIndex(1,desiredStart[1] );
-		maskReg.SetIndex(2,desiredStart[2] );
-		maskReg.SetIndex(3,desiredStart[3] );
+        MaskRegionType maskReg;
+        maskReg.SetSize(desiredSize );
+        maskReg.SetIndex(0,desiredStart[0] );
+        maskReg.SetIndex(1,desiredStart[1] );
+        maskReg.SetIndex(2,desiredStart[2] );
+        maskReg.SetIndex(3,desiredStart[3] );
 
         extractFilter->SetExtractionRegion( maskReg );
         extractFilter->Update();
@@ -209,7 +209,7 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
         }
 
     }
-   
+
     //Takes the original PET data and the pseudo PET image, calculates the
     //correction factors  and returns the PV-corrected PET image.
 
@@ -218,7 +218,7 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
 
     //Smooth the pseudo PET by the PSF.
     typename BlurringFilterType::Pointer pBlurFilter = BlurringFilterType::New();
-    
+
     pBlurFilter->SetInput(imageYang);
     pBlurFilter->SetVariance( this->GetPSF() );
 
@@ -231,19 +231,19 @@ void RBVPVCImageFilter< TInputImage, TMaskImage>
     multiplyFilter2->SetInput1( pPET );
     multiplyFilter2->SetInput2(divideFilter->GetOutput());
     multiplyFilter2->Update();
-    
-    
-	/////////////////////////////////////////////
 
-  this->AllocateOutputs();
- 
-  ImageAlgorithm::Copy( multiplyFilter2->GetOutput(), output.GetPointer(), output->GetRequestedRegion(),
-                       output->GetRequestedRegion() );
+
+    /////////////////////////////////////////////
+
+    this->AllocateOutputs();
+
+    ImageAlgorithm::Copy( multiplyFilter2->GetOutput(), output.GetPointer(), output->GetRequestedRegion(),
+                          output->GetRequestedRegion() );
 
 
 }
 
 }// end namespace
- 
- 
+
+
 #endif

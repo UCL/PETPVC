@@ -2,7 +2,7 @@
    GTM.cxx
 
    Author:      Benjamin A. Thomas
- 
+
    Copyright 2013 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Geometric Transfer Matrix (GTM) partial volume 
+   This program implements the Geometric Transfer Matrix (GTM) partial volume
    correction (PVC) technique. The method is described in:
-        Rousset, O. G. and Ma, Y. and Evans, A. C. (1998). "Correction for 
-        partial volume effects in PET: principle and validation". Journal of 
+        Rousset, O. G. and Ma, Y. and Evans, A. C. (1998). "Correction for
+        partial volume effects in PET: principle and validation". Journal of
         Nuclear Medicine, 39(5):904-11.
  */
 
@@ -30,7 +30,7 @@
 #include <metaCommand.h>
 
 #include "petpvcRoussetPVCImageFilter.h"
- 
+
 const char * const VERSION_NO = "0.0.4";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
@@ -43,7 +43,7 @@ typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
 typedef itk::ImageFileReader<PETImageType> PETReaderType;
 typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 
-//Produces the text for the acknowledgments dialog in Slicer. 
+//Produces the text for the acknowledgments dialog in Slicer.
 std::string getAcknowledgments(void);
 
 using namespace petpvc;
@@ -51,9 +51,9 @@ using namespace petpvc;
 int main(int argc, char *argv[])
 {
 
-  typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  FilterType;
- 
-  PETImageType::Pointer image = PETImageType::New();
+    typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  FilterType;
+
+    PETImageType::Pointer image = PETImageType::New();
 
 //Setting up command line argument list.
     MetaCommand command;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-            "Performs Geometric Transfer Matrix (GTM) partial volume correction");
+        "Performs Geometric Transfer Matrix (GTM) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -74,15 +74,15 @@ int main(int argc, char *argv[])
     //command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
-            "The full-width at half maximum in mm along x-axis");
+                      "The full-width at half maximum in mm along x-axis");
     command.AddOptionField("FWHMx", "X", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMy", "y", true,
-            "The full-width at half maximum in mm along y-axis");
+                      "The full-width at half maximum in mm along y-axis");
     command.AddOptionField("FWHMy", "Y", MetaCommand::FLOAT, true, "");
 
     command.SetOption("FWHMz", "z", true,
-            "The full-width at half maximum in mm along z-axis");
+                      "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
     command.SetOption("debug", "d", false,"Prints debug information");
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read mask input file: " << sMaskFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
         petReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -152,22 +152,23 @@ int main(int argc, char *argv[])
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
     FilterType::Pointer roussetFilter = FilterType::New();
-	roussetFilter->SetInput( petReader->GetOutput() );
+    roussetFilter->SetInput( petReader->GetOutput() );
     roussetFilter->SetMaskInput( maskReader->GetOutput() );
     roussetFilter->SetPSF( vVariance );
     roussetFilter->SetVerbose( bDebug );
     roussetFilter->Update();
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
-std::string getAcknowledgments(void) {
+std::string getAcknowledgments(void)
+{
     //Produces acknowledgments string for 3DSlicer.
     std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
-            "The method is described in:\n"
-            "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
-            "\tpartial volume effects in PET: principle and validation\". Journal of\n"
-            "\tNuclear Medicine, 39(5):904-11.";
+                       "The method is described in:\n"
+                       "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
+                       "\tpartial volume effects in PET: principle and validation\". Journal of\n"
+                       "\tNuclear Medicine, 39(5):904-11.";
 
     return sAck;
 }

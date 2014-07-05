@@ -35,138 +35,142 @@
 
 using namespace itk;
 
-namespace petpvc {
+namespace petpvc
+{
 
-    template<class TImage>
-    GTMImageFilter<TImage>::GTMImageFilter() {
-        //Constructor. Just initialises the matrix and vector that will
-        //contain the results of the correction that the filter implements.
-        this->matCorrFactors = new MatrixType;
-        this->vecSumOfRegions = new VectorType;
+template<class TImage>
+GTMImageFilter<TImage>::GTMImageFilter()
+{
+    //Constructor. Just initialises the matrix and vector that will
+    //contain the results of the correction that the filter implements.
+    this->matCorrFactors = new MatrixType;
+    this->vecSumOfRegions = new VectorType;
 
-        //this->vecVariance = new ITKVectorType;
+    //this->vecVariance = new ITKVectorType;
+
+}
+
+template<class TImage>
+void GTMImageFilter<TImage>::GenerateData()
+{
+
+    //Get pointers to input and output.
+    typename TImage::ConstPointer input = this->GetInput();
+
+    //Get region size.
+    typename TImage::SizeType imageSize =
+        input->GetLargestPossibleRegion().GetSize();
+
+    int nClasses = 0;
+
+    //Set size of output matrix and vector.
+    //TODO: Should throw an exception here if imageSize.Dimension != 4.
+    if (imageSize.Dimension == 4) {
+        nClasses = imageSize[3];
+        matCorrFactors->set_size(nClasses, nClasses);
+        matCorrFactors->fill(0);
+
+        vecSumOfRegions->set_size(nClasses);
+        vecSumOfRegions->fill(0);
 
     }
 
-    template<class TImage>
-    void GTMImageFilter<TImage>::GenerateData() {
+    typedef itk::Image<float, 3> MaskImageType;
 
-        //Get pointers to input and output.
-        typename TImage::ConstPointer input = this->GetInput();
+    typedef itk::StatisticsImageFilter<MaskImageType> StatisticsFilterType;
+    typedef itk::ExtractImageFilter<TImage, MaskImageType> ExtractFilterType;
+    typedef itk::MultiplyImageFilter<MaskImageType, MaskImageType> MultiplyFilterType;
+    typedef itk::DiscreteGaussianImageFilter<MaskImageType, MaskImageType> BlurringFilterType;
 
-        //Get region size.
-        typename TImage::SizeType imageSize =
-                input->GetLargestPossibleRegion().GetSize();
+    typedef itk::ImageDuplicator<MaskImageType> DuplicatorType;
 
-        int nClasses = 0;
+    typename TImage::IndexType desiredStart;
+    desiredStart.Fill(0);
 
-        //Set size of output matrix and vector.
-        //TODO: Should throw an exception here if imageSize.Dimension != 4.
-        if (imageSize.Dimension == 4) {
-            nClasses = imageSize[3];
-            matCorrFactors->set_size(nClasses, nClasses);
-            matCorrFactors->fill(0);
+    typename TImage::SizeType desiredSize =
+        input->GetLargestPossibleRegion().GetSize();
 
-            vecSumOfRegions->set_size(nClasses);
-            vecSumOfRegions->fill(0);
+    typename TImage::RegionType desiredRegion;
 
-        }
+    StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
 
-        typedef itk::Image<float, 3> MaskImageType;
+    typename ExtractFilterType::Pointer extractTargetFilter =
+        ExtractFilterType::New();
+    typename ExtractFilterType::Pointer extractNeighbourFilter =
+        ExtractFilterType::New();
+    typename MultiplyFilterType::Pointer multiplyFilter =
+        MultiplyFilterType::New();
+    typename BlurringFilterType::Pointer blurringFilter =
+        BlurringFilterType::New();
 
-        typedef itk::StatisticsImageFilter<MaskImageType> StatisticsFilterType;
-        typedef itk::ExtractImageFilter<TImage, MaskImageType> ExtractFilterType;
-        typedef itk::MultiplyImageFilter<MaskImageType, MaskImageType> MultiplyFilterType;
-        typedef itk::DiscreteGaussianImageFilter<MaskImageType, MaskImageType> BlurringFilterType;
+    blurringFilter->SetVariance((this->GetPSF()));
 
-        typedef itk::ImageDuplicator<MaskImageType> DuplicatorType;
+    float fSumTarget;
+    float fSumNeighbour;
 
-        typename TImage::IndexType desiredStart;
-        desiredStart.Fill(0);
+    for (int i = 1; i <= nClasses; i++) {
 
-        typename TImage::SizeType desiredSize =
-                input->GetLargestPossibleRegion().GetSize();
+        fSumTarget = 0.0;
+        desiredStart[3] = i - 1;
+        desiredSize[3] = 0;
 
-        typename TImage::RegionType desiredRegion;
+        //Extract 3D brain mask volume i from 4D image.
+        extractTargetFilter->SetExtractionRegion(
+            typename TImage::RegionType(desiredStart, desiredSize));
+        extractTargetFilter->SetInput(input);
+        extractTargetFilter->SetDirectionCollapseToIdentity(); // This is required.
+        extractTargetFilter->Update();
 
-        StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
+        blurringFilter->SetInput(extractTargetFilter->GetOutput());
 
-        typename ExtractFilterType::Pointer extractTargetFilter =
-                ExtractFilterType::New();
-        typename ExtractFilterType::Pointer extractNeighbourFilter =
-                ExtractFilterType::New();
-        typename MultiplyFilterType::Pointer multiplyFilter =
-                MultiplyFilterType::New();
-        typename BlurringFilterType::Pointer blurringFilter =
-                BlurringFilterType::New();
+        statsFilter->SetInput(blurringFilter->GetOutput());
+        statsFilter->Update();
 
-        blurringFilter->SetVariance((this->GetPSF()));
+        //Calculate the sum of non-zero voxels.
+        fSumTarget = statsFilter->GetSum();
 
-        float fSumTarget;
-        float fSumNeighbour;
+        vecSumOfRegions->put(i - 1, fSumTarget);
 
-        for (int i = 1; i <= nClasses; i++) {
-
-            fSumTarget = 0.0;
-            desiredStart[3] = i - 1;
+        for (int j = 1; j <= nClasses; j++) {
+            fSumNeighbour = 0.0;
+            desiredStart[3] = j - 1;
             desiredSize[3] = 0;
 
-            //Extract 3D brain mask volume i from 4D image.
-            extractTargetFilter->SetExtractionRegion(
-                    typename TImage::RegionType(desiredStart, desiredSize));
-            extractTargetFilter->SetInput(input);
-            extractTargetFilter->SetDirectionCollapseToIdentity(); // This is required.
-            extractTargetFilter->Update();
+            //Extract 3D brain mask volume j from 4D image.
+            extractNeighbourFilter->SetExtractionRegion(
+                typename TImage::RegionType(desiredStart, desiredSize));
+            extractNeighbourFilter->SetInput(input);
+            extractNeighbourFilter->SetDirectionCollapseToIdentity(); // This is required.
+            extractNeighbourFilter->Update();
 
-            blurringFilter->SetInput(extractTargetFilter->GetOutput());
+            //Multiply i by j.
+            multiplyFilter->SetInput1(blurringFilter->GetOutput());
+            multiplyFilter->SetInput2(extractNeighbourFilter->GetOutput());
 
-            statsFilter->SetInput(blurringFilter->GetOutput());
+            statsFilter->SetInput(multiplyFilter->GetOutput());
             statsFilter->Update();
 
-            //Calculate the sum of non-zero voxels.
-            fSumTarget = statsFilter->GetSum();
+            //Calculate the sum of the remaining voxels.
+            fSumNeighbour = statsFilter->GetSum();
 
-            vecSumOfRegions->put(i - 1, fSumTarget);
+            //Fill location in matrix with sum of remaining voxels
+            //normalised by size of i.
+            matCorrFactors->put(i - 1, j - 1, fSumNeighbour / fSumTarget);
 
-            for (int j = 1; j <= nClasses; j++) {
-                fSumNeighbour = 0.0;
-                desiredStart[3] = j - 1;
-                desiredSize[3] = 0;
-
-                //Extract 3D brain mask volume j from 4D image.
-                extractNeighbourFilter->SetExtractionRegion(
-                        typename TImage::RegionType(desiredStart, desiredSize));
-                extractNeighbourFilter->SetInput(input);
-                extractNeighbourFilter->SetDirectionCollapseToIdentity(); // This is required.
-                extractNeighbourFilter->Update();
-
-                //Multiply i by j.
-                multiplyFilter->SetInput1(blurringFilter->GetOutput());
-                multiplyFilter->SetInput2(extractNeighbourFilter->GetOutput());
-
-                statsFilter->SetInput(multiplyFilter->GetOutput());
-                statsFilter->Update();
-
-                //Calculate the sum of the remaining voxels.
-                fSumNeighbour = statsFilter->GetSum();
-
-                //Fill location in matrix with sum of remaining voxels
-                //normalised by size of i.
-                matCorrFactors->put(i - 1, j - 1, fSumNeighbour / fSumTarget);
-
-                //std::cout << "Target: " << fSumTarget << " Neighbour: " << fSumNeighbour << std::endl;
-            }
-
+            //std::cout << "Target: " << fSumTarget << " Neighbour: " << fSumNeighbour << std::endl;
         }
-    }
-
-    template<class TImage>
-    GTMImageFilter<TImage>::~GTMImageFilter() {
-        //Destructor.
-        delete this->matCorrFactors;
-        delete this->vecSumOfRegions;
 
     }
+}
+
+template<class TImage>
+GTMImageFilter<TImage>::~GTMImageFilter()
+{
+    //Destructor.
+    delete this->matCorrFactors;
+    delete this->vecSumOfRegions;
+
+}
 
 } // end namespace
 
