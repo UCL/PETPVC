@@ -35,7 +35,7 @@
 #include "petpvcFuzzyCorrectionFilter.h"
 #include "petpvcIterativeYangPVCImageFilter.h"
 
-const char * const VERSION_NO = "0.0.4";
+const char * const VERSION_NO = "0.0.5";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Iterative Yang (IY) PVC";
 
@@ -87,7 +87,10 @@ int main(int argc, char *argv[]) {
 
     command.SetOption("Iterations", "i", false, "Number of iterations");
     command.SetOptionLongTag("Iterations", "iter");
-    command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "5");
+    command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "10");
+
+    command.SetOption("debug", "d", false,"Prints debug information");
+    command.SetOptionLongTag("debug", "debug");
 
     //Parse command line.
     if (!command.Parse(argc, argv)) {
@@ -112,6 +115,9 @@ int main(int argc, char *argv[]) {
     vFWHM[0] = fFWHM_x;
     vFWHM[1] = fFWHM_y;
     vFWHM[2] = fFWHM_z;
+
+    //Toggle debug mode
+    bool bDebug = command.GetValueAsBool("debug");
 
     //Create reader for mask image.
     MaskReaderType::Pointer maskReader = MaskReaderType::New();
@@ -157,6 +163,7 @@ int main(int argc, char *argv[]) {
     iyFilter->SetMaskInput( maskReader->GetOutput() );
     iyFilter->SetPSF(vVariance);
     iyFilter->SetIterations( nNumOfIters );
+    iyFilter->SetVerbose ( bDebug );
 
     //Perform IY.
     try {

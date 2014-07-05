@@ -131,6 +131,11 @@ public:
 	  this->m_nIterations = nIters;
   }
 
+  void SetVerbose( bool bVerbose )
+  {
+	  this->m_bVerbose = bVerbose;
+  }
+
 
 protected:
   IterativeYangPVCImageFilter();
@@ -143,6 +148,7 @@ protected:
 	MatrixType m_matGTM;
   ITKVectorType m_vecVariance;
   unsigned int m_nIterations;
+	bool m_bVerbose;
  
 private:
   IterativeYangPVCImageFilter(const Self &); //purposely not implemented

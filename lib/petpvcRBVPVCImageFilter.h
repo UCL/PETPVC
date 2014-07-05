@@ -116,19 +116,24 @@ public:
 
   void SetPSF(ITKVectorType vec) {
     this->m_vecVariance = vec;
-  };
+  }
 
 
   ITKVectorType GetPSF() 
 	{
     return this->m_vecVariance;
-  };
+  }
+
+  void SetVerbose( bool bVerbose )
+  {
+	  this->m_bVerbose = bVerbose;
+  }
 
   void ApplyYang();
 
 
 protected:
-  RBVPVCImageFilter(){}
+  RBVPVCImageFilter();
   ~RBVPVCImageFilter(){}
  
   /** Does the real work. */
@@ -136,7 +141,8 @@ protected:
 
 	VectorType m_vecRegMeansPVCorr;
 	MatrixType m_matGTM;
-  ITKVectorType m_vecVariance;
+ 	ITKVectorType m_vecVariance;
+	bool m_bVerbose;
  
 private:
   RBVPVCImageFilter(const Self &); //purposely not implemented

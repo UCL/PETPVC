@@ -37,6 +37,7 @@ IterativeYangPVCImageFilter< TInputImage, TMaskImage>
 ::IterativeYangPVCImageFilter()
 {
         this->m_nIterations = 10;
+	this->m_bVerbose = false;
 }
     
 template< class TInputImage, class TMaskImage >
@@ -61,7 +62,9 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
               << std::endl;
     }
 
-	std::cout << pFuzzyCorrFilter->GetMatrix() << std::endl;
+	if ( this->m_bVerbose ) {
+		std::cout << pFuzzyCorrFilter->GetMatrix() << std::endl;
+	}
 
 	//Get fuzziness correction factors.
     vnl_matrix<float> matFuzzyCorr = pFuzzyCorrFilter->GetMatrix();
@@ -132,12 +135,15 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
 	int nNumOfIters =  this->m_nIterations;
 	
 	for (int k = 1; k <= nNumOfIters; k++) {
-        if (k == 1) {
-            std::cout << std::endl << "Iteration:  " << std::endl;
-        }
-
-        std::cout << k << "  "; // << std::endl;
-        std::flush(std::cout);
+	
+	if ( this->m_bVerbose ) { 
+        	if (k == 1) {
+            	std::cout << std::endl << "Iteration:  " << std::endl;
+        	}
+		
+        	std::cout << k << "  "; // << std::endl;
+        	std::flush(std::cout);
+	}
 
         for (int i = 1; i <= nClasses; i++) {
 
@@ -146,7 +152,6 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
             desiredStart[3] = i - 1;
             desiredSize[3] = 0;
 
-          
             //Get region mask.
 			MaskRegionType maskReg;
 			maskReg.SetSize(desiredSize );
@@ -189,8 +194,9 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
                 * vecRegMeansCurrent;
 
         //std::cout << vecRegMeansCurrent << std::endl;
+	if ( this->m_bVerbose ) {
 		std::cout << vecRegMeansUpdated << std::endl;
-
+	}
 		/*
 		for (int n = 0; n < vecRegMeansUpdated.size(); n++) {
 			float fNewRegMean = fmax ( vecRegMeansUpdated.get(n) , 0.0 );
@@ -264,15 +270,14 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
     imageEstimate->DisconnectPipeline();
     }
 
-    std::cout << std::endl;
-	
-	/////////////////////////////////////////////
+	if ( this->m_bVerbose ) {
+	    std::cout << std::endl;
+	}
 
   this->AllocateOutputs();
  
   ImageAlgorithm::Copy( imageEstimate.GetPointer(), output.GetPointer(), output->GetRequestedRegion(),
                        output->GetRequestedRegion() );
-
 
 }
 
