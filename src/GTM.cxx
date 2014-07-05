@@ -85,6 +85,9 @@ int main(int argc, char *argv[])
             "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
+    command.SetOption("debug", "d", false,"Prints debug information");
+    command.SetOptionLongTag("debug", "debug");
+
     //Parse command line.
     if (!command.Parse(argc, argv)) {
         return EXIT_FAILURE;
@@ -105,6 +108,9 @@ int main(int argc, char *argv[])
     vFWHM[0] = fFWHM_x;
     vFWHM[1] = fFWHM_y;
     vFWHM[2] = fFWHM_z;
+
+    //Toggle debug mode
+    bool bDebug = command.GetValueAsBool("debug");
 
     //Create reader for mask image.
     MaskReaderType::Pointer maskReader = MaskReaderType::New();
@@ -146,10 +152,11 @@ int main(int argc, char *argv[])
     vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
 
     FilterType::Pointer roussetFilter = FilterType::New();
-		roussetFilter->SetInput( petReader->GetOutput() );
+	roussetFilter->SetInput( petReader->GetOutput() );
     roussetFilter->SetMaskInput( maskReader->GetOutput() );
     roussetFilter->SetPSF( vVariance );
-		roussetFilter->Update();
+    roussetFilter->SetVerbose( bDebug );
+    roussetFilter->Update();
 
   return EXIT_SUCCESS;
 }

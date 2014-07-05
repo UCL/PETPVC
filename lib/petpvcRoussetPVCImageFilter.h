@@ -118,9 +118,13 @@ public:
     return this->m_vecVariance;
   };
 
+  void SetVerbose( bool bVerbose )
+  {
+	  this->m_bVerbose = bVerbose;
+  }
 
 protected:
-  RoussetPVCImageFilter(){}
+  RoussetPVCImageFilter();
   ~RoussetPVCImageFilter(){}
  
   /** Does the real work. */
@@ -129,6 +133,7 @@ protected:
 	VectorType m_vecRegMeansPVCorr;
 	MatrixType m_matGTM;
   ITKVectorType m_vecVariance;
+	bool m_bVerbose;
  
 private:
   RoussetPVCImageFilter(const Self &); //purposely not implemented

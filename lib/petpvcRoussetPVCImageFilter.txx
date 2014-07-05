@@ -31,6 +31,13 @@ using namespace itk;
 
 namespace petpvc
 {
+
+template< class TInputImage, class TMaskImage >
+RoussetPVCImageFilter< TInputImage, TMaskImage>
+::RoussetPVCImageFilter()
+{
+	this->m_bVerbose = false;
+}
  
 template< class TInputImage, class TMaskImage >
 void RoussetPVCImageFilter< TInputImage, TMaskImage>
@@ -54,8 +61,9 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
               << std::endl;
     }
 
-	std::cout << pGTM->GetMatrix() << std::endl;
-
+	if ( this->m_bVerbose ) {
+		std::cout << pGTM->GetMatrix() << std::endl;
+	}
 
 	/////////////////////////////////////////////
  
@@ -139,23 +147,22 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
 
     }
 
-    std::cout << std::endl << "Regional means:" << std::endl;
-    std::cout << vecRegMeansCurrent << std::endl << std::endl;
-
-    std::cout << "GTM:" << std::endl;
-    pGTM->GetMatrix().print(std::cout);
-
     //Apply GTM to regional mean values.
     vecRegMeansUpdated = vnl_matrix_inverse<float>(pGTM->GetMatrix()) * vecRegMeansCurrent;
 
-    std::cout << std::endl << "Corrected means:" << std::endl;
-    std::cout << vecRegMeansUpdated << std::endl;
+	if ( this->m_bVerbose ) {
+    	std::cout << std::endl << "Regional means:" << std::endl;
+	    std::cout << vecRegMeansCurrent << std::endl << std::endl;
 
+    	std::cout << "GTM:" << std::endl;
+    	pGTM->GetMatrix().print(std::cout);
 
+    	std::cout << std::endl << "Corrected means:" << std::endl;
+    	
+	}
 
-	/////////////////////////////////////////////
+	std::cout << vecRegMeansUpdated << std::endl;
 
- 
   this->AllocateOutputs();
  
   ImageAlgorithm::Copy(input.GetPointer(), output.GetPointer(), output->GetRequestedRegion(),
