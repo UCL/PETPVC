@@ -46,7 +46,7 @@ namespace petpvc {
         this->InPlaceOff();
 
         this->m_dVariance = 0.0;
-        this->m_bQuietMode = false;
+        this->m_bVerbose = false;
 
         this->m_fGivenWM = 0.0;
 
@@ -163,9 +163,8 @@ namespace petpvc {
             fWhiteMatterMeanValue = this->m_fGivenWM;
         }
 
-        if (!this->m_bQuietMode) {
+        if (this->m_bVerbose) {
             std::cout << "White Matter mean value : " << fWhiteMatterMeanValue << std::endl;
-            std::cout << std::endl;
         }
 
         //Apply WM value to WM mask.

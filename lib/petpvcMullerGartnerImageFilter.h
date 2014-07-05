@@ -113,8 +113,8 @@ namespace petpvc {
             this->m_dVariance = dSigma2;
         };
 
-        void SetQuietMode(bool bQuiet) {
-            this->m_bQuietMode = bQuiet;
+        void SetVerbose(bool bVerbose) {
+            this->m_bVerbose = bVerbose;
         };
 
         void SetWM(double fWM) {
@@ -235,7 +235,7 @@ namespace petpvc {
 
         VectorType m_dVariance;
 
-        bool m_bQuietMode;
+        bool m_bVerbose;
         double m_fGivenWM;
 
     };

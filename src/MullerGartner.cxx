@@ -35,7 +35,7 @@
 
 #include <metaCommand.h>
 
-const char * const VERSION_NO = "0.0.1";
+const char * const VERSION_NO = "0.0.2";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Muller-Gartner (MG) PVC";
 
@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
             "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
+    command.SetOption("debug", "d", false,"Prints debug information");
+    command.SetOptionLongTag("debug", "debug");
+
     //Parse command line.
     if (!command.Parse(argc, argv)) {
         return EXIT_FAILURE;
@@ -110,7 +113,10 @@ int main(int argc, char *argv[]) {
     VectorType vFWHM;
     vFWHM[0] = fFWHM_x;
     vFWHM[1] = fFWHM_y;
-    vFWHM[2] = fFWHM_z;
+    vFWHM[2] = fFWHM_z;    
+
+	//Toggle debug mode
+    bool bDebug = command.GetValueAsBool("debug");
 
     //Create reader for mask image.
     MaskReaderType::Pointer maskReader = MaskReaderType::New();
@@ -225,7 +231,7 @@ int main(int argc, char *argv[]) {
     MGFilter->SetInput1(petReader->GetOutput());
     MGFilter->SetInput2(imageGM);
     MGFilter->SetInput3(imageWM);
-    MGFilter->SetQuietMode(false);
+    MGFilter->SetVerbose( bDebug );
     MGFilter->SetPSF(vVariance);
     MGFilter->SetWM(0);
 

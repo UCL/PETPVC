@@ -35,7 +35,7 @@
 
 #include "petpvcRBVPVCImageFilter.h"
  
-const char * const VERSION_NO = "0.0.2";
+const char * const VERSION_NO = "0.0.3";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
 
