@@ -146,10 +146,9 @@ int main(int argc, char *argv[])
     VectorType vVoxelSize = petReader->GetOutput()->GetSpacing();
     //std::cout << vVoxelSize << std::endl;
 
-    //Scale for voxel size.
-    vVariance[0] = pow((vVariance[0] / vVoxelSize[0]), 2);
-    vVariance[1] = pow((vVariance[1] / vVoxelSize[1]), 2);
-    vVariance[2] = pow((vVariance[2] / vVoxelSize[2]), 2);
+    vVariance[0] = pow(vVariance[0], 2);
+    vVariance[1] = pow(vVariance[1], 2);
+    vVariance[2] = pow(vVariance[2], 2);
 
     FilterType::Pointer roussetFilter = FilterType::New();
     roussetFilter->SetInput( petReader->GetOutput() );
