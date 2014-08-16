@@ -1,9 +1,10 @@
 /*
    petpvcFuzzyCorrectionFilter.hxx
 
-   Author:      Benjamin A. Thomas
+   Authors:     Benjamin A. Thomas
+                Kris Thielemans (minor modifications)
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2013-2014 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -117,6 +118,14 @@ void FuzzyCorrectionFilter<TImage>::GenerateData()
 
         //Calculate the sum of non-zero voxels.
         fSumTarget = statsFilter->GetSum();
+        if (fSumTarget == 0) {
+          itkExceptionMacro("Region " << i << " has zero sum, i.e. no voxels in mask. Remove this region.");
+        }
+        if (statsFilter->GetMinimum() < 0) {
+          itkExceptionMacro("Region " << i << "contains negative voxels in mask. Remove this region.");
+        }
+        std::cerr << "sum in region " << i << " = " << fSumTarget << std::endl;
+
         vecSumOfRegions->put(i - 1, fSumTarget);
 
         //Set region i as first input.

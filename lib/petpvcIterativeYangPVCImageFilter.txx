@@ -1,9 +1,10 @@
 /*
    petpvcIterativeYangPVCImageFilter.txx
 
-   Author:      Benjamin A. Thomas
+   Authors:     Benjamin A. Thomas
+                Kris Thielemans (minor modifications)
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2013-2014 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -55,15 +56,14 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
     pFuzzyCorrFilter->SetInput( pMask );
 
     //Calculate Fuzziness.
-    try {
-        pFuzzyCorrFilter->Update();
-    } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tCannot calculate Fuzziness correction"
-                  << std::endl;
+    if ( this->m_bVerbose ) {
+      std::cout << "Start fuzziness calculation" << std::endl;
     }
 
+    pFuzzyCorrFilter->Update();
+
     if ( this->m_bVerbose ) {
-        std::cout << pFuzzyCorrFilter->GetMatrix() << std::endl;
+      std::cout << "matrix:\n" << pFuzzyCorrFilter->GetMatrix() << std::endl;
     }
 
     //Get fuzziness correction factors.
