@@ -26,10 +26,13 @@ TARGET_LINK_LIBRARIES(pvc_rbv ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_iy IterativeYang.cxx  )
 TARGET_LINK_LIBRARIES(pvc_iy ${ITK_LIBRARIES})
 
+ADD_EXECUTABLE(pvc_diy DiscreteIY.cxx  )
+TARGET_LINK_LIBRARIES(pvc_diy ${ITK_LIBRARIES})
+
 ADD_EXECUTABLE(pvc_mg MullerGartner.cxx  )
 TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
-install(TARGETS pvc_gtm pvc_rbv pvc_iy pvc_mg pvc_simulate DESTINATION bin)
+install(TARGETS pvc_gtm pvc_rbv pvc_iy pvc_diy pvc_mg pvc_simulate DESTINATION bin)
