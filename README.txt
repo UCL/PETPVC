@@ -163,6 +163,30 @@ The method is described in:
 	Physics in Medicine and Biology, vol. 57, no. 21, R119-59.
 
 
+Running 'Discrete' Iterative Yang (DIY) PVC
+--------------------------------
+
+The 'Discrete' Iterative Yang program is run using the following command:
+
+	pvc_diy	<petfile> <parcellationfile> <outputfile> -x <X> -y <Y> -z <Z> [-i <V>]
+
+where:
+
+	Compulsory:
+
+	<petfile> is the reconstructed PET emission file.
+	<parcellationfile> is the filename of the parcellation. This a 3D file containing 
+		a parcellation of the 3D volume. It's a 3D image with a label associated
+                with each segmented region. 
+	<outputfile> is the resultant PV-corrected PET file to be created.
+	<X,Y,Z> are the measure of the full-width at half maximum (FWHM) of the
+		scanner PSF in the x-, y- and z-axis, specified in mm. The PSF is
+		assumed to be Gaussian, although can be changed in the source 
+		code.
+
+
+
+
 Running region-based voxel-wise (RBV) correction
 -------------------------------------------------
 

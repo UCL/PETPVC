@@ -24,6 +24,13 @@
 
    The code to create the image is largely based on ITK's
       Examples/Filtering/SpatialObjectToImage1.cxx
+
+   Update: Nov. 08 2014 (V. Cuplov)
+   In order to test Ben's new 'discrete' Iterative Yang code pvc_diy, which only 
+   needs a 3D image with labels (a parcellation image) as opposed to the 4D mask, 
+   this file now creates an additionnal image: 3D parcellation of the original image 
+   in which the regions are labelled with some random values.
+
 */
 
 #include "itkSpatialObjectToImageFilter.h"
@@ -71,8 +78,8 @@ copy_3d_to_4d(const ImageType * image, const Image4DType * image4d, int idx)
 
 int main( int argc, char *argv[] )
 {
-    if( argc != 3 ) {
-        std::cerr << "Usage: " << argv[0] << " outputimagefile outputmaskfile" << std::endl;
+    if( argc != 4 ) {
+        std::cerr << "Usage: " << argv[0] << " outputimagefile outputmaskfile outputparcellation" << std::endl;
         return EXIT_FAILURE;
     }
     //  We declare the pixel type and dimension of the image to be produced as
@@ -114,8 +121,10 @@ int main( int argc, char *argv[] )
         imageFilter->SetSize( size );
         imageFilter->SetSpacing( spacing );
 
-        // we will store the image in this variable
+        // we will store the original image in this variable
         ImageType::Pointer image;
+        // we will store the parcellation image in this variable
+        ImageType::Pointer parcellation;
 
         //  We create the elementary shapes that are going to be composed into the
         //  group spatial objects.
@@ -126,6 +135,12 @@ int main( int argc, char *argv[] )
         const PixelType ellipseValue = 2;
         const PixelType cylinder1Value = 3;
         const PixelType cylinder2Value = 4;
+
+// for parcellation image
+        const PixelType ellipseparcellationValue = 124;
+        const PixelType cylinder1parcellationValue = 17;
+        const PixelType cylinder2parcellationValue = 49;
+
 
         // create these objects and the corresponding image
         {
@@ -207,10 +222,8 @@ int main( int argc, char *argv[] )
             imageFilter->Update();
             // keep image for later
             image = imageFilter->GetOutput();
-        }
 
         // write to file
-        {
             typedef itk::ImageFileWriter< ImageType >     WriterType;
             WriterType::Pointer writer = WriterType::New();
 
@@ -218,6 +231,25 @@ int main( int argc, char *argv[] )
             writer->SetInput( image);
 
             writer->Update();
+
+// values for regions in the parcellation image:
+            ellipse->SetDefaultInsideValue( ellipseparcellationValue   );
+            cylinder1->SetDefaultInsideValue( cylinder1parcellationValue );
+            cylinder2->SetDefaultInsideValue( cylinder2parcellationValue );
+
+            imageFilter->SetInput(  group  );
+            imageFilter->SetUseObjectValue( true );
+            imageFilter->SetOutsideValue( backgroundValue );
+            imageFilter->Update();
+
+            // keep parcellation image for later
+            parcellation = imageFilter->GetOutput();
+
+        // write to file
+            writer->SetFileName( argv[3] );
+            writer->SetInput( parcellation );
+            writer->Update();
+
         }
 
 
@@ -293,6 +325,7 @@ int main( int argc, char *argv[] )
             imageFilter->Update();
             mask=copy_3d_to_4d(imageFilter->GetOutput(), mask.GetPointer(), 3);
         }
+
 
         // now write it do disk!
         {
