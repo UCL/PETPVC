@@ -80,6 +80,10 @@ add_pvc_test(IterativeYang iy 4dmask .01 .7 .7 )
 add_pvc_test(RBV rbv 4dmask .01 .7 4)
 add_pvc_test(DiscreteIterativeYang diy 3dparcellation .01 .7 .7)
 
+
+ADD_TEST(NAME Compare_iy_diy
+    COMMAND pvc_compareImages iy.nii diy.nii .001)
+
 ADD_TEST(NAME Compare_iy_diy_Undercorrect
     COMMAND pvc_compareImages iy_undercorrect.nii diy_undercorrect.nii .001)
 
