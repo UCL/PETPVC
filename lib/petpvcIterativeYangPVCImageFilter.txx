@@ -180,8 +180,7 @@ void IterativeYangPVCImageFilter< TInputImage, TMaskImage>
             fSumOfPETReg = statsFilter->GetSum();
 
             //Place regional mean into vector.
-
-            float fNewRegMean = fmax( fSumOfPETReg / vecRegSize.get(i - 1), 0.0);
+			float fNewRegMean = std::max( (float) (fSumOfPETReg / vecRegSize.get(i - 1)), (float)0.0);
             vecRegMeansCurrent.put(i - 1, fNewRegMean );
 
             //std::cout << std::endl << "Sum = " << fSumOfPETReg << " , " << "Mean = " << vecRegMeansCurrent.get( i-1 ) << " , Size = " << vecRegSize.get(i - 1) << std::endl;
