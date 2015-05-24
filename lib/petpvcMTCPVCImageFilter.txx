@@ -264,13 +264,6 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
         divideFilter->SetInput2( blurFilter2->GetOutput() );
         divideFilter->Update();
 
-        /*
-        typename ThresholdFilterType::Pointer thresholdFilter = ThresholdFilterType::New();
-        thresholdFilter->SetInput( divideFilter->GetOutput() );
-        thresholdFilter->ThresholdBelow(0);
-        thresholdFilter->SetOutsideValue(0);
-        thresholdFilter->Update();*/
-
         multiplyFilter->SetInput1( imageRegionJ );
         multiplyFilter->SetInput2( divideFilter->GetOutput() );
         multiplyFilter->Update();
