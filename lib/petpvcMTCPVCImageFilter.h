@@ -33,6 +33,7 @@
 #include <itkSubtractImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
 #include <itkStatisticsImageFilter.h>
+#include <itkThresholdImageFilter.h>
 #include <itkImageFileWriter.h>
 
 
@@ -80,6 +81,7 @@ public:
     typedef itk::AddImageFilter<TInputImage, TInputImage> AddFilterType;
     typedef itk::SubtractImageFilter<TInputImage, TInputImage> SubtractFilterType;
     typedef itk::DiscreteGaussianImageFilter<TInputImage, TInputImage> BlurringFilterType;
+    typedef itk::ThresholdImageFilter<TInputImage> ThresholdFilterType;
     typedef itk::ImageFileWriter<TInputImage> WriterType;
 
     typedef GTMImageFilter<TMaskImage> GTMImageFilterType;

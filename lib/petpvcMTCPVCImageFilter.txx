@@ -174,16 +174,17 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
 
     typename TInputImage::Pointer imageCorrected;
    
-
     typename AddFilterType::Pointer addFilter = AddFilterType::New();
 
     typename BlurringFilterType::Pointer blurFilter = BlurringFilterType::New();
     blurFilter->SetVariance( this->GetPSF() );
 
+    typename BlurringFilterType::Pointer blurFilter2 = BlurringFilterType::New();
+    blurFilter2->SetVariance( this->GetPSF() );
+
     for (int j = 1; j <= nClasses; j++) {
         typename TInputImage::Pointer imageNeighbours = TInputImage::New();
 
-        std::cout << "j = " << j << std::endl;
         //Starts reading from 4D volume at index (0,0,0,i) through to
         //(maxX, maxY, maxZ,0), i.e. one 3D brain mask.
         desiredStart[3] = j - 1;
@@ -210,7 +211,7 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
         for (int i = 1; i <= nClasses; i++) {
             
             if ( j != i ) {
-                std::cout << "\ti = " << i << std::endl;
+
                 desiredStart[3] = i - 1;
                 maskReg.SetSize(desiredSize );
                 maskReg.SetIndex(0,desiredStart[0] );
@@ -226,22 +227,18 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
                 imageRegionI->SetDirection( pPET->GetDirection() );
                 imageRegionI->UpdateOutputData();
                 
-                std::cout << "\t\t Multiplying by: " << vecRegMeansUpdated.get(i-1) << std::endl;
                 multiplyFilter->SetInput1( vecRegMeansUpdated.get(i-1) );
                 multiplyFilter->SetInput2( imageRegionI );
                 multiplyFilter->Update();
 
-                blurFilter->SetInput( multiplyFilter->GetOutput() );
-                blurFilter->Update();
-
                 //If this is the first neighbour region, create imageNeighbours,
                 //else add the current region to the previous contents of imageNeighbours.
                 if (neighbourCount == 0) {
-                    imageNeighbours = blurFilter->GetOutput();
+                    imageNeighbours = multiplyFilter->GetOutput();
                     imageNeighbours->DisconnectPipeline();
                 } else {
                     addFilter->SetInput1( imageNeighbours );
-                    addFilter->SetInput2( blurFilter->GetOutput() );
+                    addFilter->SetInput2( multiplyFilter->GetOutput() );
                     addFilter->Update();
 
                     imageNeighbours = addFilter->GetOutput();
@@ -251,39 +248,33 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
             }
         }
 
-        std::stringstream ss;
-        ss << j;
-        ss << "_debug.nii.gz";
+        blurFilter->SetInput( imageNeighbours );
+        blurFilter->Update();
 
         typename SubtractFilterType::Pointer subFilter = SubtractFilterType::New();
         subFilter->SetInput1( pPET );
-        subFilter->SetInput2( imageNeighbours );
+        subFilter->SetInput2( blurFilter->GetOutput() );
         subFilter->Update();
 
-        blurFilter->SetInput( imageRegionJ );
-        blurFilter->Update();
+        blurFilter2->SetInput( imageRegionJ );
+        blurFilter2->Update();
 
         typename DivideFilterType::Pointer divideFilter = DivideFilterType::New();
         divideFilter->SetInput1( subFilter->GetOutput() );
-        divideFilter->SetInput2( blurFilter->GetOutput() );
+        divideFilter->SetInput2( blurFilter2->GetOutput() );
         divideFilter->Update();
 
-        typename WriterType::Pointer writer = WriterType::New();
-        writer->SetFileName( ss.str() );
-        writer->SetInput( divideFilter->GetOutput() );
-
-        try {
-            writer->Update();
-        } catch (itk::ExceptionObject & err) {
-            std::cerr << "\n[Error]\tCannot write output file: " << ss.str()
-                  << std::endl;
-
-        }
+        /*
+        typename ThresholdFilterType::Pointer thresholdFilter = ThresholdFilterType::New();
+        thresholdFilter->SetInput( divideFilter->GetOutput() );
+        thresholdFilter->ThresholdBelow(0);
+        thresholdFilter->SetOutsideValue(0);
+        thresholdFilter->Update();*/
 
         multiplyFilter->SetInput1( imageRegionJ );
         multiplyFilter->SetInput2( divideFilter->GetOutput() );
         multiplyFilter->Update();
-      
+   
         //If this is the first region, create imageCorrected,
         //else add the current region to the previous contents of imageCorrected.
         if (j == 1) {
@@ -291,7 +282,7 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
             imageCorrected->DisconnectPipeline();
         } else {
             addFilter->SetInput1( imageCorrected );
-            addFilter->SetInput2(multiplyFilter->GetOutput());
+            addFilter->SetInput2( multiplyFilter->GetOutput());
             addFilter->Update();
 
             imageCorrected = addFilter->GetOutput();
