@@ -1,9 +1,9 @@
 /*
-   IterativeYang.cxx
+   MTC.cxx
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2015 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Iterative Yang (IY) partial volume correction
-   (PVC) technique. Please cite the following paper:
+   This program implements multi-target correction (MTC) partial volume
+   correction (PVC) technique. The method is described in:
 
         Erlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A.
         and Hutton, B.F., (2012). "A review of partial volume correction
@@ -33,12 +33,11 @@
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
-#include "petpvcFuzzyCorrectionFilter.h"
-#include "petpvcIterativeYangPVCImageFilter.h"
+#include "petpvcMTCPVCImageFilter.h"
 
-const char * const VERSION_NO = "0.0.5";
+const char * const VERSION_NO = "0.0.3";
 const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Iterative Yang (IY) PVC";
+const char * const APP_TITLE = "Multi-target correction (MTC) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -48,14 +47,13 @@ typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
 typedef itk::ImageFileReader<PETImageType> PETReaderType;
 typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 
-//Produces the text for the acknowledgments dialog in Slicer.
+//Produces the text for the acknowledgment dialog in Slicer.
 std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
 
-    typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  FilterType;
-    typedef petpvc::FuzzyCorrectionFilter< MaskImageType>  FuzzyFilterType;
+    typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
     //Setting up command line argument list.
     MetaCommand command;
@@ -64,7 +62,7 @@ int main(int argc, char *argv[])
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-        "Performs iterative Yang (IY) partial volume correction");
+        "Performs Region-based voxel-wise (MTC) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -87,10 +85,6 @@ int main(int argc, char *argv[])
                       "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
-    command.SetOption("Iterations", "i", false, "Number of iterations");
-    command.SetOptionLongTag("Iterations", "iter");
-    command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "10");
-
     command.SetOption("debug", "d", false,"Prints debug information");
     command.SetOptionLongTag("debug", "debug");
 
@@ -108,9 +102,6 @@ int main(int argc, char *argv[])
     float fFWHM_x = command.GetValueAsFloat("FWHMx", "X");
     float fFWHM_y = command.GetValueAsFloat("FWHMy", "Y");
     float fFWHM_z = command.GetValueAsFloat("FWHMz", "Z");
-
-    //Get number of iterations
-    int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 
     //Make vector of FWHM in x,y and z.
     VectorType vFWHM;
@@ -159,18 +150,17 @@ int main(int argc, char *argv[])
     vVariance[1] = pow(vVariance[1], 2);
     vVariance[2] = pow(vVariance[2], 2);
 
-    FilterType::Pointer iyFilter = FilterType::New();
-    iyFilter->SetInput( petReader->GetOutput() );
-    iyFilter->SetMaskInput( maskReader->GetOutput() );
-    iyFilter->SetPSF(vVariance);
-    iyFilter->SetIterations( nNumOfIters );
-    iyFilter->SetVerbose ( bDebug );
+    FilterType::Pointer MTCFilter = FilterType::New();
+    MTCFilter->SetInput( petReader->GetOutput() );
+    MTCFilter->SetMaskInput( maskReader->GetOutput() );
+    MTCFilter->SetPSF(vVariance);
+    MTCFilter->SetVerbose( bDebug );
 
-    //Perform IY.
+    //Perform MTC.
     try {
-        iyFilter->Update();
+        MTCFilter->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tfailure applying Iterative Yang on: " << sPETFileName
+        std::cerr << "\n[Error]\tfailure applying MTC on: " << sPETFileName
                   << "\n" << err
                   << std::endl;
         return EXIT_FAILURE;
@@ -178,12 +168,12 @@ int main(int argc, char *argv[])
 
     PETWriterType::Pointer petWriter = PETWriterType::New();
     petWriter->SetFileName(sOutputFileName);
-    petWriter->SetInput( iyFilter->GetOutput() );
+    petWriter->SetInput( MTCFilter->GetOutput() );
 
     try {
         petWriter->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "\n[Error]\tCannot write output file: " << sOutputFileName
+        std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
                   << std::endl;
 
         return EXIT_FAILURE;
@@ -195,10 +185,8 @@ int main(int argc, char *argv[])
 std::string getAcknowledgments(void)
 {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Iterative Yang (IY) partial volume correction (PVC) technique. Please cite the following paper:\n"
+    std::string sAck = "This program implements multi-target correction (MTC) partial volume correction (PVC) technique.\nThe method is described in:\n"
                        "\tErlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A. and Hutton, B.F., (2012).\n\t\"A review of partial volume correction techniques "
                        "for emission tomography and their applications in neurology, cardiology and oncology\", \n\tPhysics in Medicine and Biology, vol. 57, no. 21, R119-59.";
-
     return sAck;
 }
-
