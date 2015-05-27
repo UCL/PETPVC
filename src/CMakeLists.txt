@@ -20,6 +20,12 @@
 ADD_EXECUTABLE(pvc_gtm GTM.cxx  )
 TARGET_LINK_LIBRARIES(pvc_gtm ${ITK_LIBRARIES})
 
+ADD_EXECUTABLE(pvc_labbe Labbe.cxx  )
+TARGET_LINK_LIBRARIES(pvc_labbe ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_mtc MTC.cxx  )
+TARGET_LINK_LIBRARIES(pvc_mtc ${ITK_LIBRARIES})
+
 ADD_EXECUTABLE(pvc_rbv RBV.cxx  )
 TARGET_LINK_LIBRARIES(pvc_rbv ${ITK_LIBRARIES})
 
@@ -35,4 +41,4 @@ TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
-install(TARGETS pvc_gtm pvc_rbv pvc_iy pvc_diy pvc_mg pvc_simulate DESTINATION bin)
+install(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy pvc_diy pvc_mg pvc_simulate DESTINATION bin)

@@ -150,7 +150,7 @@ void DiscreteIYPVCImageFilter< TInputImage, TMaskImage>
             {
                 LabelPixelType labelValue = *vIt;
                 //std::cout << "Label: " << labelValue << "\t";
-                fNewRegMean = fmax( labelStatsFilter->GetMean( labelValue ), 0.0 );
+                fNewRegMean = std::max( labelStatsFilter->GetMean( labelValue ), 0.0 );
                 //std::cout << fNewRegMean << " ";
                 vecRegMeansCurrent.put(i, fNewRegMean);
                 i++;

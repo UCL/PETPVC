@@ -35,6 +35,8 @@
 
 #include <itkImageDuplicator.h>
 
+#include <algorithm>
+
 
 using namespace itk;
 

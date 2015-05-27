@@ -1,9 +1,9 @@
 /*
-   IterativeYang.cxx
+   Labbe.cxx
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2015 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This program implements the Iterative Yang (IY) partial volume correction
-   (PVC) technique. Please cite the following paper:
-
-        Erlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A.
-        and Hutton, B.F., (2012). "A review of partial volume correction
-        techniques for emission tomography and their applications in neurology,
-        cardiology and oncology", Physics in Medicine and Biology,
-        vol. 57, no. 21, R119-59.
+   This program implements the Labbe partial volume
+   correction (PVC) technique. The method is described in:
+        Labbe, C., M. Koepp, J. Ashburner, T. Spinks, M. Richardson, 
+		J. Duncan, and V. Cunningham. "Absolute PET quantification with 
+		correction for partial volume effects within cerebral structures." 
+		(1998): 59-66.
 
  */
 
@@ -33,12 +31,11 @@
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
-#include "petpvcFuzzyCorrectionFilter.h"
-#include "petpvcIterativeYangPVCImageFilter.h"
+#include "petpvcLabbePVCImageFilter.h"
 
-const char * const VERSION_NO = "0.0.5";
+const char * const VERSION_NO = "0.0.1";
 const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Iterative Yang (IY) PVC";
+const char * const APP_TITLE = "Labbe PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -51,20 +48,23 @@ typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 //Produces the text for the acknowledgments dialog in Slicer.
 std::string getAcknowledgments(void);
 
+using namespace petpvc;
+
 int main(int argc, char *argv[])
 {
 
-    typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  FilterType;
-    typedef petpvc::FuzzyCorrectionFilter< MaskImageType>  FuzzyFilterType;
+    typedef petpvc::LabbePVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
-    //Setting up command line argument list.
+    PETImageType::Pointer image = PETImageType::New();
+
+//Setting up command line argument list.
     MetaCommand command;
 
     command.SetVersion(VERSION_NO);
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-        "Performs iterative Yang (IY) partial volume correction");
+        "Performs Labbe partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
     command.AddField("petfile", "PET filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
     command.AddField("maskfile", "mask filename", MetaCommand::IMAGE, MetaCommand::DATA_IN);
-    command.AddField("outputfile", "output filename", MetaCommand::IMAGE, MetaCommand::DATA_OUT);
+    //command.AddField("outputfile", "output filename", MetaCommand::FILE, MetaCommand::DATA_OUT);
 
     command.SetOption("FWHMx", "x", true,
                       "The full-width at half maximum in mm along x-axis");
@@ -87,10 +87,6 @@ int main(int argc, char *argv[])
                       "The full-width at half maximum in mm along z-axis");
     command.AddOptionField("FWHMz", "Z", MetaCommand::FLOAT, true, "");
 
-    command.SetOption("Iterations", "i", false, "Number of iterations");
-    command.SetOptionLongTag("Iterations", "iter");
-    command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "10");
-
     command.SetOption("debug", "d", false,"Prints debug information");
     command.SetOptionLongTag("debug", "debug");
 
@@ -102,15 +98,12 @@ int main(int argc, char *argv[])
     //Get image filenames
     std::string sPETFileName = command.GetValueAsString("petfile");
     std::string sMaskFileName = command.GetValueAsString("maskfile");
-    std::string sOutputFileName = command.GetValueAsString("outputfile");
+    //std::string sOutputFileName = command.GetValueAsString("outputfile");
 
     //Get values for PSF.
     float fFWHM_x = command.GetValueAsFloat("FWHMx", "X");
     float fFWHM_y = command.GetValueAsFloat("FWHMy", "Y");
     float fFWHM_z = command.GetValueAsFloat("FWHMz", "Z");
-
-    //Get number of iterations
-    int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 
     //Make vector of FWHM in x,y and z.
     VectorType vFWHM;
@@ -159,35 +152,12 @@ int main(int argc, char *argv[])
     vVariance[1] = pow(vVariance[1], 2);
     vVariance[2] = pow(vVariance[2], 2);
 
-    FilterType::Pointer iyFilter = FilterType::New();
-    iyFilter->SetInput( petReader->GetOutput() );
-    iyFilter->SetMaskInput( maskReader->GetOutput() );
-    iyFilter->SetPSF(vVariance);
-    iyFilter->SetIterations( nNumOfIters );
-    iyFilter->SetVerbose ( bDebug );
-
-    //Perform IY.
-    try {
-        iyFilter->Update();
-    } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tfailure applying Iterative Yang on: " << sPETFileName
-                  << "\n" << err
-                  << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    PETWriterType::Pointer petWriter = PETWriterType::New();
-    petWriter->SetFileName(sOutputFileName);
-    petWriter->SetInput( iyFilter->GetOutput() );
-
-    try {
-        petWriter->Update();
-    } catch (itk::ExceptionObject & err) {
-        std::cerr << "\n[Error]\tCannot write output file: " << sOutputFileName
-                  << std::endl;
-
-        return EXIT_FAILURE;
-    }
+    FilterType::Pointer labbeFilter = FilterType::New();
+    labbeFilter->SetInput( petReader->GetOutput() );
+    labbeFilter->SetMaskInput( maskReader->GetOutput() );
+    labbeFilter->SetPSF( vVariance );
+    labbeFilter->SetVerbose( bDebug );
+    labbeFilter->Update();
 
     return EXIT_SUCCESS;
 }
@@ -195,9 +165,11 @@ int main(int argc, char *argv[])
 std::string getAcknowledgments(void)
 {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Iterative Yang (IY) partial volume correction (PVC) technique. Please cite the following paper:\n"
-                       "\tErlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A. and Hutton, B.F., (2012).\n\t\"A review of partial volume correction techniques "
-                       "for emission tomography and their applications in neurology, cardiology and oncology\", \n\tPhysics in Medicine and Biology, vol. 57, no. 21, R119-59.";
+    std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
+                       "The method is described in:\n"
+                       "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
+                       "\tpartial volume effects in PET: principle and validation\". Journal of\n"
+                       "\tNuclear Medicine, 39(5):904-11.";
 
     return sAck;
 }

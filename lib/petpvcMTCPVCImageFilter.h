@@ -1,9 +1,9 @@
 /*
-   petpvcIterativeYangPVCImageFilter.h
+   petpvcMTCPVCImageFilter.h
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2015 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,33 +19,31 @@
 
  */
 
-#ifndef __PETPVCITERATIVEYANGIMAGEFILTER_H
-#define __PETPVCITERATIVEYANGIMAGEFILTER_H
+#ifndef __PETPVCMTCPVCImageFilter_H
+#define __PETPVCMTCPVCImageFilter_H
 
 #include "itkImage.h"
 #include "itkImageToImageFilter.h"
-#include "petpvcFuzzyCorrectionFilter.h"
+#include "petpvcGTMImageFilter.h"
 
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
 #include <itkDivideImageFilter.h>
 #include <itkAddImageFilter.h>
+#include <itkSubtractImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
 #include <itkStatisticsImageFilter.h>
-#include <itkImageDuplicator.h>
-
-#include <algorithm>
 
 using namespace itk;
 
 namespace petpvc
 {
 template< class TInputImage, typename TMaskImage>
-class IterativeYangPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
+class MTCPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
 {
 public:
     /** Standard class typedefs. */
-    typedef IterativeYangPVCImageFilter             Self;
+    typedef MTCPVCImageFilter             Self;
     typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
     typedef SmartPointer< Self >        Pointer;
 
@@ -53,7 +51,7 @@ public:
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
-    itkTypeMacro(IterativeYangPVCImageFilter, ImageToImageFilter);
+    itkTypeMacro(MTCPVCImageFilter, ImageToImageFilter);
 
     /** Image related typedefs. */
     typedef TInputImage             InputImageType;
@@ -78,10 +76,10 @@ public:
     typedef itk::MultiplyImageFilter<TInputImage, TInputImage> MultiplyFilterType;
     typedef itk::DivideImageFilter<TInputImage,TInputImage, TInputImage> DivideFilterType;
     typedef itk::AddImageFilter<TInputImage, TInputImage> AddFilterType;
+    typedef itk::SubtractImageFilter<TInputImage, TInputImage> SubtractFilterType;
     typedef itk::DiscreteGaussianImageFilter<TInputImage, TInputImage> BlurringFilterType;
-    typedef itk::ImageDuplicator<TInputImage> DuplicatorType;
 
-    typedef FuzzyCorrectionFilter<TMaskImage> FuzzyCorrFilterType;
+    typedef GTMImageFilter<TMaskImage> GTMImageFilterType;
     typedef itk::Vector<float, 3> ITKVectorType;
 
     /** Image related typedefs. */
@@ -122,18 +120,16 @@ public:
         return this->m_vecVariance;
     }
 
-    void SetIterations( unsigned int nIters ) {
-        this->m_nIterations = nIters;
-    }
-
     void SetVerbose( bool bVerbose ) {
         this->m_bVerbose = bVerbose;
     }
 
+    void ApplyYang();
+
 
 protected:
-    IterativeYangPVCImageFilter();
-    ~IterativeYangPVCImageFilter() {};
+    MTCPVCImageFilter();
+    ~MTCPVCImageFilter() {}
 
     /** Does the real work. */
     virtual void GenerateData();
@@ -141,11 +137,10 @@ protected:
     VectorType m_vecRegMeansPVCorr;
     MatrixType m_matGTM;
     ITKVectorType m_vecVariance;
-    unsigned int m_nIterations;
     bool m_bVerbose;
 
 private:
-    IterativeYangPVCImageFilter(const Self &); //purposely not implemented
+    MTCPVCImageFilter(const Self &); //purposely not implemented
     void operator=(const Self &);  //purposely not implemented
 
 
@@ -155,8 +150,8 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "petpvcIterativeYangPVCImageFilter.txx"
+#include "petpvcMTCPVCImageFilter.txx"
 #endif
 
 
-#endif // __PETPVCITERATIVEYANGIMAGEFILTER_H
+#endif // __PETPVCMTCIMAGEFILTER_H
