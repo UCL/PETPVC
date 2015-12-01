@@ -1,5 +1,5 @@
 /*
-   petpvcMTCPVCImageFilter.txx
+   petpvcLabbeMTCPVCImageFilter.txx
 
    Author:      Benjamin A. Thomas
 
@@ -19,10 +19,10 @@
 
  */
 
-#ifndef __PETPVCMTCPVCIMAGEFILTER_TXX
-#define __PETPVCMTCPVCIMAGEFILTER_TXX
+#ifndef __PETPVCLABBEMTCPVCImageFilter_TXX
+#define __PETPVCLABBEMTCPVCImageFilter_TXX
 
-#include "petpvcMTCPVCImageFilter.h"
+#include "petpvcLabbeMTCPVCImageFilter.h"
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
@@ -33,38 +33,38 @@ namespace petpvc
 {
 
 template< class TInputImage, class TMaskImage >
-MTCPVCImageFilter< TInputImage, TMaskImage>
-::MTCPVCImageFilter()
+LabbeMTCPVCImageFilter< TInputImage, TMaskImage>
+::LabbeMTCPVCImageFilter()
 {
     this->m_bVerbose = false;
 }
 
 
 template< class TInputImage, class TMaskImage >
-void MTCPVCImageFilter< TInputImage, TMaskImage>
+void LabbeMTCPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
     typename TInputImage::ConstPointer input = this->GetInput();
     typename TInputImage::Pointer output = this->GetOutput();
 
-    typename GTMImageFilterType::Pointer pGTM = GTMImageFilterType::New();
+    typename LabbeImageFilterType::Pointer pLabbe = LabbeImageFilterType::New();
 
     InputImagePointer pPET = dynamic_cast<const TInputImage*> (ProcessObject::GetInput(0));
     MaskImagePointer pMask = dynamic_cast<const TMaskImage*> (ProcessObject::GetInput(1));
 
-    pGTM->SetInput( pMask );
-    pGTM->SetPSF( this->GetPSF() );
-    //Calculate GTM.
+    pLabbe->SetInput( pMask );
+    pLabbe->SetPSF( this->GetPSF() );
+    //Calculate Labbe.
     try {
-        pGTM->Update();
+        pLabbe->Update();
     } catch (itk::ExceptionObject & err) {
-        std::cerr << "[Error]\tCannot calculate GTM"
+        std::cerr << "[Error]\tCannot calculate Labbe"
                   << std::endl;
     }
 
 
     //if ( this->m_bVerbose ) {
-    //    std::cout << pGTM->GetMatrix() << std::endl;
+    //    std::cout << pLabbe->GetMatrix() << std::endl;
     //}
 
     //Get mask image size.
@@ -112,9 +112,12 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
     vnl_vector<float> vecRegMeansCurrent;
     vecRegMeansCurrent.set_size(nClasses);
 
-    //Vector to contain the estimated means after GTM correction.
+    //Vector to contain the estimated means after Labbe correction.
     vnl_vector<float> vecRegMeansUpdated;
     vecRegMeansUpdated.set_size(nClasses);
+
+    typename BlurringFilterType::Pointer gaussFilter = BlurringFilterType::New();
+    gaussFilter->SetVariance( this->GetPSF() );
 
     for (int i = 1; i <= nClasses; i++) {
 
@@ -134,7 +137,10 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
         extractFilter->SetExtractionRegion( maskReg );
         extractFilter->Update();
 
-        imageExtractedRegion = extractFilter->GetOutput();
+	gaussFilter->SetInput( extractFilter->GetOutput() );
+	gaussFilter->Update();
+
+        imageExtractedRegion = gaussFilter->GetOutput();
         imageExtractedRegion->SetDirection( pPET->GetDirection() );
         imageExtractedRegion->UpdateOutputData();
 
@@ -150,20 +156,20 @@ void MTCPVCImageFilter< TInputImage, TMaskImage>
         fSumOfPETReg = statsFilter->GetSum();
 
         //Place regional mean into vector.
-        vecRegMeansCurrent.put(i - 1, fSumOfPETReg / pGTM->GetSumOfRegions().get(i - 1));
-        //std::cout << "Sum = " << fSumOfPETReg << " , Mean = " << vecRegMeansCurrent.get(i-1) << " Total vox. = " << gtmFilter->GetSumOfRegions().get( i-1 ) << std::endl;
+        vecRegMeansCurrent.put(i - 1, fSumOfPETReg / pLabbe->GetSumOfRegions().get(i - 1));
+        //std::cout << "Sum = " << fSumOfPETReg << " , Mean = " << vecRegMeansCurrent.get(i-1) << " Total vox. = " << LabbeFilter->GetSumOfRegions().get( i-1 ) << std::endl;
 
     }
 
-    //Apply GTM to regional mean values.
-    vecRegMeansUpdated = vnl_matrix_inverse<float>(pGTM->GetMatrix()) * vecRegMeansCurrent;
+    //Apply Labbe to regional mean values.
+    vecRegMeansUpdated = vnl_matrix_inverse<float>(pLabbe->GetMatrix()) * vecRegMeansCurrent;
 
     if ( this->m_bVerbose ) {
         std::cout << std::endl << "Regional means:" << std::endl;
         std::cout << vecRegMeansCurrent << std::endl << std::endl;
 
-        std::cout << "GTM:" << std::endl;
-        pGTM->GetMatrix().print(std::cout);
+        std::cout << "Labbe:" << std::endl;
+        pLabbe->GetMatrix().print(std::cout);
 
         std::cout << std::endl << "Corrected means:" << std::endl;
         std::cout << vecRegMeansUpdated << std::endl;

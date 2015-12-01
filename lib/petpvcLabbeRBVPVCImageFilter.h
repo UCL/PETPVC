@@ -1,9 +1,9 @@
 /*
-   petpvcRBVPVCImageFilter.h
+   petpvcLabbeRBVPVCImageFilter.h
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2015 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
 
  */
 
-#ifndef __PETPVCRBVPVCImageFilter_H
-#define __PETPVCRBVPVCImageFilter_H
+#ifndef __PETPVCLABBERBVIMAGEFILTER_H
+#define __PETPVCLABBERBVIMAGEFILTER_H
 
 #include "itkImage.h"
 #include "itkImageToImageFilter.h"
-#include "petpvcGTMImageFilter.h"
+#include "petpvcLabbeImageFilter.h"
 
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
@@ -39,11 +39,11 @@ using namespace itk;
 namespace petpvc
 {
 template< class TInputImage, typename TMaskImage>
-class RBVPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
+class LabbeRBVPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
 {
 public:
     /** Standard class typedefs. */
-    typedef RBVPVCImageFilter             Self;
+    typedef LabbeRBVPVCImageFilter             Self;
     typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
     typedef SmartPointer< Self >        Pointer;
 
@@ -51,7 +51,7 @@ public:
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
-    itkTypeMacro(RBVPVCImageFilter, ImageToImageFilter);
+    itkTypeMacro(LabbeRBVPVCImageFilter, ImageToImageFilter);
 
     /** Image related typedefs. */
     typedef TInputImage             InputImageType;
@@ -78,7 +78,7 @@ public:
     typedef itk::AddImageFilter<TInputImage, TInputImage> AddFilterType;
     typedef itk::DiscreteGaussianImageFilter<TInputImage, TInputImage> BlurringFilterType;
 
-    typedef GTMImageFilter<TMaskImage> GTMImageFilterType;
+    typedef LabbeImageFilter<TMaskImage> LabbeImageFilterType;
     typedef itk::Vector<float, 3> ITKVectorType;
 
     /** Image related typedefs. */
@@ -107,7 +107,7 @@ public:
     }
 
     MatrixType GetMatrix() const {
-        return this->m_matGTM;
+        return this->m_matLabbe;
     }
 
     void SetPSF(ITKVectorType vec) {
@@ -132,20 +132,20 @@ public:
 
 
 protected:
-    RBVPVCImageFilter();
-    ~RBVPVCImageFilter() {}
+    LabbeRBVPVCImageFilter();
+    ~LabbeRBVPVCImageFilter() {}
 
     /** Does the real work. */
     virtual void GenerateData();
 
     VectorType m_vecRegMeansPVCorr;
-    MatrixType m_matGTM;
+    MatrixType m_matLabbe;
     ITKVectorType m_vecVariance;
     bool m_bVerbose;
 	
 
 private:
-    RBVPVCImageFilter(const Self &); //purposely not implemented
+    LabbeRBVPVCImageFilter(const Self &); //purposely not implemented
     void operator=(const Self &);  //purposely not implemented
 
 
@@ -155,8 +155,8 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "petpvcRBVPVCImageFilter.txx"
+#include "petpvcLabbeRBVPVCImageFilter.txx"
 #endif
 
 
-#endif // __PETPVCRBVIMAGEFILTER_H
+#endif // __PETPVCLABBERBVIMAGEFILTER_H
