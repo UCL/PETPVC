@@ -1,9 +1,9 @@
 /*
-   petpvcRBVPVCImageFilter.h
+   petpvcRLPVCImageFilter.h
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2013 Institute of Nuclear Medicine, University College London.
+   Copyright 2015 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,31 +19,34 @@
 
  */
 
-#ifndef __PETPVCRBVPVCImageFilter_H
-#define __PETPVCRBVPVCImageFilter_H
+#ifndef __PETPVCRLPVCIMAGEFILTER_H
+#define __PETPVCRLPVCIMAGEFILTER_H
 
 #include "itkImage.h"
 #include "itkImageToImageFilter.h"
-#include "petpvcGTMImageFilter.h"
 
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
 #include <itkDivideImageFilter.h>
 #include <itkAddImageFilter.h>
+#include <itkSubtractImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
 #include <itkStatisticsImageFilter.h>
+#include <itkThresholdImageFilter.h>
+#include <itkImageDuplicator.h>
 
+#include <algorithm>
 
 using namespace itk;
 
 namespace petpvc
 {
-template< class TInputImage, typename TMaskImage>
-class RBVPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
+template< class TInputImage>
+class RichardsonLucyPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
 {
 public:
     /** Standard class typedefs. */
-    typedef RBVPVCImageFilter             Self;
+    typedef RichardsonLucyPVCImageFilter             Self;
     typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
     typedef SmartPointer< Self >        Pointer;
 
@@ -51,7 +54,7 @@ public:
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
-    itkTypeMacro(RBVPVCImageFilter, ImageToImageFilter);
+    itkTypeMacro(RichardsonLucyPVCImageFilter, ImageToImageFilter);
 
     /** Image related typedefs. */
     typedef TInputImage             InputImageType;
@@ -61,54 +64,25 @@ public:
     typedef typename TInputImage::IndexType  IndexType;
     typedef typename TInputImage::PixelType  PixelType;
 
-    /** Mask image related typedefs. */
-    typedef TMaskImage                      MaskImageType;
-    typedef typename TMaskImage::ConstPointer    MaskImagePointer;
-    typedef typename TMaskImage::RegionType MaskRegionType;
-    typedef typename TMaskImage::SizeType   MaskSizeType;
-    typedef typename TMaskImage::IndexType  MaskIndexType;
-    typedef typename TMaskImage::PixelType  MaskPixelType;
+	typedef itk::ImageRegionConstIterator<TInputImage> ConstImageIterator;
 
     //For calculating mean values from image
     typedef itk::StatisticsImageFilter<TInputImage> StatisticsFilterType;
     //Extracts a 3D volume from 4D file.
-    typedef itk::ExtractImageFilter<TMaskImage, TInputImage> ExtractFilterType;
+ 
     typedef itk::MultiplyImageFilter<TInputImage, TInputImage> MultiplyFilterType;
-    typedef itk::DivideImageFilter<TInputImage,TInputImage, TInputImage> DivideFilterType;
+	typedef itk::DivideImageFilter<TInputImage, TInputImage, TInputImage> DivideFilterType;
     typedef itk::AddImageFilter<TInputImage, TInputImage> AddFilterType;
+	typedef itk::SubtractImageFilter<TInputImage, TInputImage> SubFilterType;
     typedef itk::DiscreteGaussianImageFilter<TInputImage, TInputImage> BlurringFilterType;
+	typedef itk::ThresholdImageFilter<TInputImage> ThresholdFilterType;
+    typedef itk::ImageDuplicator<TInputImage> DuplicatorType;
 
-    typedef GTMImageFilter<TMaskImage> GTMImageFilterType;
     typedef itk::Vector<float, 3> ITKVectorType;
 
     /** Image related typedefs. */
     itkStaticConstMacro(InputImageDimension, unsigned int,
                         3);
-
-    itkStaticConstMacro(MaskImageDimension, unsigned int,
-                        4);
-
-    typedef vnl_vector<float> VectorType;
-    typedef vnl_matrix<float> MatrixType;
-
-    /** Set the mask image */
-    void SetMaskInput(const TMaskImage *input) {
-        // Process object is not const-correct so the const casting is required.
-        this->SetNthInput( 1, const_cast< TMaskImage * >( input ) );
-    }
-
-    /** Get the label image */
-    const MaskImageType * GetMaskInput() const {
-        return itkDynamicCastInDebugMode< MaskImageType * >( const_cast< DataObject * >( this->ProcessObject::GetInput(0) ) );
-    }
-
-    VectorType GetCorrectedMeans() const {
-        return this->m_vecRegMeansPVCorr;
-    }
-
-    MatrixType GetMatrix() const {
-        return this->m_matGTM;
-    }
 
     void SetPSF(ITKVectorType vec) {
         this->m_vecVariance = vec;
@@ -119,33 +93,33 @@ public:
         return this->m_vecVariance;
     }
 
+    void SetIterations( unsigned int nIters ) {
+        this->m_nIterations = nIters;
+    }
+
+    void SetStoppingCond( float stop ) {
+        this->m_fStopCriterion = stop;
+    }
+
     void SetVerbose( bool bVerbose ) {
         this->m_bVerbose = bVerbose;
     }
 
-    void SetUseLabbe() {
-        this->m_bUseLabbe = true;
-    }
-
-
-    void ApplyYang();
-
 
 protected:
-    RBVPVCImageFilter();
-    ~RBVPVCImageFilter() {}
+    RichardsonLucyPVCImageFilter();
+    ~RichardsonLucyPVCImageFilter() {};
 
     /** Does the real work. */
     virtual void GenerateData();
 
-    VectorType m_vecRegMeansPVCorr;
-    MatrixType m_matGTM;
     ITKVectorType m_vecVariance;
+    unsigned int m_nIterations;
+    float m_fStopCriterion;
     bool m_bVerbose;
-	
 
 private:
-    RBVPVCImageFilter(const Self &); //purposely not implemented
+    RichardsonLucyPVCImageFilter(const Self &); //purposely not implemented
     void operator=(const Self &);  //purposely not implemented
 
 
@@ -155,8 +129,8 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "petpvcRBVPVCImageFilter.txx"
+#include "petpvcRLPVCImageFilter.txx"
 #endif
 
 
-#endif // __PETPVCRBVIMAGEFILTER_H
+#endif // __PETPVCRichardsonLucyIMAGEFILTER_H

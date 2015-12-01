@@ -120,9 +120,26 @@ MullerGartnerImageFilter<TInputImage1, TInputImage2, TInputImage3, TOutputImage>
     m_filterGaussian2->SetVariance(this->m_dVariance);
 
 
+	//Pick size of erosion depending on voxel size.
+	typename Input1ImageType::SpacingType voxelSize = inputPET->GetSpacing();
+	float avgDim = (voxelSize[0]+ voxelSize[1] + voxelSize[2] )/3;
+	float elementRadius;
+
+	if ( avgDim <= 1.0 )
+		elementRadius = 6;
+	else
+		if ( avgDim >= 2.5 )
+			elementRadius = 3;
+		else
+			elementRadius = floor(( avgDim * -2.0 + 8.0 )+0.5f);
+
+    if (this->m_bVerbose) {
+        std::cout << "Structuring element : " << elementRadius << std::endl;
+    }
+
     //Setup WM erosion filter
     StructuringElementType structuringElement;
-    structuringElement.SetRadius(3);
+    structuringElement.SetRadius( elementRadius );
     structuringElement.CreateStructuringElement();
     m_binaryErodeFilter->SetKernel(structuringElement);
     m_binaryErodeFilter->SetInput(inputWM);

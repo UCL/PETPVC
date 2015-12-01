@@ -38,7 +38,18 @@ TARGET_LINK_LIBRARIES(pvc_diy ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_mg MullerGartner.cxx  )
 TARGET_LINK_LIBRARIES(pvc_mg ${ITK_LIBRARIES})
 
+ADD_EXECUTABLE(pvc_vc VanCittert.cxx  )
+TARGET_LINK_LIBRARIES(pvc_vc ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_rl RichardsonLucy.cxx  )
+TARGET_LINK_LIBRARIES(pvc_rl ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(petpvc PETPVC.cxx  )
+TARGET_LINK_LIBRARIES(petpvc ${ITK_LIBRARIES})
+
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
-install(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy pvc_diy pvc_mg pvc_simulate DESTINATION bin)
+install(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl petpvc pvc_simulate DESTINATION bin)
+
+

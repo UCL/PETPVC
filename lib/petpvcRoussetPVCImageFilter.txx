@@ -162,6 +162,7 @@ void RoussetPVCImageFilter< TInputImage, TMaskImage>
     }
 
     std::cout << vecRegMeansUpdated << std::endl;
+	this->m_vecRegMeansPVCorr = vecRegMeansUpdated;
 
     this->AllocateOutputs();
 
