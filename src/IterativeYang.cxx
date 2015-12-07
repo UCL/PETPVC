@@ -37,7 +37,7 @@
 #include "petpvcFuzzyCorrectionFilter.h"
 #include "petpvcIterativeYangPVCImageFilter.h"
 
-const char * const VERSION_NO = "0.0.5";
+const char * const VERSION_NO = "15.1.0";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Iterative Yang (IY) PVC";
 
