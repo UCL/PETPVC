@@ -36,7 +36,7 @@
 
 #include "petpvcDiscreteIYPVCImageFilter.h"
 
-const char * const VERSION_NO = "0.0.1";
+const char * const VERSION_NO = "15.1.0";
 const char * const AUTHOR = "Benjamin A. Thomas";
 const char * const APP_TITLE = "Discrete Iterative Yang (IY) PVC";
 
