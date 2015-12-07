@@ -4,6 +4,7 @@
    Author:      Benjamin A. Thomas
 
    Copyright 2014 Institute of Nuclear Medicine, University College London.
+   Copyright 2014 Clinical Imaging Research Centre, A*STAR-NUS
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
