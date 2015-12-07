@@ -4,7 +4,8 @@
    Authors:     Benjamin A. Thomas
                 Kris Thielemans (minor modifications)
 
-   Copyright 2013-2014 Institute of Nuclear Medicine, University College London.
+   Copyright 2014-2015 Institute of Nuclear Medicine, University College London.
+   Copyright 2014-2015 Clinical Imaging Research Centre, A*STAR-NUS.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

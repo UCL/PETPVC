@@ -14,7 +14,7 @@ The following are required to build this software:
 ###Building and installing
 - Clone the repository
 ```bash
-git clone https://github.com/bathomas/PETPVC.git
+git clone https://github.com/UCL/PETPVC.git
 ```
 - Create a build directory
 ```bash
