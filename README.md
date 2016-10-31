@@ -1,6 +1,11 @@
 # PETPVC
 PETPVC: toolbox for partial volume correction (PVC) in positron emission tomography (PET)
 
+##Publications
+When using this toolbox, please include a reference to the paper:
+- <i>PETPVC: a toolbox for performing partial volume correction techniques in positron emission tomography</i><br/>BA Thomas, V Cuplov, A Bousse, A Mendes, K Thielemans, BF Hutton, K Erlandsson<br/>Physics in Medicine and Biology 61 (22), 7975. [DOI](http://dx.doi.org/10.1088/0031-9155/61/22/7975)
+
+---
 ##Installation instructions
 
 The following are required to build this software:
