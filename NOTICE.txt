@@ -4,4 +4,11 @@
 
 	This product includes software developed at the Institute of Nuclear 
 	Medicine (http://www.ucl.ac.uk/medicine/nuclear-medicine).
+	
+	When using this toolbox, please include a reference to the paper below:
+	
+		PETPVC: a toolbox for performing partial volume correction techniques in positron emission tomography
+		BA Thomas, V Cuplov, A Bousse, A Mendes, K Thielemans, BF Hutton, K Erlandsson
+		Physics in Medicine and Biology 61 (22), 7975 
+		DOI: http://dx.doi.org/10.1088/0031-9155/61/22/7975
 
