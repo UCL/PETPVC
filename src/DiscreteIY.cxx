@@ -28,6 +28,8 @@
 
  */
 
+#include "EnvironmentInfo.h"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -35,10 +37,6 @@
 #include <itkTimeProbe.h>
 
 #include "petpvcDiscreteIYPVCImageFilter.h"
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Discrete Iterative Yang (IY) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<short, 3> MaskImageType;
@@ -53,6 +51,12 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Discrete Iterative Yang (IY) PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     typedef petpvc::DiscreteIYPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 

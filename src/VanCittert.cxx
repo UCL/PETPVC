@@ -26,16 +26,14 @@
 
  */
 
+#include "EnvironmentInfo.h"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
 #include "petpvcVanCittertPVCImageFilter.h"
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Reblurred Van-Cittert (RVC)";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 3> PETImageType;
@@ -48,6 +46,12 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Reblurred Van-Cittert (RVC)";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     typedef petpvc::VanCittertPVCImageFilter< PETImageType >  FilterType;
 

@@ -27,6 +27,7 @@
 
  */
 
+#include "EnvironmentInfo.h"
 #include <string>
 #include <itkImage.h>
 #include <itkImageFileReader.h>
@@ -35,10 +36,6 @@
 #include "petpvcMullerGartnerImageFilter.h"
 
 #include <metaCommand.h>
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Muller-Gartner (MG) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -62,6 +59,12 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Muller-Gartner (MG) PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     //Setting up command line argument list.
     MetaCommand command;

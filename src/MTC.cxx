@@ -21,13 +21,12 @@
    This program implements multi-target correction (MTC) partial volume
    correction (PVC) technique. The method is described in:
 
-        Erlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A.
-        and Hutton, B.F., (2012). "A review of partial volume correction
-        techniques for emission tomography and their applications in neurology,
-        cardiology and oncology", Physics in Medicine and Biology,
-        vol. 57, no. 21, R119-59.
+        Erlandsson K., Wong A. T., van Heertum R., Mann J. J. and Parsey R. V. (2006)
+        "An improved method for voxel-based partial volume correction in PET and SPECT", Neuroimage, 31 T84
 
  */
+
+#include "EnvironmentInfo.h"
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -35,10 +34,6 @@
 #include <metaCommand.h>
 
 #include "petpvcMTCPVCImageFilter.h"
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Multi-target correction (MTC) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -54,6 +49,13 @@ std::string getAcknowledgments(void);
 int main(int argc, char *argv[])
 {
 
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Multi-target correction (MTC) PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
+
     typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
     //Setting up command line argument list.
@@ -63,7 +65,7 @@ int main(int argc, char *argv[])
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(
-        "Performs Region-based voxel-wise (MTC) partial volume correction");
+        "Performs multi-target correction (MTC) partial volume correction");
 
     std::string sAcks = getAcknowledgments();
     command.SetAcknowledgments(sAcks.c_str());
@@ -186,8 +188,9 @@ int main(int argc, char *argv[])
 std::string getAcknowledgments(void)
 {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements multi-target correction (MTC) partial volume correction (PVC) technique.\nThe method is described in:\n"
-                       "\tErlandsson, K. and Buvat, I. and Pretorius, P.H. and Thomas, B.A. and Hutton, B.F., (2012).\n\t\"A review of partial volume correction techniques "
-                       "for emission tomography and their applications in neurology, cardiology and oncology\", \n\tPhysics in Medicine and Biology, vol. 57, no. 21, R119-59.";
+    std::string sAck =  "This program implements multi-target correction (MTC) partial volume correction (PVC) technique.\nThe method is described in:\n"
+                        "\tErlandsson K., Wong A. T., van Heertum R., Mann J. J. and Parsey R. V. (2006)\n"
+                        "\t\"An improved method for voxel-based partial volume correction in PET and SPECT\"\n"
+                        "\tNeuroimage, 31 T84";
     return sAck;
 }

@@ -29,16 +29,14 @@
 
  */
 
+#include "EnvironmentInfo.h"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include <metaCommand.h>
 
 #include "petpvcRBVPVCImageFilter.h"
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -53,6 +51,12 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Region-based voxel-wise (RBV) PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 

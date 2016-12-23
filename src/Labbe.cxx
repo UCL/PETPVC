@@ -20,12 +20,15 @@
 
    This program implements the Labbe partial volume
    correction (PVC) technique. The method is described in:
-        Labbe, C., M. Koepp, J. Ashburner, T. Spinks, M. Richardson, 
-		J. Duncan, and V. Cunningham. "Absolute PET quantification with 
-		correction for partial volume effects within cerebral structures." 
-		(1998): 59-66.
+        Labbe, C., M. Koepp, J. Ashburner, T. Spinks, M. Richardson,
+        J. Duncan, and V. Cunningham., (1998). "Absolute PET quantification with correction for
+        partial volume effects within cerebral structures." In Carson RE D.-W.M., Herscovitch P. ed.
+        Quantitative Functional Brain Imaging with Positron Emission Tomography. San Diego, CA:
+        Academic Press, 59-66.
 
  */
+
+#include "EnvironmentInfo.h"
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -33,10 +36,6 @@
 #include <metaCommand.h>
 
 #include "petpvcLabbePVCImageFilter.h"
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Labbe PVC";
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -53,6 +52,12 @@ using namespace petpvc;
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Labbe PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     typedef petpvc::LabbePVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
@@ -166,11 +171,13 @@ int main(int argc, char *argv[])
 std::string getAcknowledgments(void)
 {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Geometric Transfer Matrix (GTM) partial volume correction (PVC) technique.\n"
-                       "The method is described in:\n"
-                       "\tRousset, O. G. and Ma, Y. and Evans, A. C. (1998). \"Correction for\n"
-                       "\tpartial volume effects in PET: principle and validation\". Journal of\n"
-                       "\tNuclear Medicine, 39(5):904-11.";
+    std::string sAck =  "This program implements the Labbe partial volume correction (PVC) technique.\n"
+                        "The method is described in:\n"
+                        "\tLabbe, C., M. Koepp, J. Ashburner, T. Spinks, M. Richardson,\n"
+                        "\tJ. Duncan, and V. Cunningham., (1998). \"Absolute PET quantification with correction for\n"
+                        "\tpartial volume effects within cerebral structures.\" In Carson RE D.-W.M., Herscovitch P. ed.\n"
+                        "\tQuantitative Functional Brain Imaging with Positron Emission Tomography. San Diego, CA:\n"
+                        "\tAcademic Press, 59-66.";
 
     return sAck;
 }

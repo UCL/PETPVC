@@ -19,6 +19,8 @@
 
  */
 
+#include "EnvironmentInfo.h"
+
 #include <itkImage.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -47,11 +49,6 @@
 #include <iostream>
 #include <fstream>
 
-
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "PETPVC";
-
 enum PVCMethod { EGTM, ELabbe, EMullerGartner, EMTC, 
 				ERBV, EIterativeYang, ERichardsonLucy, EVanCittert, 
 				ELabbeRBV, ELabbeMTC, ERBVVanCittert, ERBVRichardsonLucy, 
@@ -78,6 +75,13 @@ void printPVCMethodList(void);
 
 int main(int argc, char *argv[])
 {
+
+	const char * const AUTHOR = "Benjamin A. Thomas";
+	const char * const APP_TITLE = "PETPVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     //Setting up command line argument list.
     MetaCommand command;

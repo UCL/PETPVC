@@ -24,6 +24,8 @@
         Nuclear Medicine, 39(5):904-11.
  */
 
+#include "EnvironmentInfo.h"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -31,9 +33,7 @@
 
 #include "petpvcRoussetPVCImageFilter.h"
 
-const char * const VERSION_NO = "15.1.0";
-const char * const AUTHOR = "Benjamin A. Thomas";
-const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
+
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
@@ -50,6 +50,12 @@ using namespace petpvc;
 
 int main(int argc, char *argv[])
 {
+    const char * const AUTHOR = "Benjamin A. Thomas";
+    const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
+
+    std::stringstream version_number;
+    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    const char* const VERSION_NO = version_number.str().c_str();
 
     typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
