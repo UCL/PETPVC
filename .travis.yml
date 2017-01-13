@@ -1,11 +1,11 @@
 language: cpp
 compiler:
-  - gcc
-  - clang
+- gcc
+- clang
 before_script:
-  - sudo apt-get install libinsighttoolkit4-dev
-  -  cd ..
-  - mkdir build
-  - cd build
-  - cmake ../PETPVC
-  script: cmake --build . && ctest
+- sudo apt-get install libinsighttoolkit4-dev
+-  cd ..
+- mkdir build
+- cd build
+- cmake ../PETPVC
+script: cmake --build . && ctest
