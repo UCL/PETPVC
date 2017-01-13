@@ -1,4 +1,4 @@
-# PETPVC
+# PETPVC [![Build Status](https://travis-ci.org/UCL/PETPVC.svg?branch=master)](https://travis-ci.org/UCL/PETPVC)
 PETPVC: toolbox for partial volume correction (PVC) in positron emission tomography (PET)
 
 ##Publications
