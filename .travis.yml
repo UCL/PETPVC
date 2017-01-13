@@ -1,9 +1,5 @@
 language: cpp
 
-compiler:
-- gcc
-- clang
-
 matrix:
   include:
     - os: osx
@@ -23,7 +19,6 @@ before_script:
   - export ITK_SOURCE_DIR=$HOME/itk-${ITK_VERSION}
   - export ITK_BUILD_DIR=${ITK_SOURCE_DIR}-build
   - git clone --branch ${ITK_VERSION} git://itk.org/ITK.git ${ITK_SOURCE_DIR}
-  - mkdir ${ITK_BUILD_DIR}
   - cd ${ITK_BUILD_DIR}
   - cmake ${ITK_SOURCE_DIR}
     -DCMAKE_BUILD_TYPE=Release
