@@ -1,5 +1,12 @@
 language: cpp
-
+ 
+addons:
+  apt:
+    packages:
+      - cmake
+    sources:
+      - kalakris-cmake
+        
 matrix:
   include:
     - os: osx
@@ -8,14 +15,6 @@ matrix:
     - os: linux
       compiler: gcc
       env: ITK_VERSION=v4.10.0
-   
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports # cmake 3.2.3 / doxygen 1.8.3
-      packages:
-      - cmake
-      - cmake-data
       
 cache:
   - directories:
