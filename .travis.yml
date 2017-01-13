@@ -22,8 +22,8 @@ before_script:
   - export NUM_THREADS=4
   - export ITK_SOURCE_DIR=$HOME/itk-${ITK_VERSION}
   - export ITK_BUILD_DIR=${ITK_SOURCE_DIR}-build
-  - if ! test -d ${ITK_SOURCE_DIR}; then git clone --branch ${ITK_VERSION} git://itk.org/ITK.git ${ITK_SOURCE_DIR}; fi
-  - if ! test -d ${ITK_BUILD_DIR}; then mkdir ${ITK_BUILD_DIR}; fi
+  - git clone --branch ${ITK_VERSION} git://itk.org/ITK.git ${ITK_SOURCE_DIR}
+  - mkdir ${ITK_BUILD_DIR}
   - cd ${ITK_BUILD_DIR}
   - cmake ${ITK_SOURCE_DIR}
     -DCMAKE_BUILD_TYPE=Release
