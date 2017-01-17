@@ -44,9 +44,9 @@ build_script:
   - msbuild PACKAGE.vcxproj
   #- ctest
 
-artifacts:
-- path: bin
-  name: myartifact
-deploy:
-- provider: Local
-  artifact: myartifact
+#artifacts:
+# path: bin
+#  name: myartifact
+#deploy:
+#- provider: Local
+#  artifact: myartifact
