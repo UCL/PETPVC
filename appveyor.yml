@@ -17,7 +17,7 @@ environment:
   ITKBUILD: C:\projects\deps\ITK-BUILD
 
  artifacts:
-  - path: %ITKINSTALL%
+  - path: bin
     name: Output
     
 install:
