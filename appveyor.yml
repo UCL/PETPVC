@@ -45,4 +45,5 @@ build_script:
   #- ctest
 
  artifacts:
+ 
   - path: bin
