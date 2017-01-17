@@ -3,7 +3,8 @@ version: "{build}"
 # branches to build
 branches:
   only:
-    - dev
+    - deploy
+    - master
 image: Visual Studio 2013
 platform: Any CPU
 configuration: release
@@ -30,7 +31,7 @@ install:
 
 cache:
   - C:\projects\deps\ITK-4.10.1.zip
-  - C:\projects\deps\ITK-4.10.1 -> appveyor.yml
+  - C:\projects\deps\ITK-4.10.1
 
 build_script:
   - cd C:\projects\PETPVC
