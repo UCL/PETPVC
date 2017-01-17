@@ -50,6 +50,9 @@ TARGET_LINK_LIBRARIES(petpvc ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
-install(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl petpvc pvc_simulate DESTINATION bin)
+install(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy 
+				pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl 
+				petpvc pvc_simulate DESTINATION bin
+				COMPONENTS apps)
 
 
