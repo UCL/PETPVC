@@ -15,10 +15,6 @@ environment:
   ITKSRC: C:\projects\deps\ITK
   ITKINSTALL: C:\projects\deps\ITK-4.10.1
   ITKBUILD: C:\projects\deps\ITK-BUILD
-
- artifacts:
-  - path: bin
-    name: Output
     
 install:
   - IF NOT EXIST C:\projects\deps mkdir C:\projects\deps
@@ -47,4 +43,6 @@ build_script:
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
   #- ctest
-    
+
+ artifacts:
+  - path: bin
