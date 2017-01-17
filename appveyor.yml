@@ -36,10 +36,17 @@ cache:
 build_script:
   - cd C:\projects\PETPVC
   ##- set ITK_DIR="C:\projects\deps\ITK-BUILD"
-  - mkdir C:\projects\build
-  - cd C:\projects\build
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%ITKINSTALL% -DCMAKE_INSTALL_PATH=. ..\PETPVC
+  #- mkdir C:\projects\build
+  #- cd C:\projects\build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%ITKINSTALL% -DCMAKE_INSTALL_PATH=. .
   - msbuild INSTALL.vcxproj
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
   #- ctest
+
+artifacts:
+- path: bin
+  name: myartifact
+deploy:
+- provider: Local
+  artifact: myartifact
