@@ -43,7 +43,3 @@ build_script:
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
   #- ctest
-
- artifacts:
- 
-  - path: bin
