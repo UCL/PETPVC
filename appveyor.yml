@@ -42,7 +42,7 @@ build_script:
   - msbuild INSTALL.vcxproj
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
-  - appveyor PushArtifact 'PETPVC-1.0.0-win32.exe'
+  - appveyor PushArtifact PETPVC-1.0.0-win32.exe
   #- ctest
 
 #artifacts:
