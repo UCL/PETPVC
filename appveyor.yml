@@ -56,7 +56,7 @@ deploy:
   - provider: GitHub
     auth_token:
         secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
-    release: win32-v$(appveyor_build_version)
+    release: win32-$(appveyor_build_version)
     description: 'Windows release'
     artifact: /.*\.exe/
     draft: true
