@@ -39,8 +39,6 @@ build_script:
   - msbuild INSTALL.vcxproj
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
-  
- after_build:
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   #- appveyor PushArtifact PETPVC-1.0.0-win32.exe
 
