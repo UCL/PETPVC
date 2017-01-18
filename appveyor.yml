@@ -40,6 +40,16 @@ build_script:
   - msbuild RUN_TESTS.vcxproj
   - msbuild PACKAGE.vcxproj
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: >-
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+        Update-AppveyorBuild -Version "$env:APPVEYOR_REPO_TAG_NAME"
+      }
+      else
+      {
+        Update-AppveyorBuild -Version "dev-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
+      }
+
   #- appveyor PushArtifact PETPVC-1.0.0-win32.exe
 
 deploy:
@@ -52,6 +62,7 @@ deploy:
     draft: true
     on:
         branch: master
+        appveyor_repo_tag: true
 
 #artifacts:
 # path: bin
