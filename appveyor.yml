@@ -42,7 +42,7 @@ build_script:
   - msbuild INSTALL.vcxproj
   - msbuild RUN_TESTS.vcxproj 
   - msbuild PACKAGE.vcxproj
-  - appveyor PushArtifact *.exe
+  - appveyor PushArtifact '*.exe'
   #- ctest
 
 #artifacts:
