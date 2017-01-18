@@ -15,7 +15,7 @@ environment:
   ITKSRC: C:\projects\deps\ITK
   ITKINSTALL: C:\projects\deps\ITK-4.10.1
   ITKBUILD: C:\projects\deps\ITK-BUILD
-    
+
 install:
   - IF NOT EXIST C:\projects\deps mkdir C:\projects\deps
   - cd C:\projects\deps
@@ -37,10 +37,32 @@ build_script:
   - cd C:\projects\PETPVC
   - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%ITKINSTALL% -DCMAKE_INSTALL_PATH=. .
   - msbuild INSTALL.vcxproj
-  - msbuild RUN_TESTS.vcxproj 
+  - msbuild RUN_TESTS.vcxproj
   - msbuild PACKAGE.vcxproj
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: >-
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+        Update-AppveyorBuild -Version "$env:APPVEYOR_REPO_TAG_NAME"
+      }
+      else
+      {
+        Update-AppveyorBuild -Version "dev-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
+      }
+
   #- appveyor PushArtifact PETPVC-1.0.0-win32.exe
+
+deploy:
+  - provider: GitHub
+    auth_token:
+        secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
+    release: win32-$(appveyor_build_version)
+    description: 'Windows release'
+    artifact: /.*\.exe/
+    draft: true
+    on:
+        branch: master
+        appveyor_repo_tag: false
 
 #artifacts:
 # path: bin
