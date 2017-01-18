@@ -3,7 +3,7 @@ version: "{build}"
 # branches to build
 branches:
   only:
-    - deploy
+    - dev
     - master
 image: Visual Studio 2013
 platform: Any CPU
