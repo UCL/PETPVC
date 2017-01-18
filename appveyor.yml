@@ -42,13 +42,13 @@ build_script:
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   #- appveyor PushArtifact PETPVC-1.0.0-win32.exe
 
- deploy:
-     provider: GitHub
-     auth_token:
-         secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
-     artifact: /.*\.exe/
-     on:
-         branch: master
+deploy:
+  - provider: GitHub
+    auth_token:
+        secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
+    artifact: /.*\.exe/
+    on:
+        branch: master
 
 #artifacts:
 # path: bin
