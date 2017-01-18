@@ -62,7 +62,7 @@ deploy:
     draft: true
     on:
         branch: master
-        appveyor_repo_tag: true
+        appveyor_repo_tag: false
 
 #artifacts:
 # path: bin
