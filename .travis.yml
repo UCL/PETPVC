@@ -51,7 +51,7 @@ deploy:
   - provider: releases
     api_key:
         secure: jUlFFi75ujxvhqVWjKBkYw8ny4FapP15GgwSeQg5beLtwNku+P1O/uNTH5lcLG9t/mJbMF8Sha8peIiS0OMmAeWhcz+FrX130F/siHn353CdrBx0Cp/aKAcsf/+VrMf7z0CaepIEpPmOnWGvG33cHxLWH9umCbgUpdLp0gKER46QE9s/ZhwYW8VryyqQeVOdqB1w1UUYFq1d7xmJdp6VW4A/U9D5D2D2LLWzQn1TnmeS+Bfa3vMEKkA414eZ8NQf6pZkfHiS5pn9lVDeZwj1WNZtCDAnbbWgFndBOwxQ3Iqd3HrbUJx8U8ei4VvgnF4h2edCyNCqkCIw0XiBJxR72jxlL3AIuFYSGlp221ADMKaP4nrjLcRLcLxbFlSOhiH2MlcR5rJu4WyzLNtYNQYQTB7SBMpHfUWNG+ku/BbW86aHN0T9SzcQ03Oiv+0d0NDK8OGgkUsf3TG7YFGAFVfIpsf2VagsT7ZDuMktfcCMmagJFkHVIYlmfzz4ZTOeNBVG+R/SICjS5PaYYS4xf6ML6dqFs02YyOtw8wlP/Vk5g6BWoWy4rg52vk21wQ/1ge/mrxmS54j6b89tCgtQuSNv91Iz88wkDFDtCsmXZVzfaGXEB0YBY4TJ2RinmbiZMeMjxQ2sgPeF/ha8DLZkyA5WIWQEi8iDKFfKRl7+bdUaibY=
-    file: "-Linux.sh"
+    file: "*-Linux.sh"
     file_glob: true
     draft: true
     skip_cleanup: true
