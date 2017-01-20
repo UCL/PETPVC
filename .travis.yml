@@ -35,6 +35,7 @@ before_script:
 - cd build
 - cmake ../PETPVC
 script: cmake --build . && ctest && cpack
+
 deploy:
   provider: releases
   api_key:
