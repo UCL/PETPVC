@@ -36,14 +36,25 @@ before_script:
 - cmake ../PETPVC
 script: cmake --build . && ctest && cpack
 deploy:
-  provider: releases
-  api_key:
-    secure: NYqjh4YYm53DBwJx5VOkEOpIw6fnBT28109R2pmw0PdMFGVa0BSIR2CIOyCZXaJo4OgHqmPNTjKwXVjc9A5FMG7tXe8wIP6VuHWfZu6zrSvNcbabWiBYclF43lHPt1EZaBExHIvi7J1Zq/suvV8iJzg40r5olWw63qGAoJigiYnIMStJ5D2FE8ypVQuUXZI2dRCjQkModxos6xm383QpbUajUpEeGMHjiiZXPJwDa5VtuzB5sdPHaGr9vTB2hxzGahIPNxSlAYjqSqJh3TwU3u8YN/XAdjGurTuqgrMTm+dotjlNhMnJPYeSiD1laOfnX50i7kX1zbB58qqkzXMm4E1ej5XiNLb8R9ry/6zL+uDN5WBT9Vhz5pSqihLU2I6wZSMmcqMgsKSfT/J8P4CPmlJ1yiRbuS9dht3BxIaXWmv4lpzMGp0kpvpF/48OAfBWaj98iULzHL0W0LYnkWmtMO6x1rre9bMM9rQ7hb18d0OjmztQQ/UDXnB8ZL6drfUU2wfoR/M1a0d8LhSnnOc4eE08K7rsk88HheD/JkG8ZCh7X6u9HmKNVPjqSjZcum52sF7u3F+kYWWvIrrz5kF0qLQRuXsXYB/GVRlGnDssI+2LfaHHLf4QFBsOg/yRhMGWZF8CelU8TB8MMMAtXBe3CuEF2JA/eCFmrDqEgAZn+2A=
-  file: "*-Linux.sh"
-  file_glob: true
-  draft: true
-  skip_cleanup: true
-  on:
+  - provider: releases
+    api_key:
+        secure: NYqjh4YYm53DBwJx5VOkEOpIw6fnBT28109R2pmw0PdMFGVa0BSIR2CIOyCZXaJo4OgHqmPNTjKwXVjc9A5FMG7tXe8wIP6VuHWfZu6zrSvNcbabWiBYclF43lHPt1EZaBExHIvi7J1Zq/suvV8iJzg40r5olWw63qGAoJigiYnIMStJ5D2FE8ypVQuUXZI2dRCjQkModxos6xm383QpbUajUpEeGMHjiiZXPJwDa5VtuzB5sdPHaGr9vTB2hxzGahIPNxSlAYjqSqJh3TwU3u8YN/XAdjGurTuqgrMTm+dotjlNhMnJPYeSiD1laOfnX50i7kX1zbB58qqkzXMm4E1ej5XiNLb8R9ry/6zL+uDN5WBT9Vhz5pSqihLU2I6wZSMmcqMgsKSfT/J8P4CPmlJ1yiRbuS9dht3BxIaXWmv4lpzMGp0kpvpF/48OAfBWaj98iULzHL0W0LYnkWmtMO6x1rre9bMM9rQ7hb18d0OjmztQQ/UDXnB8ZL6drfUU2wfoR/M1a0d8LhSnnOc4eE08K7rsk88HheD/JkG8ZCh7X6u9HmKNVPjqSjZcum52sF7u3F+kYWWvIrrz5kF0qLQRuXsXYB/GVRlGnDssI+2LfaHHLf4QFBsOg/yRhMGWZF8CelU8TB8MMMAtXBe3CuEF2JA/eCFmrDqEgAZn+2A=
+    file: "*-Linux.sh"
+    file_glob: true
+    draft: true
+    skip_cleanup: true
+    on:
       condition: $TRAVIS_OS_NAME = linux
-      tags: false
+      tags: true
+      all_branches: true
+  - provider: releases
+    api_key:
+        secure: NYqjh4YYm53DBwJx5VOkEOpIw6fnBT28109R2pmw0PdMFGVa0BSIR2CIOyCZXaJo4OgHqmPNTjKwXVjc9A5FMG7tXe8wIP6VuHWfZu6zrSvNcbabWiBYclF43lHPt1EZaBExHIvi7J1Zq/suvV8iJzg40r5olWw63qGAoJigiYnIMStJ5D2FE8ypVQuUXZI2dRCjQkModxos6xm383QpbUajUpEeGMHjiiZXPJwDa5VtuzB5sdPHaGr9vTB2hxzGahIPNxSlAYjqSqJh3TwU3u8YN/XAdjGurTuqgrMTm+dotjlNhMnJPYeSiD1laOfnX50i7kX1zbB58qqkzXMm4E1ej5XiNLb8R9ry/6zL+uDN5WBT9Vhz5pSqihLU2I6wZSMmcqMgsKSfT/J8P4CPmlJ1yiRbuS9dht3BxIaXWmv4lpzMGp0kpvpF/48OAfBWaj98iULzHL0W0LYnkWmtMO6x1rre9bMM9rQ7hb18d0OjmztQQ/UDXnB8ZL6drfUU2wfoR/M1a0d8LhSnnOc4eE08K7rsk88HheD/JkG8ZCh7X6u9HmKNVPjqSjZcum52sF7u3F+kYWWvIrrz5kF0qLQRuXsXYB/GVRlGnDssI+2LfaHHLf4QFBsOg/yRhMGWZF8CelU8TB8MMMAtXBe3CuEF2JA/eCFmrDqEgAZn+2A=
+    file: "*.dmg"
+    file_glob: true
+    draft: true
+    skip_cleanup: true
+    on:
+      condition: $TRAVIS_OS_NAME = osx
+      tags: true
       all_branches: true
