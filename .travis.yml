@@ -36,13 +36,13 @@ before_script:
 - cmake ../PETPVC
 script: cmake --build . && ctest && cpack
 deploy:
-  - provider: releases
-    api_key:
-        secure: NYqjh4YYm53DBwJx5VOkEOpIw6fnBT28109R2pmw0PdMFGVa0BSIR2CIOyCZXaJo4OgHqmPNTjKwXVjc9A5FMG7tXe8wIP6VuHWfZu6zrSvNcbabWiBYclF43lHPt1EZaBExHIvi7J1Zq/suvV8iJzg40r5olWw63qGAoJigiYnIMStJ5D2FE8ypVQuUXZI2dRCjQkModxos6xm383QpbUajUpEeGMHjiiZXPJwDa5VtuzB5sdPHaGr9vTB2hxzGahIPNxSlAYjqSqJh3TwU3u8YN/XAdjGurTuqgrMTm+dotjlNhMnJPYeSiD1laOfnX50i7kX1zbB58qqkzXMm4E1ej5XiNLb8R9ry/6zL+uDN5WBT9Vhz5pSqihLU2I6wZSMmcqMgsKSfT/J8P4CPmlJ1yiRbuS9dht3BxIaXWmv4lpzMGp0kpvpF/48OAfBWaj98iULzHL0W0LYnkWmtMO6x1rre9bMM9rQ7hb18d0OjmztQQ/UDXnB8ZL6drfUU2wfoR/M1a0d8LhSnnOc4eE08K7rsk88HheD/JkG8ZCh7X6u9HmKNVPjqSjZcum52sF7u3F+kYWWvIrrz5kF0qLQRuXsXYB/GVRlGnDssI+2LfaHHLf4QFBsOg/yRhMGWZF8CelU8TB8MMMAtXBe3CuEF2JA/eCFmrDqEgAZn+2A=
-    file: "*.tar.gz"
-    file_glob: true
-    draft: true
-    skip_cleanup: true
-    on:
-      tags: true
-      all_branches: true
+- provider: releases
+  api_key:
+    secure: bq1Uqgb3r+qecRbQIkBn0ELG4QV/SjO6VSNJHKYT6fETqVH/WTKyaErFfiipKvx/P447YQpQ2pcylotJlAuyOgePOsBIk5DZW1YpR54VYvHMgH3nI50vzb/RMvsHsQYez14Lot4S2b567Xm1OLPpLaUbmelGG+h8twzzhoPzLx4acwEitsMGlf34n1thuKO0tv5rH5Roiwk8UbstvK15XBjy43qWfkMd/mMT4oQtA4pXaK5zycsCfItIV2cnrEGFdVFQXbECuzTzey/VQzvWiFFeGks/rE6qZZhuL9FEDooZMWqvp4r62s6XBXwjVQrqwHOkkrmKzlbRhG/YkUMgBcJr9TxgOkIIIco4oy5wLTpCAT61KOzF+ebtyNuyXf7+3CbVwi71wQwNWhaO1ZIRIkWF3NreHZEjxX3C/Y05nxVgMnxC3/k5k6F4hjHBVaOnj9nnVICFHcmM+PJil3XdvMXGT7G7RTfpToPYBxxwt1TQDPLEh8YuV26Tbyr5k261eQIjvCRLmWB9ikdZ7FGCe3hG1OD2EOQUXAoq0KyERLcKU2xh/A1KbXeNx6DUa+pi14fEqTMYEpM0TxDmm3/4yX8MlNgfW+mJ8SJWaSqiM1mjt3C79sw96w1zOcmduN7zx1wYzH2qda8BrANSvKE4NLfAdPdJq+M0Te/ylsVfGn0=
+  file: '*.tar.gz'
+  file_glob: true
+  draft: true
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
