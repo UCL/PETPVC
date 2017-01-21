@@ -1,10 +1,6 @@
 # version format
 version: "{build}"
-# branches to build
-branches:
-  only:
-    - dev
-    - master
+
 image: Visual Studio 2013
 platform: Any CPU
 configuration: release
@@ -49,24 +45,13 @@ build_script:
       {
         Update-AppveyorBuild -Version "dev-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
       }
-
-  #- appveyor PushArtifact PETPVC-1.0.0-win32.exe
-
 deploy:
   - provider: GitHub
     auth_token:
         secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
-    release: win32-$(appveyor_build_version)
-    description: 'Windows release'
+    release: PETPVC-$(appveyor_build_version)
+    description: 'Binary release - $(appveyor_build_version)'
     artifact: /.*\.exe/
     draft: true
     on:
-        branch: master
         appveyor_repo_tag: true
-
-#artifacts:
-# path: bin
-#  name: myartifact
-#deploy:
-#- provider: Local
-#  artifact: myartifact
