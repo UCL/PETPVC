@@ -44,15 +44,16 @@ TARGET_LINK_LIBRARIES(pvc_vc ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_rl RichardsonLucy.cxx  )
 TARGET_LINK_LIBRARIES(pvc_rl ${ITK_LIBRARIES})
 
+ADD_EXECUTABLE(pvc_stc STC.cxx  )
+TARGET_LINK_LIBRARIES(pvc_stc ${ITK_LIBRARIES})
+
 ADD_EXECUTABLE(petpvc PETPVC.cxx  )
 TARGET_LINK_LIBRARIES(petpvc ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
-INSTALL(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy 
-				pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl 
+INSTALL(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy
+				pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl pvc_stc 
 				petpvc pvc_simulate DESTINATION bin
 				COMPONENT applications)
-
-
