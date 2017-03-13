@@ -1,6 +1,6 @@
 #=========================================================================
 #  Authors:      Benjamin A. Thomas, Kris Thielemans
-# 
+#
 #  Copyright University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,12 @@
 #=========================================================================
 
 cmake_minimum_required(VERSION 2.8)
- 
+
 PROJECT(PETPVC)
 
 SET(VERSION_MAJOR 1)
-SET(VERSION_MINOR 0)
-SET(VERSION_PATCH 0)
+SET(VERSION_MINOR 1)
+SET(VERSION_PATCH 0-a)
 
 MAKE_DIRECTORY(${PROJECT_BINARY_DIR}/config)
 
@@ -35,7 +35,7 @@ CONFIGURE_FILE(
 INCLUDE_DIRECTORIES("${PROJECT_BINARY_DIR}/config")
 
 ENABLE_TESTING()
- 
+
 FIND_PACKAGE(ITK REQUIRED)
 INCLUDE(${ITK_USE_FILE})
 
