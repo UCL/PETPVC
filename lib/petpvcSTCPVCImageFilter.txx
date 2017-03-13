@@ -187,7 +187,7 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
         //Loop over all voxels and remove negative numbers.
         while (! it.IsAtEnd() )
         {
-            voxelVal = std::fmax(it.Get(), 0.0);
+            voxelVal = fmax(it.Get(), 0.0);
             it.Set( voxelVal );
             ++it;
         }
