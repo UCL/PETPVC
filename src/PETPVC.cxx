@@ -37,6 +37,7 @@
 #include "petpvcMullerGartnerImageFilter.h"
 #include "petpvcVanCittertPVCImageFilter.h"
 #include "petpvcRLPVCImageFilter.h"
+#include "petpvcSTCPVCImageFilter.h"
 
 #include "petpvcLabbeRBVPVCImageFilter.h"
 #include "petpvcLabbeMTCPVCImageFilter.h"
@@ -49,18 +50,21 @@
 #include <iostream>
 #include <fstream>
 
-enum PVCMethod { EGTM, ELabbe, EMullerGartner, EMTC, 
-				ERBV, EIterativeYang, ERichardsonLucy, EVanCittert, 
-				ELabbeRBV, ELabbeMTC, ERBVVanCittert, ERBVRichardsonLucy, 
+enum PVCMethod { EGTM, ELabbe, EMullerGartner, EMTC,
+				ERBV, EIterativeYang, ERichardsonLucy, EVanCittert,
+				ELabbeRBV, ELabbeMTC, ERBVVanCittert, ERBVRichardsonLucy,
 				EMTCVanCittert, EMTCRichardsonLucy, EIYVanCittert, EIYRichardsonLucy,
 				ELabbeRBVVanCittert, ELabbeRBVRichardsonLucy, ELabbeMTCVanCittert, ELabbeMTCRichardsonLucy,
-				EMGVanCittert, EMGRichardsonLucy, EUnknown };
+				EMGVanCittert, EMGRichardsonLucy, ESTC, EUnknown };
 
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
+typedef itk::Image<short, 3> Mask3DImageType;
 typedef itk::Image<float, 3> PETImageType;
 
 typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
+typedef itk::ImageFileReader<Mask3DImageType> Mask3DReaderType;
+
 typedef itk::ImageFileReader<PETImageType> PETReaderType;
 typedef itk::ImageFileWriter<PETImageType> PETWriterType;
 
@@ -175,7 +179,7 @@ int main(int argc, char *argv[])
 	if (approach == EUnknown) {
 		std::cerr << "[Error]\tUnknown method '" << desiredMethod << "' requested" << std::endl << std::endl;
 		printPVCMethodList();
-		return EXIT_FAILURE; 
+		return EXIT_FAILURE;
 	}
 
     //Create reader for PET image.
@@ -217,7 +221,7 @@ int main(int argc, char *argv[])
 				RLFilterType::Pointer rlFilter = RLFilterType::New();
     			rlFilter->SetInput( petReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfIters );
@@ -235,8 +239,8 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
-			
-				break;				
+
+				break;
 			}
 		case EVanCittert: {
 				std::cout << "Performing reblurred Van-Cittert..." << std::endl;
@@ -245,7 +249,7 @@ int main(int argc, char *argv[])
 				VCFilterType::Pointer vcFilter = VCFilterType::New();
     			vcFilter->SetInput( petReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfIters );
@@ -271,7 +275,7 @@ int main(int argc, char *argv[])
 
 				outputImage = vcFilter->GetOutput();
 
-				break;	
+				break;
 			}
 		default:
 			maskReader->SetFileName(sMaskFileName);
@@ -289,7 +293,7 @@ int main(int argc, char *argv[])
 		case ERBV: {
 				std::cout << "Performing RBV..." << std::endl;
 			    typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  RBVFilterType;
-    			
+
 				RBVFilterType::Pointer rbvFilter = RBVFilterType::New();
 			    rbvFilter->SetInput( petReader->GetOutput() );
 			    rbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -313,11 +317,11 @@ int main(int argc, char *argv[])
 		case EIterativeYang: {
 				std::cout << "Performing iterative Yang..." << std::endl;
 			    typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  IYFilterType;
-    			
+
 				IYFilterType::Pointer iyFilter = IYFilterType::New();
 			    iyFilter->SetInput( petReader->GetOutput() );
 			    iyFilter->SetMaskInput( maskReader->GetOutput() );
-	
+
 				//Get number of iterations
 				int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 		    	iyFilter->SetIterations( nNumOfIters );
@@ -342,7 +346,7 @@ int main(int argc, char *argv[])
 		case EMTC: {
 				std::cout << "Performing MTC..." << std::endl;
 			    typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  MTCFilterType;
-    			
+
 				MTCFilterType::Pointer mtcFilter = MTCFilterType::New();
 			    mtcFilter->SetInput( petReader->GetOutput() );
 			    mtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -363,15 +367,43 @@ int main(int argc, char *argv[])
 
 				break;
 			}
+			case ESTC: {
+
+					Mask3DReaderType::Pointer mask3Dreader = Mask3DReaderType::New();
+					mask3Dreader->SetFileName(sMaskFileName);
+
+					std::cout << "Performing STC..." << std::endl;
+					typedef petpvc::STCPVCImageFilter<PETImageType, Mask3DImageType>  STCFilterType;
+
+					STCFilterType::Pointer stcFilter = STCFilterType::New();
+					stcFilter->SetInput( petReader->GetOutput() );
+					stcFilter->SetMaskInput( mask3Dreader->GetOutput() );
+					stcFilter->SetPSF(vVariance);
+					stcFilter->SetVerbose( bDebug );
+
+					//Perform STC.
+					try {
+						stcFilter->Update();
+					} catch (itk::ExceptionObject & err) {
+						std::cerr << "\n[Error]\tfailure applying STC on: " << sPETFileName
+								  << "\n" << err
+								  << std::endl;
+						return EXIT_FAILURE;
+					}
+
+					outputImage = stcFilter->GetOutput();
+
+					break;
+		}
 		case EMullerGartner: {
 				std::cout << "Performing Muller-Gartner..." << std::endl;
 
 				//Extracts a 3D volume from 4D file.
 				typedef itk::ExtractImageFilter<MaskImageType, PETImageType> ExtractFilterType;
-   				
+
 				MaskImageType::IndexType desiredStart;
     			desiredStart.Fill(0);
-			    MaskImageType::SizeType desiredSize = 
+			    MaskImageType::SizeType desiredSize =
 					maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
 			    //Extract filter used to extract 3D volume from 4D file.
@@ -413,7 +445,7 @@ int main(int argc, char *argv[])
 			    imageWM->UpdateOutputData();
 
 			    typedef petpvc::MullerGartnerImageFilter<PETImageType, PETImageType, PETImageType, PETImageType>  MGFilterType;
-    			
+
 				MGFilterType::Pointer mgFilter = MGFilterType::New();
 			    mgFilter->SetInput1(petReader->GetOutput());
     			mgFilter->SetInput2(imageGM);
@@ -444,11 +476,11 @@ int main(int argc, char *argv[])
 				typedef itk::ExtractImageFilter<MaskImageType, PETImageType> ExtractFilterType;
 
 				//Puts 3D into 4D.
-				typedef itk::CastImageFilter<PETImageType, MaskImageType> CastFilterType; 
-   				
+				typedef itk::CastImageFilter<PETImageType, MaskImageType> CastFilterType;
+
 				MaskImageType::IndexType desiredStart;
     			desiredStart.Fill(0);
-			    MaskImageType::SizeType desiredSize = 
+			    MaskImageType::SizeType desiredSize =
 					maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
 			    //Extract filter used to extract 3D volume from 4D file.
@@ -490,7 +522,7 @@ int main(int argc, char *argv[])
 			    imageWM->UpdateOutputData();
 
 			    typedef petpvc::MullerGartnerImageFilter<PETImageType, PETImageType, PETImageType, PETImageType>  MGFilterType;
-    			
+
 				MGFilterType::Pointer mgFilter = MGFilterType::New();
 			    mgFilter->SetInput1(petReader->GetOutput());
     			mgFilter->SetInput2(imageGM);
@@ -519,7 +551,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( mgFilter->GetOutput() );
 				vcFilter->SetMaskInput( castFilter->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -555,11 +587,11 @@ int main(int argc, char *argv[])
 				typedef itk::ExtractImageFilter<MaskImageType, PETImageType> ExtractFilterType;
 
 				//Puts 3D into 4D.
-				typedef itk::CastImageFilter<PETImageType, MaskImageType> CastFilterType; 
-   				
+				typedef itk::CastImageFilter<PETImageType, MaskImageType> CastFilterType;
+
 				MaskImageType::IndexType desiredStart;
     			desiredStart.Fill(0);
-			    MaskImageType::SizeType desiredSize = 
+			    MaskImageType::SizeType desiredSize =
 					maskReader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
 			    //Extract filter used to extract 3D volume from 4D file.
@@ -601,7 +633,7 @@ int main(int argc, char *argv[])
 			    imageWM->UpdateOutputData();
 
 			    typedef petpvc::MullerGartnerImageFilter<PETImageType, PETImageType, PETImageType, PETImageType>  MGFilterType;
-    			
+
 				MGFilterType::Pointer mgFilter = MGFilterType::New();
 			    mgFilter->SetInput1(petReader->GetOutput());
     			mgFilter->SetInput2(imageGM);
@@ -630,7 +662,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( mgFilter->GetOutput() );
 				rlFilter->SetMaskInput( castFilter->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -652,7 +684,7 @@ int main(int argc, char *argv[])
 		case ELabbeRBV: {
 				std::cout << "Performing Labbe-RBV..." << std::endl;
 			    typedef petpvc::LabbeRBVPVCImageFilter<PETImageType, MaskImageType>  LabbeRBVFilterType;
-    			
+
 				LabbeRBVFilterType::Pointer lrbvFilter = LabbeRBVFilterType::New();
 			    lrbvFilter->SetInput( petReader->GetOutput() );
 			    lrbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -676,7 +708,7 @@ int main(int argc, char *argv[])
 		case ELabbeMTC: {
 				std::cout << "Performing Labbe-MTC..." << std::endl;
 			    typedef petpvc::LabbeMTCPVCImageFilter<PETImageType, MaskImageType>  LabbeMTCFilterType;
-    			
+
 				LabbeMTCFilterType::Pointer lmtcFilter = LabbeMTCFilterType::New();
 			    lmtcFilter->SetInput( petReader->GetOutput() );
 			    lmtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -701,7 +733,7 @@ int main(int argc, char *argv[])
 		case ERBVVanCittert: {
 				std::cout << "Performing RBV..." << std::endl;
 			    typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  RBVFilterType;
-    			
+
 				RBVFilterType::Pointer rbvFilter = RBVFilterType::New();
 			    rbvFilter->SetInput( petReader->GetOutput() );
 			    rbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -725,7 +757,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( rbvFilter->GetOutput() );
 				vcFilter->SetMaskInput( maskReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -756,7 +788,7 @@ int main(int argc, char *argv[])
 		case ERBVRichardsonLucy: {
 				std::cout << "Performing RBV..." << std::endl;
 			    typedef petpvc::RBVPVCImageFilter<PETImageType, MaskImageType>  RBVFilterType;
-    			
+
 				RBVFilterType::Pointer rbvFilter = RBVFilterType::New();
 			    rbvFilter->SetInput( petReader->GetOutput() );
 			    rbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -780,7 +812,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( rbvFilter->GetOutput() );
 				rlFilter->SetMaskInput( maskReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -803,7 +835,7 @@ int main(int argc, char *argv[])
 		case ELabbeRBVVanCittert: {
 				std::cout << "Performing Labbe-RBV..." << std::endl;
 			    typedef petpvc::LabbeRBVPVCImageFilter<PETImageType, MaskImageType>  LabbeRBVFilterType;
-    			
+
 				LabbeRBVFilterType::Pointer lrbvFilter = LabbeRBVFilterType::New();
 			    lrbvFilter->SetInput( petReader->GetOutput() );
 			    lrbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -827,7 +859,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( lrbvFilter->GetOutput() );
 				vcFilter->SetMaskInput( maskReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -858,7 +890,7 @@ int main(int argc, char *argv[])
 		case ELabbeRBVRichardsonLucy: {
 				std::cout << "Performing Labbe-RBV..." << std::endl;
 			    typedef petpvc::LabbeRBVPVCImageFilter<PETImageType, MaskImageType>  LabbeRBVFilterType;
-    			
+
 				LabbeRBVFilterType::Pointer lrbvFilter = LabbeRBVFilterType::New();
 			    lrbvFilter->SetInput( petReader->GetOutput() );
 			    lrbvFilter->SetMaskInput( maskReader->GetOutput() );
@@ -883,7 +915,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( lrbvFilter->GetOutput() );
 				rlFilter->SetMaskInput( maskReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -907,7 +939,7 @@ int main(int argc, char *argv[])
 		case EMTCVanCittert: {
 				std::cout << "Performing MTC..." << std::endl;
 			    typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  MTCFilterType;
-    			
+
 				MTCFilterType::Pointer mtcFilter = MTCFilterType::New();
 			    mtcFilter->SetInput( petReader->GetOutput() );
 			    mtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -931,7 +963,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( mtcFilter->GetOutput() );
 				vcFilter->SetMaskInput( maskReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -962,7 +994,7 @@ int main(int argc, char *argv[])
 		case EMTCRichardsonLucy: {
 				std::cout << "Performing MTC..." << std::endl;
 			    typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  MTCFilterType;
-    			
+
 				MTCFilterType::Pointer mtcFilter = MTCFilterType::New();
 			    mtcFilter->SetInput( petReader->GetOutput() );
 			    mtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -987,7 +1019,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( mtcFilter->GetOutput() );
 				rlFilter->SetMaskInput( maskReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -1009,7 +1041,7 @@ int main(int argc, char *argv[])
 		case ELabbeMTCVanCittert: {
 				std::cout << "Performing Labbe-MTC..." << std::endl;
 			    typedef petpvc::LabbeMTCPVCImageFilter<PETImageType, MaskImageType>  LabbeMTCFilterType;
-    			
+
 				LabbeMTCFilterType::Pointer lmtcFilter = LabbeMTCFilterType::New();
 			    lmtcFilter->SetInput( petReader->GetOutput() );
 			    lmtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -1033,7 +1065,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( lmtcFilter->GetOutput() );
 				vcFilter->SetMaskInput( maskReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -1064,7 +1096,7 @@ int main(int argc, char *argv[])
 		case ELabbeMTCRichardsonLucy: {
 				std::cout << "Performing Labbe-MTC..." << std::endl;
 			    typedef petpvc::LabbeMTCPVCImageFilter<PETImageType, MaskImageType>  LabbeMTCFilterType;
-    			
+
 				LabbeMTCFilterType::Pointer lmtcFilter = LabbeMTCFilterType::New();
 			    lmtcFilter->SetInput( petReader->GetOutput() );
 			    lmtcFilter->SetMaskInput( maskReader->GetOutput() );
@@ -1088,7 +1120,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( lmtcFilter->GetOutput() );
 				rlFilter->SetMaskInput( maskReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -1111,11 +1143,11 @@ int main(int argc, char *argv[])
 		case EIYVanCittert: {
 				std::cout << "Performing iterative Yang..." << std::endl;
 			    typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  IYFilterType;
-    			
+
 				IYFilterType::Pointer iyFilter = IYFilterType::New();
 			    iyFilter->SetInput( petReader->GetOutput() );
 			    iyFilter->SetMaskInput( maskReader->GetOutput() );
-	
+
 				//Get number of iterations
 				int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 		    	iyFilter->SetIterations( nNumOfIters );
@@ -1140,7 +1172,7 @@ int main(int argc, char *argv[])
     			vcFilter->SetInput( iyFilter->GetOutput() );
 				vcFilter->SetMaskInput( maskReader->GetOutput() );
 		    	vcFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	vcFilter->SetIterations( nNumOfDeconvIters );
@@ -1171,11 +1203,11 @@ int main(int argc, char *argv[])
 		case EIYRichardsonLucy: {
 				std::cout << "Performing iterative Yang..." << std::endl;
 			    typedef petpvc::IterativeYangPVCImageFilter<PETImageType, MaskImageType>  IYFilterType;
-    			
+
 				IYFilterType::Pointer iyFilter = IYFilterType::New();
 			    iyFilter->SetInput( petReader->GetOutput() );
 			    iyFilter->SetMaskInput( maskReader->GetOutput() );
-	
+
 				//Get number of iterations
 				int nNumOfIters = command.GetValueAsInt("Iterations", "Val");
 		    	iyFilter->SetIterations( nNumOfIters );
@@ -1200,7 +1232,7 @@ int main(int argc, char *argv[])
     			rlFilter->SetInput( iyFilter->GetOutput() );
 				rlFilter->SetMaskInput( maskReader->GetOutput() );
 		    	rlFilter->SetPSF(vVariance);
-			
+
 				//Get number of iterations
 				int nNumOfDeconvIters = command.GetValueAsInt("Deconvolution", "Val");
 		    	rlFilter->SetIterations( nNumOfDeconvIters );
@@ -1221,7 +1253,7 @@ int main(int argc, char *argv[])
 			}
 
 
-			default: 
+			default:
 				break;
 
 		}
@@ -1236,7 +1268,7 @@ int main(int argc, char *argv[])
     	} catch (itk::ExceptionObject & err) {
     	    std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
                   << std::endl;
-	
+
     	    return EXIT_FAILURE;
     	}
 	}
@@ -1245,7 +1277,7 @@ int main(int argc, char *argv[])
 		case EGTM: {
 				std::cout << "Performing Geometric matrix method..." << std::endl;
 			    typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  GTMFilterType;
-    			
+
 				GTMFilterType::Pointer gtmFilter = GTMFilterType::New();
 			    gtmFilter->SetInput( petReader->GetOutput() );
 			    gtmFilter->SetMaskInput( maskReader->GetOutput() );
@@ -1266,23 +1298,23 @@ int main(int argc, char *argv[])
 				outputTextFile.open( sOutputFileName.c_str() );
 				if ( outputTextFile.is_open() ) {
 					outputTextFile << "REGION\tMEAN" << std::endl;
-					vnl_vector<float> results = gtmFilter->GetCorrectedMeans(); 
+					vnl_vector<float> results = gtmFilter->GetCorrectedMeans();
 					for (int n=0; n < results.size(); n++)
 						outputTextFile << n+1 << "\t" << results[n] << std::endl;
 					outputTextFile.close();
 				} else {
 					 std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
                   		<< std::endl;
-	
+
     	    		return EXIT_FAILURE;
 				}
- 
+
 				break;
 			}
 		case ELabbe: {
 				std::cout << "Performing the Labbe method..." << std::endl;
 			    typedef petpvc::LabbePVCImageFilter<PETImageType, MaskImageType>  LabbeFilterType;
-    			
+
 				LabbeFilterType::Pointer labbeFilter = LabbeFilterType::New();
 			    labbeFilter->SetInput( petReader->GetOutput() );
 			    labbeFilter->SetMaskInput( maskReader->GetOutput() );
@@ -1303,17 +1335,17 @@ int main(int argc, char *argv[])
 				outputTextFile.open( sOutputFileName.c_str() );
 				if ( outputTextFile.is_open() ) {
 					outputTextFile << "REGION\tMEAN" << std::endl;
-					vnl_vector<float> results = labbeFilter->GetCorrectedMeans(); 
+					vnl_vector<float> results = labbeFilter->GetCorrectedMeans();
 					for (int n=0; n < results.size(); n++)
 						outputTextFile << n+1 << "\t" << results[n] << std::endl;
 					outputTextFile.close();
 				} else {
 					 std::cerr << "[Error]\tCannot write output file: " << sOutputFileName
                   		<< std::endl;
-	
+
     	    		return EXIT_FAILURE;
 				}
- 
+
 				break;
 			}
 		default: break;
@@ -1334,7 +1366,7 @@ std::string getAcknowledgments(void)
 PVCMethod getPVCMethod( std::string method ) {
 
 	std::transform(method.begin(), method.end(),method.begin(), ::toupper);
-	
+
 	if ( method == "GTM" )
 		return EGTM;
 
@@ -1355,6 +1387,9 @@ PVCMethod getPVCMethod( std::string method ) {
 
 	if ( method == "RL" )
 		return ERichardsonLucy;
+
+	if ( method == "STC" )
+		return ESTC;
 
 	if ( method == "VC" )
 		return EVanCittert;
@@ -1420,6 +1455,8 @@ void printPVCMethodList(void) {
 	std::cout << "RBV with Richardson-Lucy - \"RBV+RL\"" << std::endl;
 	std::cout << "RBV with Labbe and Van-Cittert - \"LABBE+RBV+VC\"" << std::endl;
 	std::cout << "RBV with Labbe and Richardson-Lucy- \"LABBE+RBV+RL\"" << std::endl;
+
+	std::cout << "Single-target correction - \"STC\"" << std::endl;
 
 	std::cout << "Multi-target correction - \"MTC\"" << std::endl;
 	std::cout << "MTC with Labbe - \"LABBE+MTC\"" << std::endl;

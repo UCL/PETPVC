@@ -169,11 +169,6 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
         }
     }
 
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput(imageRec);
-    writer->SetFileName( "debug_imageRec.nii.gz");
-    writer->Update();
-
     int nNumOfIters =  this->m_nIterations;
 
     //Correct for spill-out
@@ -275,14 +270,6 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
         //imageEstimate->UpdateOutputData();
         imageEstimate->DisconnectPipeline();
     }
-
-    writer->SetInput(pPET);
-    writer->SetFileName( "debug_pet.nii.gz");
-    writer->Update();
-
-    writer->SetInput(imageBackground);
-    writer->SetFileName( "debug_imageBkg.nii.gz");
-    writer->Update();
 
     if ( this->m_bVerbose ) {
         std::cout << std::endl;

@@ -33,7 +33,7 @@
 #include <itkStatisticsImageFilter.h>
 #include <itkLabelStatisticsImageFilter.h>
 #include <itkBinaryThresholdImageFilter.h>
-#include <itkImageFileWriter.h>
+//#include <itkImageFileWriter.h>
 
 #include <itkImageDuplicator.h>
 #include <itkImageRegionIterator.h>
@@ -94,7 +94,7 @@ public:
 
     typedef itk::ImageRegionIterator<TInputImage> ImageIteratorType;
 
-    typedef itk::ImageFileWriter<TInputImage> WriterType;
+    //typedef itk::ImageFileWriter<TInputImage> WriterType;
 
     typedef itk::Vector<float, 3> ITKVectorType;
 
