@@ -8,7 +8,7 @@ When using this toolbox, please include a reference to the paper:
 ---
 ## Pre-built binaries
 
-Binaries for Linux, Mac and Windows are provided in the 'Release' section on Github. When running the Windows version, you must have installed the ***Visual C++ Redistributable Packages for Visual Studio 2013*** ([link](https://www.microsoft.com/en-GB/download/details.aspx?id=40784)). For 64-bit Win7 it is necessary to install both ```vcredist_x86.exe``` and ```vcredist_x64.exe```.
+Binaries for Linux, Mac and Windows are provided in the 'Release' section on Github. When running the Windows version, you must have installed the ***Visual C++ Redistributable Packages for Visual Studio 2013*** ([link](https://support.microsoft.com/en-us/help/3179560/update-for-visual-c-2013-and-visual-c-redistributable-package)). For 64-bit Win7 it is necessary to install both ```vcredist_x86.exe``` and ```vcredist_x64.exe```.
 
 ---
 ## Installation from source instructions
