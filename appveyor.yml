@@ -21,7 +21,7 @@ install:
   - IF NOT EXIST %ITKINSTALL% (
       mkdir %ITKBUILD% &&
       cd %ITKBUILD% &&
-      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% ..\ITK\InsightToolkit-4.10.1 &&
+      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% -DModule_ITKReview=ON ..\ITK\InsightToolkit-4.10.1 &&
       msbuild INSTALL.vcxproj
     )
 
