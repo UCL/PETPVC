@@ -26,7 +26,7 @@ install:
 
 cache:
   - C:\projects\deps\ITK-4.10.1.zip
-  - C:\projects\deps\ITK-4.10.1
+  - C:\projects\deps\ITK-4.10.1 -> appveyor.yml
 
 build_script:
   - cd C:\projects\PETPVC
