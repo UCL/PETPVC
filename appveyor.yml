@@ -17,11 +17,10 @@ install:
   - cd C:\projects\deps
   - set ITK_URL="https://downloads.sourceforge.net/project/itk/itk/4.10/InsightToolkit-4.10.1.zip"
   - IF NOT EXIST C:\projects\deps\ITK-4.10.1.zip appveyor DownloadFile %ITK_URL% -FileName ITK-4.10.1.zip
-  - IF NOT EXIST %ITKINSTALL% 7z x ITK-4.10.1.zip -oC:\projects\deps\ITK > nul
-  - IF NOT EXIST %ITKINSTALL% (
+  - IF NOT EXIST %ITKINSTALL% ( 7z x ITK-4.10.1.zip -oC:\projects\deps\ITK > nul &&
       mkdir %ITKBUILD% &&
       cd %ITKBUILD% &&
-      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% ..\ITK\InsightToolkit-4.10.1 &&
+      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% -DModule_ITKReview=ON ..\ITK\InsightToolkit-4.10.1 &&
       msbuild INSTALL.vcxproj
     )
 

@@ -53,7 +53,14 @@ TARGET_LINK_LIBRARIES(petpvc ${ITK_LIBRARIES})
 ADD_EXECUTABLE(pvc_simulate Simulate.cxx  )
 TARGET_LINK_LIBRARIES(pvc_simulate ${ITK_LIBRARIES})
 
+ADD_EXECUTABLE(pvc_make4d Make4D.cxx  )
+TARGET_LINK_LIBRARIES(pvc_make4d ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(pvc_relabel Relabel.cxx  )
+TARGET_LINK_LIBRARIES(pvc_relabel ${ITK_LIBRARIES})
+
 INSTALL(TARGETS pvc_gtm pvc_labbe pvc_rbv pvc_iy
 				pvc_diy pvc_mg pvc_mtc pvc_vc pvc_rl pvc_stc 
-				petpvc pvc_simulate DESTINATION bin
+				petpvc pvc_simulate pvc_make4d
+				pvc_relabel DESTINATION bin
 				COMPONENT applications)
