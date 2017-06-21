@@ -1,0 +1,163 @@
+REGION,SOURCE,DST
+ Non-Brain Outer Tissue (ignore),0,0
+ Non-Brain Low (ignore),1,0
+ Non-Brain Mid (ignore),2,0
+ Non-Brain High (ignore),3,0
+ Non-ventricular CSF,4,52
+ 3rd Ventricle,5,2
+ 4th Ventricle,12,53
+ 5th Ventricle,16,53
+ Right Accumbens Area,24,24
+ Left Accumbens Area,31,14
+ Right Amygdala,32,22
+ Left Amygdala,33,11
+ Pons,35,51
+ Brain Stem,36,9
+ Right Caudate,37,18
+ Left Caudate,38,6
+ Right Cerebellum Exterior,39,0
+ Left Cerebellum Exterior,40,0
+ Right Cerebellum White Matter,41,3
+ Left Cerebellum White Matter,42,3
+ Right Cerebral Exterior,43,0
+ Left Cerebral Exterior,44,0
+ 3rd Ventricle (Posterior part),47,2
+ Right Hippocampus,48,21
+ Left Hippocampus,49,10
+ Right Inf Lat Vent,50,2
+ Left Inf Lat Vent,51,2
+ Right Lateral Ventricle,52,2
+ Left Lateral Ventricle,53,2
+ Right Lesion,54,99
+ Left Lesion,55,99
+ Right Pallidum,56,20
+ Left Pallidum,57,8
+ Right Putamen,58,19
+ Left Putamen,59,7
+ Right Thalamus Proper,60,17
+ Left Thalamus Proper,61,5
+ Right Ventral DC,62,15
+ Left Ventral DC,63,15
+ Right vessel,64,0
+ Left vessel,65,0
+ Right Ventricular Lining,66,2
+ Left Ventricular Lining,67,2
+ Optic Chiasm,70,25
+ Cerebellar Vermal Lobules I-V,72,4
+ Cerebellar Vermal Lobules VI-VII,73,4
+ Cerebellar Vermal Lobules VIII-X,74,4
+ Left Basal Forebrain,76,45
+ Right Basal Forebrain,77,46
+ Right Temporal White Matter,81,1
+ Right Insula White Matter,82,1
+ Right Cingulate White Matter,83,1
+ Right Frontal White Matter,84,1
+ Right Occipital White Matter,85,1
+ Right Parietal White Matter,86,1
+ Corpus Callosum,87,1
+ Left Temporal White Matter,89,1
+ Left Insula White Matter,90,1
+ Left Cingulate White Matter,91,1
+ Left Frontal White Matter,92,1
+ Left Occipital White Matter,93,1
+ Left Parietal White Matter,94,1
+ Right Claustrum,96,49
+ Left Claustrum,97,50
+ Right ACgG anterior cingulate gyrus,101,40
+ Left ACgG anterior cingulate gyrus,102,36
+ Right AIns anterior insula,103,23
+ Left AIns anterior insula,104,12
+ Right AOrG anterior orbital gyrus,105,31
+ Left AOrG anterior orbital gyrus,106,26
+ Right AnG angular gyrus,107,33
+ Left AnG angular gyrus,108,28
+ Right Calc calcarine cortex,109,34
+ Left Calc calcarine cortex,110,29
+ Right CO central operculum,113,32
+ Left CO central operculum,114,27
+ Right Cun cuneus,115,34
+ Left Cun cuneus,116,29
+ Right Ent entorhinal area,117,32
+ Left Ent entorhinal area,118,27
+ Right FO frontal operculum,119,31
+ Left FO frontal operculum,120,26
+ Right FRP frontal pole,121,31
+ Left FRP frontal pole,122,26
+ Right FuG fusiform gyrus,123,32
+ Left FuG fusiform gyrus,124,27
+ Right GRe gyrus rectus,125,31
+ Left GRe gyrus rectus,126,26
+ Right IOG inferior occipital gyrus,129,34
+ Left IOG inferior occipital gyrus,130,29
+ Right ITG inferior temporal gyrus,133,32
+ Left ITG inferior temporal gyrus,134,27
+ Right LiG lingual gyrus,135,34
+ Left LiG lingual gyrus,136,29
+ Right LOrG lateral orbital gyrus,137,31
+ Left LOrG lateral orbital gyrus,138,26
+ Right MCgG middle cingulate gyrus,139,42
+ Left MCgG middle cingulate gyrus,140,38
+ Right MFC medial frontal cortex,141,31
+ Left MFC medial frontal cortex,142,26
+ Right MFG middle frontal gyrus,143,31
+ Left MFG middle frontal gyrus,144,26
+ Right MOG middle occipital gyrus,145,34
+ Left MOG middle occipital gyrus,146,29
+ Right MOrG medial orbital gyrus,147,31
+ Left MOrG medial orbital gyrus,148,26
+ Right MPoG postcentral gyrus medial segment,149,33
+ Left MPoG postcentral gyrus medial segment,150,28
+ Right MPrG precentral gyrus medial segment,151,31
+ Left MPrG precentral gyrus medial segment,152,26
+ Right MSFG superior frontal gyrus medial segment,153,31
+ Left MSFG superior frontal gyrus medial segment,154,26
+ Right MTG middle temporal gyrus,155,32
+ Left MTG middle temporal gyrus,156,27
+ Right OCP occipital pole,157,34
+ Left OCP occipital pole,158,29
+ Right OFuG occipital fusiform gyrus,161,34
+ Left OFuG occipital fusiform gyrus,162,29
+ Right OpIFG opercular part of the inferior frontal gyrus,163,31
+ Left OpIFG opercular part of the inferior frontal gyrus,164,26
+ Right OrIFG orbital part of the inferior frontal gyrus,165,31
+ Left OrIFG orbital part of the inferior frontal gyrus,166,26
+ Right PCgG posterior cingulate gyrus,167,43
+ Left PCgG posterior cingulate gyrus,168,39
+ Right PCu precuneus,169,33
+ Left PCu precuneus,170,28
+ Right PHG parahippocampal gyrus,171,35
+ Left PHG parahippocampal gyrus,172,30
+ Right PIns posterior insula,173,23
+ Left PIns posterior insula,174,12
+ Right PO parietal operculum,175,33
+ Left PO parietal operculum,176,28
+ Right PoG postcentral gyrus,177,33
+ Left PoG postcentral gyrus,178,28
+ Right POrG posterior orbital gyrus,179,21
+ Left POrG posterior orbital gyrus,180,26
+ Right PP planum polare,181,32
+ Left PP planum polare,182,27
+ Right PrG precentral gyrus,183,31
+ Left PrG precentral gyrus,184,26
+ Right PT planum temporale,185,32
+ Left PT planum temporale,186,27
+ Right SCA subcallosal area,187,47
+ Left SCA subcallosal area,188,48
+ Right SFG superior frontal gyrus,191,31
+ Left SFG superior frontal gyrus,192,26
+ Right SMC supplementary motor cortex,193,31
+ Left SMC supplementary motor cortex,194,26
+ Right SMG supramarginal gyrus,195,33
+ Left SMG supramarginal gyrus,196,28
+ Right SOG superior occipital gyrus,197,34
+ Left SOG superior occipital gyrus,198,29
+ Right SPL superior parietal lobule,199,33
+ Left SPL superior parietal lobule,200,28
+ Right STG superior temporal gyrus,201,32
+ Left STG superior temporal gyrus,202,27
+ Right TMP temporal pole,203,32
+ Left TMP temporal pole,204,27
+ Right TrIFG triangular part of the inferior frontal gyrus,205,31
+ Left TrIFG triangular part of the inferior frontal gyrus,206,26
+ Right TTG transverse temporal gyrus,207,32
+ Left TTG transverse temporal gyrus,208,27
