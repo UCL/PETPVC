@@ -51,7 +51,7 @@ make install
 An example of running iterative Yang with a 6mm PSF:
 
 ```
-	petpvc <PET> <MASK> <OUTPUT> --pvc IY -x 6.0 -y 6.0 -z 6.0 [--debug]
+	petpvc -i <PET> -m <MASK> -o <OUTPUT> --pvc IY -x 6.0 -y 6.0 -z 6.0 [--debug]
 ```
 where ```<PET>``` is the PET image file, ```<MASK>``` is the 4-D mask image file and ```<OUTPUT>``` is the destination file for the PV-corrected image.
 
