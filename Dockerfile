@@ -12,11 +12,11 @@ RUN apk add alpine-sdk cmake && \
     git clone -b 'release' --single-branch --depth=1 https://github.com/InsightSoftwareConsortium/ITK.git && \
     cd /opt/ITK/BUILD && \
     cmake -DBUILD_TESTING:BOOL=OFF -DModule_ITKReview:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=Release /opt/ITK/ITK && \
-    make -j && \
+    make && \
     mkdir -p /opt/PETPVC/BUILD && cd /opt/PETPVC && \
     git clone https://github.com/UCL/PETPVC && \
     cd BUILD && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DITK_DIR=/opt/ITK/BUILD /opt/PETPVC/PETPVC && \
-    make -j && make install && ctest && cd ~ && \
+    make && make install && ctest && cd ~ && \
     rm -rf /opt/PETPVC && rm -rf /opt/ITK && \
     apk del --purge alpine-sdk cmake && apk add libstdc++
     
