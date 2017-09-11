@@ -33,7 +33,7 @@ before_script:
 - cd ..
 - mkdir build
 - cd build
-- cmake ../PETPVC
+- cmake ../PETPVC -DCMAKE_BUILD_TYPE=Release
 script: cmake --build . && ctest && cpack
 deploy:
   - provider: releases
