@@ -22,7 +22,8 @@ The following are required to build this software:
 - A C++ compiler
 	
 ### Building and installing
-- Clone the repository
+- Ensure that ```ITK``` has been built successfully, with the ```ITKReview``` module (```Module_ITKReview``` in CMake) enabled.
+- Clone this repository
 ```bash
 git clone https://github.com/UCL/PETPVC.git
 ```
