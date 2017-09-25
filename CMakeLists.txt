@@ -21,6 +21,11 @@ cmake_minimum_required(VERSION 2.8)
 
 PROJECT(PETPVC)
 
+# set default build-type to Release
+if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "type of build: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif()
+
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 2)
 SET(VERSION_PATCH 1)
