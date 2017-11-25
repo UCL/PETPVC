@@ -47,15 +47,15 @@ typedef itk::ImageRegionConstIterator<ImageType> ConstImageIterator;
 int main(int argc, char *argv[])
 {
 
-    const char * const AUTHOR = "Benjamin A. Thomas";
-    const char * const APP_TITLE = "Relabel an image";
+	const char * const AUTHOR = "Benjamin A. Thomas";
+  const char * const APP_TITLE = "Relabel an image";
 
-    std::stringstream version_number;
-    version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    const char* const VERSION_NO = version_number.str().c_str();
+  std::stringstream version_number;
+  version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+  const std::string VERSION_NO = version_number.str();
 	MetaCommand command;
 
-	command.SetVersion( VERSION_NO );
+	command.SetVersion( VERSION_NO.c_str() );
 	command.SetAuthor( AUTHOR );
 	command.SetName( APP_TITLE );
 	command.SetDescription("Relabels a parcellation image");
@@ -63,18 +63,18 @@ int main(int argc, char *argv[])
 	command.SetCategory("PETPVC");
 
 	command.SetOption("Input", "i", true, "Input file");
-    command.AddOptionField("Input", "infilename", MetaCommand::FILE, true, "", "", MetaCommand::DATA_IN);
+  command.AddOptionField("Input", "infilename", MetaCommand::FILE, true, "", "", MetaCommand::DATA_IN);
 
-    command.SetOption("Output", "o", true, "Output file");
-    command.AddOptionField("Output", "outfilename", MetaCommand::FILE, true, "", "", MetaCommand::DATA_OUT);
+  command.SetOption("Output", "o", true, "Output file");
+  command.AddOptionField("Output", "outfilename", MetaCommand::FILE, true, "", "", MetaCommand::DATA_OUT);
 
-    command.SetOption("Parcellation", "p", true, "Description file");
+  command.SetOption("Parcellation", "p", true, "Description file");
 	command.SetOptionLongTag("Parcellation", "parc");
 	command.AddOptionField("Parcellation", "parcfile", MetaCommand::FILE, true, "", "", MetaCommand::DATA_IN);
 
-    command.SetOption("Type", "t", true, "Parcellation type");
+  command.SetOption("Type", "t", true, "Parcellation type");
 	command.SetOptionLongTag("Type", "type");
-    command.AddOptionField("Type", "parctype", MetaCommand::STRING, true, "", "");
+  command.AddOptionField("Type", "parctype", MetaCommand::STRING, true, "", "");
 
 	if( !command.Parse(argc,argv) )
 	{
@@ -91,8 +91,6 @@ int main(int argc, char *argv[])
 	std::cout << "Description file: " << maskDescriptionFileName << std::endl;
 	std::cout << "Parcellation type: " << targetColumnName << std::endl;
 
-	int targetColumnIndex =0;
-
 	ReaderType::Pointer reader = ReaderType::New();
 	reader->SetFileName( inFileName );
 
@@ -105,6 +103,8 @@ int main(int argc, char *argv[])
 	std::map<float, float> eqTable;
 
 	if ( maskDesriptionFile.is_open() ){
+
+		int targetColumnIndex =0;
 
 		//Get header of CSV
 		getline( maskDesriptionFile, line );
