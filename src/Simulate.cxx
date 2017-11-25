@@ -50,12 +50,12 @@ int main(int argc, char *argv[])
 
     std::stringstream version_number;
     version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    const char* const VERSION_NO = version_number.str().c_str();
+    const std::string VERSION_NO = version_number.str();
 
     //Setting up command line argument list.
     MetaCommand command;
 
-    command.SetVersion(VERSION_NO);
+    command.SetVersion(VERSION_NO.c_str());
     command.SetAuthor(AUTHOR);
     command.SetName(APP_TITLE);
     command.SetDescription(

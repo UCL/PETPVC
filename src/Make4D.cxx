@@ -60,13 +60,13 @@ int main(int argc, char *argv[])
 
     std::stringstream version_number;
     version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    const char* const VERSION_NO = version_number.str().c_str();
+    const std::string VERSION_NO = version_number.str();
 
 	MetaCommand command;
 
 	command.DisableDeprecatedWarnings();
 
-	command.SetVersion(VERSION_NO);
+	command.SetVersion(VERSION_NO.c_str());
 	command.SetAuthor(AUTHOR);
 	command.SetName(APP_TITLE);
 	command.SetDescription("Creates a 4-D region mask image from a 3-D mask image");
