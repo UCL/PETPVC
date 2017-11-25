@@ -1,4 +1,4 @@
-# PETPVC [![Build Status](https://travis-ci.org/UCL/PETPVC.svg?branch=master)](https://travis-ci.org/UCL/PETPVC) [![Build status](https://ci.appveyor.com/api/projects/status/7kk9ua9r0lybinwa/branch/master?svg=true)](https://ci.appveyor.com/project/bathomas/petpvc/branch/master)
+# PETPVC [![Build Status](https://travis-ci.org/UCL/PETPVC.svg?branch=master)](https://travis-ci.org/UCL/PETPVC) [![Build status](https://ci.appveyor.com/api/projects/status/7kk9ua9r0lybinwa/branch/master?svg=true)](https://ci.appveyor.com/project/bathomas/petpvc/branch/master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ab83c41f20194c2c82fbc74e8788f928)](https://www.codacy.com/app/bathomas/PETPVC?utm_source=github.com&utm_medium=referral&utm_content=UCL/PETPVC&utm_campaign=badger)
 PETPVC: toolbox for partial volume correction (PVC) in positron emission tomography (PET)
 
 ## Publications
