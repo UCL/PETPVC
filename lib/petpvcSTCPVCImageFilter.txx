@@ -44,6 +44,11 @@ template< class TInputImage, class TMaskImage >
 void STCPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
+
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    //std::cout << "Tolerance is: " << itk::ImageToImageFilterCommon::GetGlobalDefaultCoordinateTolerance() << std::endl;
+
     typename TInputImage::ConstPointer input = this->GetInput();
     typename TInputImage::Pointer output = this->GetOutput();
 

@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
 
     typedef petpvc::STCPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+
     //Setting up command line argument list.
     MetaCommand command;
 
@@ -157,6 +160,7 @@ int main(int argc, char *argv[])
     vVariance[2] = pow(vVariance[2], 2);
 
     FilterType::Pointer stcFilter = FilterType::New();
+
     stcFilter->SetInput( petReader->GetOutput() );
     stcFilter->SetMaskInput( maskReader->GetOutput() );
     stcFilter->SetPSF(vVariance);

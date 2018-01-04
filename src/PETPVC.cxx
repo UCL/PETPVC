@@ -171,6 +171,10 @@ int main(int argc, char *argv[])
     vFWHM[1] = fFWHM_y;
     vFWHM[2] = fFWHM_z;
 
+	//Set voxel tolerances.
+	itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+	itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+
     //Toggle debug mode
     bool bDebug = command.GetValueAsBool("debug");
 
