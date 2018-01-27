@@ -45,6 +45,10 @@ template< class TInputImage, class TMaskImage >
 void LabbeRBVPVCImageFilter< TInputImage, TMaskImage>
 ::GenerateData()
 {
+
+    this->SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    this->SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     typename TInputImage::ConstPointer input = this->GetInput();
     typename TInputImage::Pointer output = this->GetOutput();
 

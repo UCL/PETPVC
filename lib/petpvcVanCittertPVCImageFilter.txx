@@ -47,6 +47,10 @@ template< class TInputImage >
 void VanCittertPVCImageFilter< TInputImage >
 ::GenerateData()
 {
+
+    this->SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    this->SetGlobalDefaultDirectionTolerance( 1e-2 );
+
     typename TInputImage::ConstPointer input = this->GetInput();
     typename TInputImage::Pointer output = this->GetOutput();
 

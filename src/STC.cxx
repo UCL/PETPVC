@@ -44,7 +44,9 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
-
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     const char * const AUTHOR = "Benjamin A. Thomas";
     const char * const APP_TITLE = "Single Target Correction (STC) PVC";
 
@@ -157,6 +159,7 @@ int main(int argc, char *argv[])
     vVariance[2] = pow(vVariance[2], 2);
 
     FilterType::Pointer stcFilter = FilterType::New();
+
     stcFilter->SetInput( petReader->GetOutput() );
     stcFilter->SetMaskInput( maskReader->GetOutput() );
     stcFilter->SetPSF(vVariance);

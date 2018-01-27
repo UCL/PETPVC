@@ -106,6 +106,10 @@ void
 MullerGartnerImageFilter<TInputImage1, TInputImage2, TInputImage3, TOutputImage>
 ::GenerateData()
 {
+
+    this->SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    this->SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     //Get input images
     Input1ImagePointer inputPET
         = dynamic_cast<const TInputImage1*> (ProcessObject::GetInput(0));
