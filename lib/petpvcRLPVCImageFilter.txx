@@ -46,8 +46,8 @@ template< class TInputImage >
 void RichardsonLucyPVCImageFilter< TInputImage >
 ::GenerateData()
 {
-    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
-    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    this->SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    this->SetGlobalDefaultDirectionTolerance( 1e-2 );
 
     typename TInputImage::ConstPointer input = this->GetInput();
     typename TInputImage::Pointer output = this->GetOutput();
