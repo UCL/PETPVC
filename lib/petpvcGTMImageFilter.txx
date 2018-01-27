@@ -54,6 +54,9 @@ template<class TImage>
 void GTMImageFilter<TImage>::GenerateData()
 {
 
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+
     //Get pointers to input and output.
     typename TImage::ConstPointer input = this->GetInput();
 

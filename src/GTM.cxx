@@ -33,8 +33,6 @@
 
 #include "petpvcRoussetPVCImageFilter.h"
 
-
-
 typedef itk::Vector<float, 3> VectorType;
 typedef itk::Image<float, 4> MaskImageType;
 typedef itk::Image<float, 3> PETImageType;
@@ -50,6 +48,10 @@ using namespace petpvc;
 
 int main(int argc, char *argv[])
 {
+
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     const char * const AUTHOR = "Benjamin A. Thomas";
     const char * const APP_TITLE = "Geometric Transfer Matrix (GTM) PVC";
 
@@ -60,8 +62,8 @@ int main(int argc, char *argv[])
     typedef petpvc::RoussetPVCImageFilter<PETImageType, MaskImageType>  FilterType;
 
     PETImageType::Pointer image = PETImageType::New();
-
-//Setting up command line argument list.
+    
+    //Setting up command line argument list.
     MetaCommand command;
 
     command.SetVersion(VERSION_NO.c_str());

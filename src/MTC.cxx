@@ -49,6 +49,9 @@ std::string getAcknowledgments(void);
 int main(int argc, char *argv[])
 {
 
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     const char * const AUTHOR = "Benjamin A. Thomas";
     const char * const APP_TITLE = "Multi-target correction (MTC) PVC";
 
@@ -57,7 +60,7 @@ int main(int argc, char *argv[])
     const std::string VERSION_NO = version_number.str();
 
     typedef petpvc::MTCPVCImageFilter<PETImageType, MaskImageType>  FilterType;
-
+    
     //Setting up command line argument list.
     MetaCommand command;
 

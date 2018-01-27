@@ -37,6 +37,13 @@ CONFIGURE_FILE(
         "${PROJECT_BINARY_DIR}/config/EnvironmentInfo.h"
 )
 
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#    include(CodeCoverage)
+#    setup_target_for_coverage(${PROJECT_NAME}_coverage tests coverage)
+#endif()
+
+#SET(CMAKE_CXX_FLAGS "-Wall -pedantic -pthread -g -O0 --coverage")
+
 INCLUDE_DIRECTORIES("${PROJECT_BINARY_DIR}/config")
 
 ENABLE_TESTING()

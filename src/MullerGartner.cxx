@@ -59,13 +59,16 @@ std::string getAcknowledgments(void);
 
 int main(int argc, char *argv[])
 {
+    itk::ImageToImageFilterCommon::SetGlobalDefaultCoordinateTolerance( 1e-2 );
+    itk::ImageToImageFilterCommon::SetGlobalDefaultDirectionTolerance( 1e-2 );
+    
     const char * const AUTHOR = "Benjamin A. Thomas";
     const char * const APP_TITLE = "Muller-Gartner (MG) PVC";
 
     std::stringstream version_number;
     version_number << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
     const std::string VERSION_NO = version_number.str();
-
+    
     //Setting up command line argument list.
     MetaCommand command;
 
