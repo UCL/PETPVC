@@ -2,7 +2,7 @@
 version: "{build}"
 
 image: Visual Studio 2013
-platform: Any CPU
+platform: x64
 configuration: release
 
 clone_folder: C:\projects\PETPVC
