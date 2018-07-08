@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         petReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                  << std::endl;
+                  << std::endl << err << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 		        maskReader->Update();
 		    } catch (itk::ExceptionObject & err) {
         		std::cerr << "[Error]\tCannot read mask input file: " << sMaskFileName
-                  << std::endl;
+                  << std::endl << err << std::endl;
         		return EXIT_FAILURE;
     		}
 	}
