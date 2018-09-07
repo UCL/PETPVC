@@ -29,37 +29,81 @@ protected:
 
 };*/
 
+
+template<typename TImageType>
+void ReadFile(const std::string &filename, typename TImageType::Pointer image)
+{
+  typedef itk::ImageFileReader<TImageType> ReaderType;
+  typename ReaderType::Pointer reader = ReaderType::New();
+
+  reader->SetFileName(filename);
+  reader->Update();
+
+  image->Graft(reader->GetOutput());
+}
+
+template<typename TImageType>
+void WriteFile(typename TImageType::Pointer image, const std::string &filename)
+{
+  typedef typename itk::ImageFileWriter<TImageType> WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetInput(image);
+  writer->SetFileName(filename);
+  writer->Update();
+}
+
 class PETPVCImageObject {
 
 public:
-  PETPVCImageObject(std::string filename);
+  PETPVCImageObject(){};
+  explicit PETPVCImageObject(const std::string &filename);
   virtual void getVolume( const int n, ImageType3D::Pointer &vol )=0;
+  virtual int getNoOfVolumes()=0;
   virtual ~PETPVCImageObject(){};
 
 protected:
   std::string _inFilename;
 };
 
-PETPVCImageObject::PETPVCImageObject(std::string filename){
+PETPVCImageObject::PETPVCImageObject(const std::string &filename){
   _inFilename = filename;
   std::cout << "Base ctor" << std::endl;
 };
 
 class ImageIn4D : public PETPVCImageObject {
-  using PETPVCImageObject::PETPVCImageObject;
-  void getVolume( const int n, ImageType3D::Pointer &vol ) { std::cout << "4D image: " << _inFilename << std::endl; };
+public:
+  ImageIn4D(const std::string &filename);
 
+  //TODO: Implement getVolume() for 4D.
+  void getVolume( const int n, ImageType3D::Pointer &vol ) { std::cout << "4D image: " << _inFilename << std::endl; };
+  int getNoOfVolumes(){ return _internalImage->GetLargestPossibleRegion().GetSize(3); };
 protected:
   ImageType4D::Pointer _internalImage;
 };
 
 class ImageIn3D : public PETPVCImageObject {
-  using PETPVCImageObject::PETPVCImageObject;
+public:
+  ImageIn3D(const std::string &filename);
+
+  //TODO: Implement getVolume() for 3D.
   void getVolume( const int n, ImageType3D::Pointer &vol ) { std::cout << "3D image: " << _inFilename << std::endl; };
+  int getNoOfVolumes(){ return 1; };
 
 protected:
   ImageType3D::Pointer _internalImage;
 };
+
+ImageIn3D::ImageIn3D(const std::string &filename){
+  _inFilename = filename;
+  _internalImage = ImageType3D::New();
+  ReadFile<ImageType3D>( _inFilename, _internalImage );
+}
+
+ImageIn4D::ImageIn4D(const std::string &filename){
+  _inFilename = filename;
+  _internalImage = ImageType4D::New();
+  ReadFile<ImageType4D>( _inFilename, _internalImage );
+}
 
 std::unique_ptr<PETPVCImageObject> CreateImage(EImageType e, const std::string &filename){
   if (e == EImageType::E3DImage)
@@ -101,28 +145,6 @@ static EImageType GetImageType(const std::string &filename){
   }
 
   return EImageType::EUnknown;
-}
-
-template<typename TImageType>
-void ReadFile(const std::string &filename, typename TImageType::Pointer image)
-{
-  typedef itk::ImageFileReader<TImageType> ReaderType;
-  typename ReaderType::Pointer reader = ReaderType::New();
-
-  reader->SetFileName(filename);
-  reader->Update();
-
-  image->Graft(reader->GetOutput());
-}
-
-template<typename TImageType>
-void WriteFile(typename TImageType::Pointer image, const std::string &filename)
-{
-  typedef typename itk::ImageFileWriter<TImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetInput(image);
-  writer->SetFileName(filename);
-  writer->Update();
 }
 
 template<typename TImageType=ImageType3D>
