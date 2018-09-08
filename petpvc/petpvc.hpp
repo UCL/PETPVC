@@ -218,7 +218,10 @@ MaskIn3D::MaskIn3D(const std::string &filename){
 
   std::cout << "Number of labels found: " << _numOfRegions << std::endl;
 
-  //TODO: Die if no labels found.
+  if ( _numOfRegions == 0) {
+    std::cerr << "No regions found in " << _inFilename << std::endl;
+    throw false;
+  }
 
   //Put labels into array/vector
   _LabelIndices.reserve(_numOfRegions+1);
@@ -449,4 +452,6 @@ void Divide(const typename TImageType::Pointer a,
   outputImage->Graft(divide->GetOutput());
 }
 
-}
+//TODO: Implement paste into 4D
+
+} //end namespace petpvc
