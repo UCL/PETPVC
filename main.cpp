@@ -30,6 +30,9 @@ int main(int argc, char *argv[]){
     petpvc::WriteFile<petpvc::ImageType3D>(inImage2,ss.str());
   }
 
+  petpvc::CreateBlankImageFromExample(inImage2,outImage);
+  petpvc::WriteFile<petpvc::ImageType3D>(outImage,"blank.nii.gz");
+
   //std::cout << "Hello, World 2!" << std::endl;
 
   return EXIT_SUCCESS;

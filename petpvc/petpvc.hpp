@@ -2,11 +2,14 @@
 #include <memory>
 
 #include "itkAddImageFilter.h"
+#include "itkBinaryThresholdImageFilter.h"
 #include "itkDivideImageFilter.h"
 #include "itkExtractImageFilter.h"
 #include "itkImage.h"
+#include "itkImageDuplicator.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkLabelStatisticsImageFilter.h"
 #include "itkMultiplyImageFilter.h"
 #include "itkSubtractImageFilter.h"
 
@@ -41,6 +44,22 @@ void WriteFile(typename TImageType::Pointer image, const std::string &filename)
   writer->Update();
 }
 
+template<typename TImageType=ImageType3D>
+void CreateBlankImageFromExample(const typename TImageType::Pointer input, typename TImageType::Pointer &output)
+{
+  typedef itk::ImageDuplicator< TImageType > DuplicatorType;
+  typedef typename TImageType::PixelType PixelType;
+  typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+  duplicator->SetInputImage(input);
+  duplicator->Update();
+  typename TImageType::Pointer clonedImage = duplicator->GetOutput();
+
+  clonedImage->FillBuffer( itk::NumericTraits< PixelType >::Zero );
+
+  output->Graft(clonedImage);
+
+}
+
 class PETPVCImageObject {
 
 public:
@@ -62,7 +81,7 @@ PETPVCImageObject::PETPVCImageObject(const std::string &filename){
 class ImageIn4D : public PETPVCImageObject {
 public:
   ImageIn4D(const std::string &filename);
-  
+
   void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return _internalImage->GetLargestPossibleRegion().GetSize(3); };
 protected:
@@ -71,15 +90,30 @@ protected:
 
 class ImageIn3D : public PETPVCImageObject {
 public:
+  ImageIn3D(){};
   ImageIn3D(const std::string &filename);
 
-  //TODO: Implement getVolume() for 3D.
-  void getVolume( const int n, ImageType3D::Pointer &vol ) { std::cout << "3D image: " << _inFilename << std::endl; };
+  void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return 1; };
 
 protected:
   ImageType3D::Pointer _internalImage;
 };
+
+class MaskIn3D : public ImageIn3D {
+public:
+  MaskIn3D(const std::string &filename);
+
+  //For getting information about the mask labels
+  typedef itk::LabelStatisticsImageFilter<ImageType3D, ImageType3D> LabelStatisticsFilterType;
+  typedef typename LabelStatisticsFilterType::ValidLabelValuesContainerType ValidLabelValuesType;
+  typedef typename LabelStatisticsFilterType::LabelPixelType LabelPixelType;
+
+  typedef itk::BinaryThresholdImageFilter<ImageType3D, ImageType3D> BinaryThresholdImageFilterType;
+
+  void getRegion( const int n, ImageType3D::Pointer &reg );
+};
+
 
 ImageIn3D::ImageIn3D(const std::string &filename){
   _inFilename = filename;
@@ -91,6 +125,25 @@ ImageIn4D::ImageIn4D(const std::string &filename){
   _inFilename = filename;
   _internalImage = ImageType4D::New();
   ReadFile<ImageType4D>( _inFilename, _internalImage );
+}
+
+MaskIn3D::MaskIn3D(const std::string &filename){
+  //TODO implement MaskIn3D ctor
+
+  //Get labels
+
+  //Put labels into array/vector
+  //Set up binary filter.
+}
+
+void ImageIn3D::getVolume( const int n, ImageType3D::Pointer &vol ) {
+  std::cout << "3D image: " << _inFilename << std::endl;
+
+  if ( n != 1) {
+    std::cerr << "Requested region " << n << " out of range!" << std::endl;
+    throw false;
+  }
+  vol->Graft(_internalImage);
 }
 
 void ImageIn4D::getVolume( const int n, ImageType3D::Pointer &vol ) {
@@ -124,13 +177,19 @@ void ImageIn4D::getVolume( const int n, ImageType3D::Pointer &vol ) {
 
 };
 
-std::unique_ptr<PETPVCImageObject> CreateImage(EImageType e, const std::string &filename){
-  if (e == EImageType::E3DImage)
+void MaskIn3D::getRegion( const int n, ImageType3D::Pointer &reg ){
+  //TODO implement MaskIn3D getRegion
+}
+
+std::unique_ptr<PETPVCImageObject> CreateImage(EImageType e, const std::string &filename, bool isMask=false){
+  if ( (e == EImageType::E3DImage) && (!isMask) )
     return std::unique_ptr<PETPVCImageObject>(new ImageIn3D(filename));
-  else if (e == EImageType::E4DImage)
+  if ( (e == EImageType::E4DImage) && (!isMask) )
     return std::unique_ptr<PETPVCImageObject>(new ImageIn4D(filename));
-  else
-    return nullptr;
+  if ( (e == EImageType::E3DImage) && (isMask) )
+    return std::unique_ptr<PETPVCImageObject>(new MaskIn3D(filename));
+
+  return nullptr;
 }
 
 static bool GetImageIO(const std::string &filename, itk::ImageIOBase::Pointer &imageIO) {
