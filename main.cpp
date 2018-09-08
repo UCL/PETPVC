@@ -9,15 +9,15 @@ int main(int argc, char *argv[]){
 
   petpvc::EImageType inputImageType = petpvc::GetImageType(argv[1]);
 
-  petpvc::ImageType3D::Pointer inImage1 = petpvc::ImageType3D::New();
-  petpvc::ImageType3D::Pointer inImage2 = petpvc::ImageType3D::New();
+  //petpvc::ImageType3D::Pointer inImage1 = petpvc::ImageType3D::New();
+  //petpvc::ImageType3D::Pointer inImage2 = petpvc::ImageType3D::New();
   petpvc::ImageType3D::Pointer outImage = petpvc::ImageType3D::New();
 
   //petpvc::ReadFile<petpvc::ImageType3D>(argv[1],inImage1);
   //petpvc::ReadFile<petpvc::ImageType3D>(argv[2],inImage2);
 
   //Multiply(inImage1,inImage2,outImage);
-
+  /*
   auto inObj = petpvc::CreateImage(inputImageType, argv[1]);
 
   for (int i=1; i <= inObj->getNoOfVolumes(); i++) {
@@ -29,9 +29,24 @@ int main(int argc, char *argv[]){
 
     petpvc::WriteFile<petpvc::ImageType3D>(inImage2,ss.str());
   }
+  */
 
-  petpvc::CreateBlankImageFromExample(inImage2,outImage);
-  petpvc::WriteFile<petpvc::ImageType3D>(outImage,"blank.nii.gz");
+  petpvc::ImageType3D::Pointer maskImage = petpvc::ImageType3D::New();
+
+  auto inMaskObj = petpvc::CreateMaskImage(petpvc::EImageType::E4DImage, argv[1]);
+
+  for (int i=1; i <= inMaskObj->getNoOfRegions(); i++) {
+    inMaskObj->getRegion(i,maskImage);
+    std::stringstream ss;
+    ss << "label_";
+    ss << i;
+    ss << ".nii.gz";
+
+    petpvc::WriteFile<petpvc::ImageType3D>(maskImage,ss.str());
+  }
+
+  //petpvc::CreateBlankImageFromExample(inImage2,outImage);
+  //petpvc::WriteFile<petpvc::MaskImageType3D>(outImage,"blank.nii.gz");
 
   //std::cout << "Hello, World 2!" << std::endl;
 
