@@ -3,6 +3,7 @@
 
 #include "itkAddImageFilter.h"
 #include "itkDivideImageFilter.h"
+#include "itkExtractImageFilter.h"
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -14,21 +15,9 @@ namespace petpvc {
 typedef itk::Image<float, 3> ImageType3D;
 typedef itk::Image<float, 4> ImageType4D;
 
+typedef itk::ExtractImageFilter<ImageType4D, ImageType3D> Extract4DFilterType;
+
 enum class EImageType { E3DImage, E4DImage, EUnknown };
-
-/*
-class PETPVCImageObject {
-
-public:
-  std::string getFilename(){ return _filename; };
-
-protected:
-  std::string _filename;
-  virtual void getVolume( const int n, ImageType3D::Pointer &vol )=0;
-  PETPVCImageObject *obj;
-
-};*/
-
 
 template<typename TImageType>
 void ReadFile(const std::string &filename, typename TImageType::Pointer image)
@@ -73,9 +62,8 @@ PETPVCImageObject::PETPVCImageObject(const std::string &filename){
 class ImageIn4D : public PETPVCImageObject {
 public:
   ImageIn4D(const std::string &filename);
-
-  //TODO: Implement getVolume() for 4D.
-  void getVolume( const int n, ImageType3D::Pointer &vol ) { std::cout << "4D image: " << _inFilename << std::endl; };
+  
+  void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return _internalImage->GetLargestPossibleRegion().GetSize(3); };
 protected:
   ImageType4D::Pointer _internalImage;
@@ -104,6 +92,37 @@ ImageIn4D::ImageIn4D(const std::string &filename){
   _internalImage = ImageType4D::New();
   ReadFile<ImageType4D>( _inFilename, _internalImage );
 }
+
+void ImageIn4D::getVolume( const int n, ImageType3D::Pointer &vol ) {
+  std::cout << "4D image: " << _inFilename << std::endl;
+
+
+  typename ImageType4D::IndexType desiredStart;
+  desiredStart.Fill(0);
+
+  typename ImageType4D::SizeType desiredSize =
+      _internalImage->GetLargestPossibleRegion().GetSize();
+
+  if ( n-1 < 0) {
+    std::cerr << "Requested region " << n << " out of range!" << std::endl;
+    throw false;
+  }
+
+  desiredStart[3] = n - 1;
+  desiredSize[3] = 0;
+
+  typename Extract4DFilterType::Pointer extractFilter =
+      Extract4DFilterType::New();
+
+  extractFilter->SetExtractionRegion(
+      typename ImageType4D::RegionType(desiredStart, desiredSize));
+  extractFilter->SetInput(_internalImage);
+  extractFilter->SetDirectionCollapseToIdentity();
+  extractFilter->Update();
+
+  vol->Graft(extractFilter->GetOutput());
+
+};
 
 std::unique_ptr<PETPVCImageObject> CreateImage(EImageType e, const std::string &filename){
   if (e == EImageType::E3DImage)

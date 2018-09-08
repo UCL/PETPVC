@@ -19,9 +19,16 @@ int main(int argc, char *argv[]){
   //Multiply(inImage1,inImage2,outImage);
 
   auto inObj = petpvc::CreateImage(inputImageType, argv[1]);
-  inObj->getVolume(1,inImage2);
 
-  //petpvc::WriteFile<petpvc::ImageType3D>(outImage,argv[3]);
+  for (int i=1; i <= inObj->getNoOfVolumes(); i++) {
+    inObj->getVolume(i,inImage2);
+    std::stringstream ss;
+    ss << "vol_";
+    ss << i;
+    ss << ".nii.gz";
+
+    petpvc::WriteFile<petpvc::ImageType3D>(inImage2,ss.str());
+  }
 
   //std::cout << "Hello, World 2!" << std::endl;
 
