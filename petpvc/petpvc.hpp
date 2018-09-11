@@ -12,6 +12,7 @@
 #include "itkImageFileWriter.h"
 #include "itkLabelStatisticsImageFilter.h"
 #include "itkMultiplyImageFilter.h"
+#include "itkPasteImageFilter.h"
 #include "itkSubtractImageFilter.h"
 
 namespace petpvc {
@@ -107,6 +108,10 @@ public:
   explicit PETPVCImageObject(const std::string &filename);
   virtual void getVolume( const int n, ImageType3D::Pointer &vol )=0;
   virtual int getNoOfVolumes()=0;
+
+  template<typename T>
+    void getImage( typename T::Pointer &output){ std::cout << "BASE!" << std::endl; };
+
   virtual ~PETPVCImageObject(){};
 
 protected:
@@ -134,6 +139,10 @@ public:
 
   void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return _internalImage->GetLargestPossibleRegion().GetSize(3); };
+
+  template<typename T>
+  void getImage( typename T::Pointer &output) { output->Graft(_internalImage); };
+
 protected:
   ImageType4D::Pointer _internalImage;
 };
@@ -143,6 +152,7 @@ public:
   ImageIn3D(){};
   ImageIn3D(const std::string &filename);
 
+  void getImage( ImageType3D::Pointer &output ){ output->Graft(_internalImage); };
   void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return 1; };
 
@@ -453,5 +463,40 @@ void Divide(const typename TImageType::Pointer a,
 }
 
 //TODO: Implement paste into 4D
+void PasteInto(const ImageType3D::Pointer inVol,
+               const int n,
+               ImageType4D::Pointer destVol) {
 
-} //end namespace petpvc
+  typedef itk::CastImageFilter< ImageType3D, ImageType4D > CastImageFilterType;
+  typename CastImageFilterType::Pointer castFilter = CastImageFilterType::New();
+  castFilter->SetInput( inVol );
+  castFilter->Update();
+
+  typedef typename itk::PasteImageFilter<ImageType4D> PasteFilterType;
+  typename PasteFilterType::Pointer pasteFilter = PasteFilterType::New();
+
+  typename ImageType4D::IndexType desiredStart;
+  desiredStart.Fill(0);
+
+  typename ImageType4D::SizeType desiredSize =
+      destVol->GetLargestPossibleRegion().GetSize();
+
+  if (n - 1 < 0) {
+    std::cerr << "Requested region " << n << " out of range!" << std::endl;
+    throw false;
+  }
+
+  desiredStart[3] = n - 1;
+  desiredSize[3] = 0;
+
+  pasteFilter->SetSourceImage( castFilter->GetOutput() );
+  pasteFilter->SetDestinationImage( destVol );
+  pasteFilter->SetDestinationIndex( desiredStart );
+  pasteFilter->SetSourceRegion( castFilter->GetOutput()->GetLargestPossibleRegion() );
+  pasteFilter->Update();
+
+  destVol->Graft(pasteFilter->GetOutput());
+
+}
+
+}; //end namespace petpvc
