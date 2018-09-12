@@ -7,6 +7,18 @@ using namespace petpvc;
 
 int main(int argc, char *argv[]){
 
+
+  //std::shared_ptr<Object> obj1;
+  //std::shared_ptr<ImTest3D> obj2(new ImTest3D(argv[1]));
+
+  //auto obj = foo(new ImageObject3D(argv[1]));
+
+  //WriteFile<ImageType3D>(obj2->getImage(),"testWrite.nii.gz");
+
+  //obj1 = obj2;
+
+  //WriteFile<ImageType3D>(obj1->getImage(),"testWriteCast.nii.gz");
+
   //petpvc::EImageType inputImageType = petpvc::GetImageType(argv[1]);
 
   //petpvc::ImageType3D::Pointer inImage1 = petpvc::ImageType3D::New();
@@ -50,16 +62,17 @@ int main(int argc, char *argv[]){
 
   //std::cout << "Hello, World 2!" << std::endl;
 
-  petpvc::ImageType4D::Pointer fullImage = petpvc::ImageType4D::New();
-  petpvc::ImageType4D::Pointer blankImage = petpvc::ImageType4D::New();
-  auto inObj = petpvc::CreateImage(petpvc::EImageType::E4DImage, argv[1]);
+  //petpvc::ImageType4D::Pointer fullImage = petpvc::ImageType4D::New();
+  //petpvc::ImageType4D::Pointer blankImage = petpvc::ImageType4D::New();
+  //auto inObj = petpvc::CreateImage(petpvc::EImageType::E4DImage, argv[1]);
 
-  inObj->getImage<petpvc::ImageType4D>(fullImage);
+  //inObj->getImage<petpvc::ImageType4D>(fullImage);
 
-  std::cout << fullImage;
+  //std::cout << fullImage;
 
-  return 0;
+  //return 0;
 
+  /*
   petpvc::WriteFile<petpvc::ImageType4D>(fullImage,"invert.nii.gz");
 
   petpvc::CreateBlankImageFromExample<petpvc::ImageType4D>(fullImage, blankImage);
@@ -73,6 +86,7 @@ int main(int argc, char *argv[]){
     inObj->getVolume(i,vol);
     petpvc::PasteInto(vol,dstPos,blankImage);
   }
+   */
 
   return EXIT_SUCCESS;
 }

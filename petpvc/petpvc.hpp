@@ -22,6 +22,8 @@ typedef itk::Image<float, 4> ImageType4D;
 
 typedef itk::Image<short, 3> MaskImageType3D;
 
+typedef itk::BinaryThresholdImageFilter<MaskImageType3D, MaskImageType3D> BinaryThresholdImageFilterType;
+
 enum class EImageType { E3DImage, E4DImage, EUnknown };
 
 template<typename TImageType>
@@ -101,6 +103,104 @@ void Extract4DVolTo3D(const typename TImageType::Pointer input,
 
 }
 
+void GetRegion(const petpvc::ImageType4D::Pointer inImage, const int n, petpvc::ImageType3D::Pointer &outImage){
+  petpvc::Extract4DVolTo3D<ImageType4D, ImageType3D>(inImage, n, outImage);
+}
+
+void GetRegion(petpvc::MaskImageType3D::Pointer inImage, const int n, petpvc::MaskImageType3D::Pointer &outImage) {
+
+  typename BinaryThresholdImageFilterType::Pointer binThreshFilter = BinaryThresholdImageFilterType::New();
+
+  const int targetIdx = n;
+
+  std::cout << "Extracting region " << targetIdx << std::endl;
+
+  binThreshFilter->SetInput( inImage );
+  binThreshFilter->SetInsideValue(1);
+  binThreshFilter->SetOutsideValue(0);
+
+  binThreshFilter->SetLowerThreshold( targetIdx );
+  binThreshFilter->SetUpperThreshold( targetIdx );
+  binThreshFilter->Update();
+
+  outImage->Graft(binThreshFilter->GetOutput());
+
+}
+
+void GetVolume(petpvc::ImageType4D::Pointer inImage, const int n, petpvc::ImageType3D::Pointer &outImage){
+  petpvc::Extract4DVolTo3D<ImageType4D, ImageType3D>(inImage, n, outImage);
+}
+
+
+class Object {
+public:
+  Object(){};
+  virtual ~Object(){};
+};
+
+template<typename T>
+class PETPVCObject;
+
+template<typename T>
+PETPVCObject<T> foo(PETPVCObject<T>& a);
+
+template<typename T>
+class PETPVCObject {
+public:
+  PETPVCObject(){};
+  PETPVCObject(const std::string &filename);
+  virtual ~PETPVCObject(){};
+  const typename T::Pointer getImage() const { return _internalImage; };
+
+  friend PETPVCObject foo<T>(PETPVCObject& a);
+
+protected:
+  std::string _inFilename;
+  typename T::Pointer _internalImage;
+};
+
+template<typename T>
+PETPVCObject<T>::PETPVCObject(const std::string &filename) {
+  _inFilename = filename;
+  _internalImage = T::New();
+  ReadFile<T>( _inFilename, _internalImage );
+}
+
+template<typename T>
+PETPVCObject<T> foo(PETPVCObject<T>& a){
+  return a;
+}
+
+class ImTest3D : public PETPVCObject<petpvc::ImageType3D> {
+  using PETPVCObject<ImageType3D>::PETPVCObject;
+};
+
+typedef PETPVCObject<petpvc::ImageType3D> ImageObject3D;
+typedef PETPVCObject<petpvc::ImageType4D> ImageObject4D;
+typedef PETPVCObject<petpvc::MaskImageType3D> MaskObject3D;
+typedef PETPVCObject<petpvc::ImageType4D> MaskObject4D;
+
+/*
+std::unique_ptr<PETPVCObject<> CreateImage(EImageType e, const std::string &filename){
+  if (e == EImageType::E3DImage)
+    return std::unique_ptr<PETPVCObject>(new ImageObject3D(filename));
+  if (e == EImageType::E4DImage)
+    return std::unique_ptr<PETPVCObject>(new ImageObject4D(filename));
+
+  return nullptr;
+}*/
+/*
+std::unique_ptr<PETPVCObject> CreateMaskImage(EImageType e, const std::string &filename){
+  if (e == EImageType::E3DImage)
+    return std::unique_ptr<PETPVCObject>(new MaskObject3D(filename));
+  if (e == EImageType::E4DImage)
+    return std::unique_ptr<PETPVCObject>(new MaskObject4D(filename));
+
+  return nullptr;
+}*/
+
+
+
 class PETPVCImageObject {
 
 public:
@@ -169,7 +269,7 @@ public:
   typedef typename LabelStatisticsFilterType::ValidLabelValuesContainerType ValidLabelValuesType;
   typedef typename LabelStatisticsFilterType::LabelPixelType LabelPixelType;
 
-  typedef itk::BinaryThresholdImageFilter<MaskImageType3D, MaskImageType3D> BinaryThresholdImageFilterType;
+  //typedef itk::BinaryThresholdImageFilter<MaskImageType3D, MaskImageType3D> BinaryThresholdImageFilterType;
 
   void getVolume( const int n, ImageType3D::Pointer &vol );
   int getNoOfVolumes(){ return 1; };
