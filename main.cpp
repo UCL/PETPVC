@@ -7,6 +7,20 @@ using namespace petpvc;
 
 int main(int argc, char *argv[]){
 
+  ImageType4D::Pointer inImage1 = ImageType4D::New();
+  MaskImageType3D::Pointer inImage2 = MaskImageType3D::New();
+  ImageType4D::Pointer outImage = ImageType4D::New();
+
+  ReadFile<ImageType4D>(argv[1],inImage1);
+  ReadFile<MaskImageType3D>(argv[2],inImage2);
+
+  //IterativeYang<ImageType3D, MaskImageType3D>(inImage1, inImage2, outImage);
+  IterativeYang<ImageType4D, MaskImageType3D>(inImage1, inImage2, outImage);
+  //IterativeYang<ImageType3D, MaskImageType4D>(inImage1, inImage2, outImage);
+  //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
+  //WriteFile<ImageType4D>(outImage,"iy-out.nii.gz");
+
+
 
   //std::shared_ptr<Object> obj1;
   //std::shared_ptr<ImTest3D> obj2(new ImTest3D(argv[1]));

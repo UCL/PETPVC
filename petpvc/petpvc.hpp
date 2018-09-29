@@ -599,4 +599,33 @@ void PasteInto(const ImageType3D::Pointer inVol,
 
 }
 
+template<typename T>
+int GetNumberOfVolumes(const typename T::Pointer img ){
+  const int dims = T::ImageDimension;
+
+  if (dims < 3){
+    std::cerr << "Must be 3D or 4D image" << std::endl;
+    return -1;
+  }
+
+  if (dims == 3)
+    return 1;
+
+  if (dims == 4)
+    return img->GetLargestPossibleRegion().GetSize(3);
+
+  return -1;
+}
+
+template<typename TInputImage, typename TMaskImage>
+  void IterativeYang(const typename TInputImage::Pointer pet,
+                     const typename TMaskImage::Pointer mask,
+                     typename TInputImage::Pointer &output) {
+
+  const int numOfPETVols = GetNumberOfVolumes<TInputImage>(pet);
+
+  std::cout << "Number of vols. to PV-correct = " << numOfPETVols << std::endl;
+
+}
+
 }; //end namespace petpvc
