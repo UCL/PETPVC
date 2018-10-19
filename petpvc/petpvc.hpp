@@ -4,6 +4,7 @@
 #include "itkAddImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkCastImageFilter.h"
+#include "itkDiscreteGaussianImageFilter.h"
 #include "itkDivideImageFilter.h"
 #include "itkExtractImageFilter.h"
 #include "itkImage.h"
@@ -23,6 +24,7 @@ typedef itk::Image<float, 4> ImageType4D;
 typedef itk::Image<short, 3> MaskImageType3D;
 
 typedef itk::BinaryThresholdImageFilter<MaskImageType3D, MaskImageType3D> BinaryThresholdImageFilterType;
+typedef itk::DiscreteGaussianImageFilter<ImageType3D, ImageType3D> BlurringImageFilterType;
 
 enum class EImageType { E3DImage, E4DImage, EUnknown };
 
@@ -617,14 +619,49 @@ int GetNumberOfVolumes(const typename T::Pointer img ){
   return -1;
 }
 
-template<typename TInputImage, typename TMaskImage>
+void ConfigureGaussian(typename BlurringImageFilterType::Pointer &gaussian,
+                        const float x_in_mm, float y_in_mm=0, float z_in_mm=0){
+
+  if (y_in_mm == 0)
+    y_in_mm = x_in_mm;
+
+  if (z_in_mm == 0)
+    z_in_mm = x_in_mm;
+
+  //Calculate the variance for a given FWHM.
+  double psfVar[3];
+
+  psfVar[0] = pow( x_in_mm/(2.0 * sqrt(2.0 * log(2.0))), 2.0);
+  psfVar[1] = pow( y_in_mm/(2.0 * sqrt(2.0 * log(2.0))), 2.0);
+  psfVar[2] = pow( z_in_mm/(2.0 * sqrt(2.0 * log(2.0))), 2.0);
+
+  gaussian->SetVariance(psfVar);
+
+}
+
+template<typename TInputImage, typename TBlurFilter>
+  void ApplySmoothing(const typename TInputImage::Pointer pet,
+                      const typename TBlurFilter::Pointer blur,
+                      typename TInputImage::Pointer &output){
+
+    blur->SetInput( pet );
+    blur->Update();
+
+    output->Graft(blur->GetOutput());
+
+}
+
+template<typename TInputImage, typename TMaskImage, typename TBlurFilter>
   void IterativeYang(const typename TInputImage::Pointer pet,
                      const typename TMaskImage::Pointer mask,
+                     const typename TBlurFilter::Pointer blur,
                      typename TInputImage::Pointer &output) {
 
   const int numOfPETVols = GetNumberOfVolumes<TInputImage>(pet);
 
   std::cout << "Number of vols. to PV-correct = " << numOfPETVols << std::endl;
+
+  ApplySmoothing<TInputImage, TBlurFilter>(pet,blur,output);
 
 }
 
