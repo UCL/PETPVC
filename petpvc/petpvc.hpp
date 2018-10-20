@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <itkStatisticsImageFilter.h>
 
 #include "itkAddImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
@@ -56,6 +57,63 @@ void WriteFile(typename TImageType::Pointer image, const std::string &filename)
   writer->Update();
 }
 
+
+template<typename TImageType=ImageType3D>
+void Add(const typename TImageType::Pointer a,
+         const typename TImageType::Pointer b,
+         typename TImageType::Pointer outputImage)
+{
+  typedef typename itk::AddImageFilter<TImageType> FilterType;
+  typename FilterType::Pointer add = FilterType::New();
+  add->SetInput1(a);
+  add->SetInput2(b);
+  add->Update();
+
+  outputImage->Graft(add->GetOutput());
+}
+
+template<typename TImageType=ImageType3D>
+void Subtract(const typename TImageType::Pointer a,
+              const typename TImageType::Pointer b,
+              typename TImageType::Pointer outputImage)
+{
+  typedef typename itk::SubtractImageFilter<TImageType> FilterType;
+  typename FilterType::Pointer sub = FilterType::New();
+  sub->SetInput1(a);
+  sub->SetInput2(b);
+  sub->Update();
+
+  outputImage->Graft(sub->GetOutput());
+}
+
+template<typename TImageType=ImageType3D>
+void Multiply(const typename TImageType::Pointer a,
+              const typename TImageType::Pointer b,
+              typename TImageType::Pointer outputImage)
+{
+  typedef typename itk::MultiplyImageFilter<TImageType> FilterType;
+  typename FilterType::Pointer multiply = FilterType::New();
+  multiply->SetInput1(a);
+  multiply->SetInput2(b);
+  multiply->Update();
+
+  outputImage->Graft(multiply->GetOutput());
+}
+
+template<typename TImageType=ImageType3D>
+void Divide(const typename TImageType::Pointer a,
+            const typename TImageType::Pointer b,
+            typename TImageType::Pointer outputImage)
+{
+  typedef typename itk::DivideImageFilter<TImageType, TImageType, TImageType> FilterType;
+  typename FilterType::Pointer divide = FilterType::New();
+  divide->SetInput1(a);
+  divide->SetInput2(b);
+  divide->Update();
+
+  outputImage->Graft(divide->GetOutput());
+}
+
 template<typename TImageType=ImageType3D, typename TOutputImage=TImageType>
 void CreateBlankImageFromExample(const typename TImageType::Pointer input, typename TOutputImage::Pointer &output)
 {
@@ -90,12 +148,12 @@ void Extract4DVolTo3D(const typename TImageType::Pointer input,
   typename TImageType::SizeType desiredSize =
       input->GetLargestPossibleRegion().GetSize();
 
-  if (n - 1 < 0) {
+  if (n < 0) {
     std::cerr << "Requested region " << n << " out of range!" << std::endl;
     throw false;
   }
 
-  desiredStart[3] = n - 1;
+  desiredStart[3] = n;
   desiredSize[3] = 0;
 
   typedef itk::ExtractImageFilter<TImageType, TOutputImage> ExtractFilterType;
@@ -244,9 +302,55 @@ void Get3DRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D:
 void Get4DRegionalMeans(const ImageType3D::Pointer input, const ImageType4D::Pointer mask,
                         std::vector<float> &meansList){
 
-  //TODO: Implement this.
-  std::cout << "Not implemented yet!" << std::endl;
-  meansList.push_back(0);
+  std::cout << "Calculating 4D regional means" << std::endl;
+
+  const typename ImageType4D::SizeType maskSize = mask->GetLargestPossibleRegion().GetSize();
+  std::cout << "Dimension of mask = " << maskSize.Dimension << std::endl;
+
+  int numOfRegions = maskSize[3];
+
+  std::vector<float> v(numOfRegions);
+
+  ImageType3D::Pointer tmpMask = ImageType3D::New();
+  ImageType3D::Pointer clippedPET = ImageType3D::New();
+
+  typedef itk::StatisticsImageFilter<ImageType3D> StatisticsFilterType;
+  StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
+
+  for (int n=0; n < numOfRegions; n++){
+    ImageType3D::Pointer tmpMask = ImageType3D::New();
+    Extract4DVolTo3D<ImageType4D, ImageType3D>(mask,n,tmpMask);
+
+    statsFilter->SetInput(tmpMask);
+    statsFilter->Update();
+
+    //Get sum of the clipped image.
+    float sumOfMaskReg = statsFilter->GetSum();
+
+    Multiply(input,tmpMask,clippedPET);
+
+    statsFilter->SetInput(clippedPET);
+    statsFilter->Update();
+
+    //Get sum of the clipped image.
+    float sumOfPETReg = statsFilter->GetSum();
+
+    //Place regional mean into vector.
+    float regMean = std::max( sumOfPETReg / sumOfMaskReg, 0.0f);
+    v[n] = regMean;
+    //std::cout << std::endl << "Sum = " << fSumOfPETReg << " , " << "Mean = " << vecRegMeansCurrent.get( i-1 ) << " , Size = " << vecRegSize.get(i - 1) << std::endl;
+
+  }
+  meansList = v;
+  std::cout << "Total no. of means: " << meansList.size() << std::endl;
+
+  std::cout << "Means : ";
+
+  for ( auto i : meansList){
+    std::cout << i << " ";
+  }
+
+  std::cout << std::endl;
 }
 
 template<typename TMaskImageType>
@@ -254,11 +358,14 @@ void GetRegionalMeans(const ImageType3D::Pointer input, const typename TMaskImag
                       std::vector<float> &meansList){
 
   const typename TMaskImageType::SizeType maskSize = mask->GetLargestPossibleRegion().GetSize();
-
   std::cout << "Dimension of mask = " << maskSize.Dimension << std::endl;
 
   if (maskSize.Dimension == 3){
-    Get3DRegionalMeans(input,mask,meansList);
+    typedef itk::CastImageFilter< TMaskImageType, MaskImageType3D > CastFilterType;
+    typename CastFilterType::Pointer castFilter = CastFilterType::New();
+    castFilter->SetInput(mask);
+    castFilter->Update();
+    Get3DRegionalMeans(input,castFilter->GetOutput(),meansList);
     return;
   }
 
@@ -319,62 +426,6 @@ static EImageType GetImageType(const std::string &filename){
   return EImageType::EUnknown;
 }
 
-template<typename TImageType=ImageType3D>
-void Add(const typename TImageType::Pointer a,
-         const typename TImageType::Pointer b,
-         typename TImageType::Pointer outputImage)
-{
-  typedef typename itk::AddImageFilter<TImageType> FilterType;
-  typename FilterType::Pointer add = FilterType::New();
-  add->SetInput1(a);
-  add->SetInput2(b);
-  add->Update();
-
-  outputImage->Graft(add->GetOutput());
-}
-
-template<typename TImageType=ImageType3D>
-void Subtract(const typename TImageType::Pointer a,
-              const typename TImageType::Pointer b,
-              typename TImageType::Pointer outputImage)
-{
-  typedef typename itk::SubtractImageFilter<TImageType> FilterType;
-  typename FilterType::Pointer sub = FilterType::New();
-  sub->SetInput1(a);
-  sub->SetInput2(b);
-  sub->Update();
-
-  outputImage->Graft(sub->GetOutput());
-}
-
-template<typename TImageType=ImageType3D>
-void Multiply(const typename TImageType::Pointer a,
-              const typename TImageType::Pointer b,
-              typename TImageType::Pointer outputImage)
-{
-  typedef typename itk::MultiplyImageFilter<TImageType> FilterType;
-  typename FilterType::Pointer multiply = FilterType::New();
-  multiply->SetInput1(a);
-  multiply->SetInput2(b);
-  multiply->Update();
-
-  outputImage->Graft(multiply->GetOutput());
-}
-
-template<typename TImageType=ImageType3D>
-void Divide(const typename TImageType::Pointer a,
-            const typename TImageType::Pointer b,
-            typename TImageType::Pointer outputImage)
-{
-  typedef typename itk::MultiplyImageFilter<TImageType> FilterType;
-  typename FilterType::Pointer divide = FilterType::New();
-  divide->SetInput1(a);
-  divide->SetInput2(b);
-  divide->Update();
-
-  outputImage->Graft(divide->GetOutput());
-}
-
 //TODO: Implement paste into 4D
 void PasteInto(const ImageType3D::Pointer inVol,
                const int n,
@@ -394,13 +445,12 @@ void PasteInto(const ImageType3D::Pointer inVol,
   typename ImageType4D::SizeType desiredSize =
       destVol->GetLargestPossibleRegion().GetSize();
 
-  if (n - 1 < 0) {
+  if (n < 0) {
     std::cerr << "Requested region " << n << " out of range!" << std::endl;
     throw false;
   }
 
-  desiredStart[3] = n - 1;
-  desiredSize[3] = 0;
+  desiredStart[3] = n;
 
   pasteFilter->SetSourceImage( castFilter->GetOutput() );
   pasteFilter->SetDestinationImage( destVol );
