@@ -26,6 +26,9 @@ int main(int argc, char *argv[]){
   
   WriteFile<ImageType3D>(outImage,"iy-out.nii.gz");
 
+  std::vector<int> labelIdx;
+  GetRegionIndexList<MaskImageType3D>(inImage2,labelIdx);
+
 
   return EXIT_SUCCESS;
 }

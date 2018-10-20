@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <numeric>
 
 #include "itkAddImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
@@ -131,6 +132,67 @@ void GetRegion(petpvc::MaskImageType3D::Pointer inImage, const int n, petpvc::Ma
   binThreshFilter->Update();
 
   outImage->Graft(binThreshFilter->GetOutput());
+
+}
+
+template<typename TImageType>
+void GetRegionIndexList(const typename TImageType::Pointer input, std::vector<int> &indexList){
+
+  const typename TImageType::SizeType inputSize = input->GetLargestPossibleRegion().GetSize();
+
+  if (inputSize.Dimension == 4){
+
+    std::vector<int> v(inputSize[3]);
+    std::iota(std::begin(v), std::end(v), 0);
+    indexList = v;
+    return;
+  }
+
+  if (inputSize.Dimension == 3){
+    //Get labels
+
+    //For getting information about the mask labels
+    typedef itk::LabelStatisticsImageFilter<MaskImageType3D, MaskImageType3D> LabelStatisticsFilterType;
+    typedef typename LabelStatisticsFilterType::ValidLabelValuesContainerType ValidLabelValuesType;
+    typedef typename LabelStatisticsFilterType::LabelPixelType LabelPixelType;
+
+    typename LabelStatisticsFilterType::Pointer labelStatsFilter = LabelStatisticsFilterType::New();
+    labelStatsFilter->SetInput(input);
+    labelStatsFilter->SetLabelInput(input);
+    labelStatsFilter->Update();
+
+    const int numOfRegions = labelStatsFilter->GetNumberOfLabels()-1;
+
+    std::cout << "Number of labels found: " << numOfRegions << std::endl;
+
+    if ( numOfRegions == 0) {
+      std::cerr << "No regions found!" << std::endl;
+      return;
+    }
+
+    //Put labels into array/vector
+    std::vector<int> v;
+    v.reserve(numOfRegions+1);
+
+    std::cout << "Found Label(s): ";
+    for( typename ValidLabelValuesType::const_iterator vIt=labelStatsFilter->GetValidLabelValues().begin();
+         vIt != labelStatsFilter->GetValidLabelValues().end(); ++vIt) {
+      if (labelStatsFilter->HasLabel(*vIt)) {
+        LabelPixelType labelValue = *vIt;
+        std::cout << labelValue << " ";
+        v.push_back(labelValue);
+      }
+    }
+
+    std::cout << std::endl;
+    std::cout << "Label indices: " ;
+
+    for (auto x : v) {
+      std::cout <<  x << " ";
+    }
+    std::cout << std::endl;
+    indexList = v;
+  }
 
 }
 

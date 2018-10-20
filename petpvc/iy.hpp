@@ -24,7 +24,7 @@ void IterativeYang(const typename TInputImage::Pointer pet,
   for (int n=1; n < numOfPETVols; n++){
     //For each PET volume
 
-    for (int k=1; i < niter; k++) {
+    for (int k=1; k < niter; k++) {
 
       //Calculate regional means
 
