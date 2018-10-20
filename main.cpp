@@ -18,16 +18,18 @@ int main(int argc, char *argv[]){
   //IterativeYang<ImageType3D, MaskImageType3D>(inImage1, inImage2, outImage);
 
   BlurringImageFilterType::Pointer gaussian = BlurringImageFilterType::New();
-  ConfigureGaussian(gaussian,10,10,10);
+  ConfigureGaussian(gaussian,5,5,5);
 
-  IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
+  IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,200);
   //IterativeYang<ImageType3D, MaskImageType4D>(inImage1, inImage2, outImage);
   //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
   
-  WriteFile<ImageType3D>(outImage,"iy-out.nii.gz");
+  WriteFile<ImageType3D>(outImage,"iy-out-200.nii.gz");
 
   std::vector<int> labelIdx;
   GetRegionIndexList<MaskImageType3D>(inImage2,labelIdx);
+
+
 
 
   return EXIT_SUCCESS;

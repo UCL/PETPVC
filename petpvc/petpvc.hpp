@@ -202,7 +202,7 @@ void GetVolume(const petpvc::ImageType4D::Pointer inImage, const int n, petpvc::
 
 void GetVolume(const petpvc::ImageType3D::Pointer inImage, const int n, petpvc::ImageType3D::Pointer &outImage){
 
-  if (n != 1) {
+  if (n != 0) {
     std::cerr << "Volume does not exist!" << std::endl;
     std::cout << "Returning 1st volume" << std::endl;
   }
@@ -385,6 +385,18 @@ template<typename TInputImage, typename TBlurFilter>
     output->Graft(blur->GetOutput());
 
 }
+
+template<typename TInputImage>
+  void Duplicate(const typename TInputImage::Pointer input,
+                  typename TInputImage::Pointer &output){
+
+    typedef itk::ImageDuplicator< TInputImage > DuplicatorType;
+    typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+    duplicator->SetInputImage(input);
+    duplicator->Update();
+    output = duplicator->GetOutput();
+
+  }
 
 }; //end namespace petpvc
 

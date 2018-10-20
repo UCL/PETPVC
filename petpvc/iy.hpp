@@ -19,18 +19,24 @@ void IterativeYang(const typename TInputImage::Pointer pet,
   const int numOfMaskVols = GetNumberOfVolumes<TMaskImage>(mask);
   std::cout << "Number of mask vols = " << numOfMaskVols << std::endl;
 
-  ApplySmoothing<TInputImage, TBlurFilter>(pet, blur, output);
+  ImageType3D::Pointer currentVolume = ImageType3D::New();
+  ImageType3D::Pointer currentIteration = ImageType3D::New();
 
-  for (int n=1; n < numOfPETVols; n++){
+  //ApplySmoothing<TInputImage, TBlurFilter>(pet, blur, output);
+
+  for (int n=0; n < numOfPETVols; n++){
     //For each PET volume
+    GetVolume(pet,n,currentVolume);
+
+    currentIteration = currentVolume;
 
     for (int k=1; k < niter; k++) {
-
+      ImageType3D::Pointer tmp = ImageType3D::New();
       //Calculate regional means
-
       //Create synthetic PET
       //Smooth synthetic PET
-
+      ApplySmoothing<TInputImage, TBlurFilter>(currentIteration, blur, tmp);
+      Duplicate<ImageType3D>(tmp, currentIteration);
       //Div s/(s*h)
       //mult pet by div
       //store result for next iter
@@ -38,6 +44,7 @@ void IterativeYang(const typename TInputImage::Pointer pet,
     //Paste into output volume
   }
   //Return output
+  Duplicate<ImageType3D>(currentIteration,output);
 }
 
 }; //end namespace petpvc
