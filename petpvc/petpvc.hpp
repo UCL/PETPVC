@@ -206,6 +206,72 @@ void GetRegionIndexList(const typename TImageType::Pointer input, std::vector<in
 
 }
 
+void Get3DRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D::Pointer mask,
+                      std::vector<float> &meansList){
+
+  //For getting information about the mask labels
+  typedef itk::LabelStatisticsImageFilter<ImageType3D, MaskImageType3D> LabelStatisticsFilterType;
+  typedef typename LabelStatisticsFilterType::ValidLabelValuesContainerType ValidLabelValuesType;
+  typedef typename LabelStatisticsFilterType::LabelPixelType LabelPixelType;
+
+  typename LabelStatisticsFilterType::Pointer labelStatsFilter = LabelStatisticsFilterType::New();
+  labelStatsFilter->SetInput(input);
+  labelStatsFilter->SetLabelInput(mask);
+  labelStatsFilter->Update();
+
+  const int numOfRegions = labelStatsFilter->GetNumberOfLabels()-1;
+
+  //Put means into array/vector
+  std::vector<float> v;
+  v.reserve(numOfRegions+1);
+
+  std::cout << "Found means(s): ";
+  for( typename ValidLabelValuesType::const_iterator vIt=labelStatsFilter->GetValidLabelValues().begin();
+       vIt != labelStatsFilter->GetValidLabelValues().end(); ++vIt) {
+    if (labelStatsFilter->HasLabel(*vIt)) {
+      LabelPixelType labelValue = *vIt;
+      float fNewRegMean = std::max( labelStatsFilter->GetMean( labelValue ), 0.0 );
+      std::cout << fNewRegMean << " ";
+      v.push_back(labelValue);
+    }
+  }
+
+  std::cout << std::endl;
+  meansList = v;
+
+}
+
+void Get4DRegionalMeans(const ImageType3D::Pointer input, const ImageType4D::Pointer mask,
+                        std::vector<float> &meansList){
+
+  //TODO: Implement this.
+  std::cout << "Not implemented yet!" << std::endl;
+  meansList.push_back(0);
+}
+
+template<typename TMaskImageType>
+void GetRegionalMeans(const ImageType3D::Pointer input, const typename TMaskImageType::Pointer mask,
+                      std::vector<float> &meansList){
+
+  const typename TMaskImageType::SizeType maskSize = mask->GetLargestPossibleRegion().GetSize();
+
+  std::cout << "Dimension of mask = " << maskSize.Dimension << std::endl;
+
+  if (maskSize.Dimension == 3){
+    Get3DRegionalMeans(input,mask,meansList);
+    return;
+  }
+
+  if (maskSize.Dimension == 4){
+    typedef itk::CastImageFilter< TMaskImageType, ImageType4D > CastFilterType;
+    typename CastFilterType::Pointer castFilter = CastFilterType::New();
+    castFilter->SetInput(mask);
+    castFilter->Update();
+    Get4DRegionalMeans(input,castFilter->GetOutput(),meansList);
+  }
+
+}
+
 void GetVolume(const petpvc::ImageType4D::Pointer inImage, const int n, petpvc::ImageType3D::Pointer &outImage){
   petpvc::Extract4DVolTo3D<ImageType4D, ImageType3D>(inImage, n, outImage);
 }

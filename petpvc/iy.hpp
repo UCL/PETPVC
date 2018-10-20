@@ -22,10 +22,10 @@ void IterativeYang(const typename TInputImage::Pointer pet,
   std::vector<int> labelIndexList;
   GetRegionIndexList<TMaskImage>(mask,labelIndexList);
 
+  std::vector<float> regionMeanList;
+
   ImageType3D::Pointer currentVolume = ImageType3D::New();
   ImageType3D::Pointer currentIteration = ImageType3D::New();
-
-  //ApplySmoothing<TInputImage, TBlurFilter>(pet, blur, output);
 
   for (int n=0; n < numOfPETVols; n++){
     //For each PET volume
@@ -33,9 +33,10 @@ void IterativeYang(const typename TInputImage::Pointer pet,
 
     currentIteration = currentVolume;
 
-    for (int k=1; k < niter; k++) {
+    for (int k=1; k <= niter; k++) {
       ImageType3D::Pointer tmp = ImageType3D::New();
       //Calculate regional means
+      GetRegionalMeans<TMaskImage>(pet,mask,regionMeanList);
       //Create synthetic PET
       //Smooth synthetic PET
       ApplySmoothing<TInputImage, TBlurFilter>(currentIteration, blur, tmp);
