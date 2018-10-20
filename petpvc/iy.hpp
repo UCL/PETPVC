@@ -19,6 +19,9 @@ void IterativeYang(const typename TInputImage::Pointer pet,
   const int numOfMaskVols = GetNumberOfVolumes<TMaskImage>(mask);
   std::cout << "Number of mask vols = " << numOfMaskVols << std::endl;
 
+  std::vector<int> labelIndexList;
+  GetRegionIndexList<TMaskImage>(mask,labelIndexList);
+
   ImageType3D::Pointer currentVolume = ImageType3D::New();
   ImageType3D::Pointer currentIteration = ImageType3D::New();
 
