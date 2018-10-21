@@ -23,6 +23,8 @@
 #include "itkPasteImageFilter.h"
 #include "itkSubtractImageFilter.h"
 
+//TODO: Remove 3D to 4D with concrete types?
+
 namespace petpvc {
 
 typedef itk::Image<float, 3> ImageType3D;
@@ -84,6 +86,20 @@ void Subtract(const typename TImageType::Pointer a,
   sub->Update();
 
   outputImage->Graft(sub->GetOutput());
+}
+
+template<typename TImageType=ImageType3D>
+void Multiply(const typename TImageType::Pointer a,
+              float val,
+              typename TImageType::Pointer outputImage)
+{
+  typedef typename itk::MultiplyImageFilter<TImageType> FilterType;
+  typename FilterType::Pointer multiply = FilterType::New();
+  multiply->SetInput(a);
+  multiply->SetConstant(val);
+  multiply->Update();
+
+  outputImage->Graft(multiply->GetOutput());
 }
 
 template<typename TImageType=ImageType3D>
@@ -179,7 +195,7 @@ void GetRegion(petpvc::MaskImageType3D::Pointer inImage, const int n, petpvc::Ma
 
   const int targetIdx = n;
 
-  std::cout << "Extracting region " << targetIdx << std::endl;
+  std::cout << "Extracting constant region " << targetIdx << std::endl;
 
   binThreshFilter->SetInput( inImage );
   binThreshFilter->SetInsideValue(1);
@@ -283,19 +299,25 @@ void Get3DRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D:
   std::vector<float> v;
   v.reserve(numOfRegions+1);
 
-  std::cout << "Found means(s): ";
+  std::cout << "Found 3D means(s): ";
   for( typename ValidLabelValuesType::const_iterator vIt=labelStatsFilter->GetValidLabelValues().begin();
        vIt != labelStatsFilter->GetValidLabelValues().end(); ++vIt) {
     if (labelStatsFilter->HasLabel(*vIt)) {
       LabelPixelType labelValue = *vIt;
       float fNewRegMean = std::max( labelStatsFilter->GetMean( labelValue ), 0.0 );
       std::cout << fNewRegMean << " ";
-      v.push_back(labelValue);
+      v.push_back(fNewRegMean);
     }
   }
 
   std::cout << std::endl;
   meansList = v;
+
+  std::cout << "meansList = ";
+  for (auto x : meansList){
+    std::cout << x << " ";
+  }
+  std::cout << std::endl;
 
 }
 
