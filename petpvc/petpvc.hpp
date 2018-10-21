@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PETPVC_HPP
-#define _PETPVC_HPP
+#ifndef _PETPVC_HPP_
+#define _PETPVC_HPP_
 
 #include <iostream>
 #include <memory>
@@ -22,8 +22,6 @@
 #include "itkMultiplyImageFilter.h"
 #include "itkPasteImageFilter.h"
 #include "itkSubtractImageFilter.h"
-
-//TODO: Remove 3D to 4D with concrete types?
 
 namespace petpvc {
 
@@ -130,6 +128,18 @@ void Divide(const typename TImageType::Pointer a,
   outputImage->Graft(divide->GetOutput());
 }
 
+template<typename TInputImage>
+void Duplicate(const typename TInputImage::Pointer input,
+               typename TInputImage::Pointer &output){
+
+  typedef itk::ImageDuplicator< TInputImage > DuplicatorType;
+  typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+  duplicator->SetInputImage(input);
+  duplicator->Update();
+  output = duplicator->GetOutput();
+
+}
+
 template<typename TImageType=ImageType3D, typename TOutputImage=TImageType>
 void CreateBlankImageFromExample(const typename TImageType::Pointer input, typename TOutputImage::Pointer &output)
 {
@@ -209,7 +219,7 @@ void GetRegion(petpvc::MaskImageType3D::Pointer inImage, const int n, petpvc::Ma
 
 }
 
-void Get3DRegionIndexList(const typename MaskImageType3D::Pointer input, std::vector<int> &indexList){
+void GetRegionIndexList(const typename MaskImageType3D::Pointer input, std::vector<int> &indexList){
 
   //Get labels
   //For getting information about the mask labels
@@ -256,12 +266,12 @@ void Get3DRegionIndexList(const typename MaskImageType3D::Pointer input, std::ve
 
 }
 
-template<typename TImageType>
-void GetRegionIndexList(const typename TImageType::Pointer input, std::vector<int> &indexList){
+void GetRegionIndexList(const typename ImageType4D::Pointer input, std::vector<int> &indexList) {
 
-  const typename TImageType::SizeType inputSize = input->GetLargestPossibleRegion().GetSize();
+  const typename ImageType4D::SizeType inputSize = input->GetLargestPossibleRegion().GetSize();
 
   std::cout << "Dimension = " << inputSize.Dimension << std::endl;
+
   if (inputSize.Dimension == 4){
 
     std::vector<int> v(inputSize[3]);
@@ -269,18 +279,9 @@ void GetRegionIndexList(const typename TImageType::Pointer input, std::vector<in
     indexList = v;
     return;
   }
-
-  if (inputSize.Dimension == 3){
-    typedef itk::CastImageFilter< TImageType, MaskImageType3D > CastFilterType;
-    typename CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(input);
-    castFilter->Update();
-    Get3DRegionIndexList(castFilter->GetOutput(),indexList);
-  }
-
 }
 
-void Get3DRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D::Pointer mask,
+void GetRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D::Pointer mask,
                       std::vector<float> &meansList){
 
   //For getting information about the mask labels
@@ -321,7 +322,7 @@ void Get3DRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D:
 
 }
 
-void Get4DRegionalMeans(const ImageType3D::Pointer input, const ImageType4D::Pointer mask,
+void GetRegionalMeans(const ImageType3D::Pointer input, const ImageType4D::Pointer mask,
                         std::vector<float> &meansList){
 
   std::cout << "Calculating 4D regional means" << std::endl;
@@ -375,32 +376,6 @@ void Get4DRegionalMeans(const ImageType3D::Pointer input, const ImageType4D::Poi
   std::cout << std::endl;
 }
 
-template<typename TMaskImageType>
-void GetRegionalMeans(const ImageType3D::Pointer input, const typename TMaskImageType::Pointer mask,
-                      std::vector<float> &meansList){
-
-  const typename TMaskImageType::SizeType maskSize = mask->GetLargestPossibleRegion().GetSize();
-  std::cout << "Dimension of mask = " << maskSize.Dimension << std::endl;
-
-  if (maskSize.Dimension == 3){
-    typedef itk::CastImageFilter< TMaskImageType, MaskImageType3D > CastFilterType;
-    typename CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(mask);
-    castFilter->Update();
-    Get3DRegionalMeans(input,castFilter->GetOutput(),meansList);
-    return;
-  }
-
-  if (maskSize.Dimension == 4){
-    typedef itk::CastImageFilter< TMaskImageType, ImageType4D > CastFilterType;
-    typename CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(mask);
-    castFilter->Update();
-    Get4DRegionalMeans(input,castFilter->GetOutput(),meansList);
-  }
-
-}
-
 void GetVolume(const petpvc::ImageType4D::Pointer inImage, const int n, petpvc::ImageType3D::Pointer &outImage){
   petpvc::Extract4DVolTo3D<ImageType4D, ImageType3D>(inImage, n, outImage);
 }
@@ -412,7 +387,7 @@ void GetVolume(const petpvc::ImageType3D::Pointer inImage, const int n, petpvc::
     std::cout << "Returning 1st volume" << std::endl;
   }
 
-  outImage->Graft( inImage );
+  Duplicate<ImageType3D>(inImage,outImage);
 }
 
 static bool GetImageIO(const std::string &filename, itk::ImageIOBase::Pointer &imageIO) {
@@ -533,18 +508,6 @@ template<typename TInputImage, typename TBlurFilter>
     output->Graft(blur->GetOutput());
 
 }
-
-template<typename TInputImage>
-  void Duplicate(const typename TInputImage::Pointer input,
-                  typename TInputImage::Pointer &output){
-
-    typedef itk::ImageDuplicator< TInputImage > DuplicatorType;
-    typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
-    duplicator->SetInputImage(input);
-    duplicator->Update();
-    output = duplicator->GetOutput();
-
-  }
 
 }; //end namespace petpvc
 

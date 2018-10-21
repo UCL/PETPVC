@@ -27,10 +27,10 @@ int main(int argc, char *argv[]){
   WriteFile<ImageType3D>(outImage,"iy-4d.nii.gz");
 
   std::vector<int> labelIdx;
-  GetRegionIndexList<MaskImageType3D>(inImage2,labelIdx);
+  GetRegionIndexList(inImage2,labelIdx);
 
   std::vector<float> valList;
-  GetRegionalMeans<MaskImageType3D>(inImage1,inImage2,valList);
+  GetRegionalMeans(inImage1,inImage2,valList);
 
   std::cout << "valList = ";
   for (auto x : valList){
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
   }
   std::cout << std::endl;
 
-  GetSyntheticPETImage<MaskImageType3D>(inImage1,inImage2,valList,labelIdx,outImage);
+  GetSyntheticPETImage(inImage1,inImage2,valList,labelIdx,outImage);
   WriteFile<ImageType3D>(outImage,"iy-synth.nii.gz");
 
 

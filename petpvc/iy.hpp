@@ -7,7 +7,7 @@
 
 namespace petpvc {
 
-void GetSyntheticPETImageFrom3DMask(const ImageType3D::Pointer input, const typename MaskImageType3D::Pointer mask,
+void GetSyntheticPETImage(const ImageType3D::Pointer input, const typename MaskImageType3D::Pointer mask,
                                     const std::vector<float> &valList, const std::vector<int> &idxList,
                                     ImageType3D::Pointer &output) {
 
@@ -35,38 +35,11 @@ void GetSyntheticPETImageFrom3DMask(const ImageType3D::Pointer input, const type
 
 }
 
-void GetSyntheticPETImageFrom4DMask(const ImageType3D::Pointer input, const typename ImageType4D::Pointer mask,
+void GetSyntheticPETImage(const ImageType3D::Pointer input, const typename ImageType4D::Pointer mask,
                                     const std::vector<float> &valList, const std::vector<int> &idxList,
                                     ImageType3D::Pointer &output) {
 
   //TODO: Implement synthetic PET image generation for 4D.
-
-}
-
-template<typename TMaskImageType>
-void GetSyntheticPETImage(const ImageType3D::Pointer input, const typename TMaskImageType::Pointer mask,
-                          const std::vector<float> &valList, const std::vector<int> &idxList,
-                          ImageType3D::Pointer &output){
-
-  const typename TMaskImageType::SizeType maskSize = mask->GetLargestPossibleRegion().GetSize();
-  std::cout << "Dimension of mask = " << maskSize.Dimension << std::endl;
-
-  if (maskSize.Dimension == 3){
-    typedef itk::CastImageFilter< TMaskImageType, MaskImageType3D > CastFilterType;
-    typename CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(mask);
-    castFilter->Update();
-    GetSyntheticPETImageFrom3DMask(input,castFilter->GetOutput(),valList,idxList,output);
-    return;
-  }
-
-  if (maskSize.Dimension == 4){
-    typedef itk::CastImageFilter< TMaskImageType, ImageType4D > CastFilterType;
-    typename CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(mask);
-    castFilter->Update();
-    GetSyntheticPETImageFrom4DMask(input,castFilter->GetOutput(),valList,idxList,output);
-  }
 
 }
 
@@ -84,7 +57,7 @@ void IterativeYang(const typename TInputImage::Pointer pet,
   std::cout << "Number of mask vols = " << numOfMaskVols << std::endl;
 
   std::vector<int> labelIndexList;
-  GetRegionIndexList<TMaskImage>(mask,labelIndexList);
+  GetRegionIndexList(mask,labelIndexList);
 
   std::vector<float> regionMeanList;
 
@@ -100,7 +73,7 @@ void IterativeYang(const typename TInputImage::Pointer pet,
     for (int k=1; k <= niter; k++) {
       ImageType3D::Pointer tmp = ImageType3D::New();
       //Calculate regional means
-      GetRegionalMeans<TMaskImage>(pet,mask,regionMeanList);
+      GetRegionalMeans(pet,mask,regionMeanList);
       //Create synthetic PET
       //Smooth synthetic PET
       ApplySmoothing<TInputImage, TBlurFilter>(currentIteration, blur, tmp);
