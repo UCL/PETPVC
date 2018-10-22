@@ -205,7 +205,7 @@ void GetRegion(petpvc::MaskImageType3D::Pointer inImage, const int n, petpvc::Ma
 
   const int targetIdx = n;
 
-  std::cout << "Extracting constant region " << targetIdx << std::endl;
+  //std::cout << "Extracting constant region " << targetIdx << std::endl;
 
   binThreshFilter->SetInput( inImage );
   binThreshFilter->SetInsideValue(1);
@@ -313,12 +313,12 @@ void GetRegionalMeans(const ImageType3D::Pointer input, const MaskImageType3D::P
 
   std::cout << std::endl;
   meansList = v;
-
+  /*
   std::cout << "meansList = ";
   for (auto x : meansList){
     std::cout << x << " ";
   }
-  std::cout << std::endl;
+  std::cout << std::endl;*/
 
 }
 

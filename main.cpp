@@ -18,14 +18,15 @@ int main(int argc, char *argv[]){
   //IterativeYang<ImageType3D, MaskImageType3D>(inImage1, inImage2, outImage);
 
   BlurringImageFilterType::Pointer gaussian = BlurringImageFilterType::New();
-  ConfigureGaussian(gaussian,5,5,5);
+  ConfigureGaussian(gaussian,5,6,7);
 
-  IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,5);
+  IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,50);
   //IterativeYang<ImageType3D, MaskImageType4D>(inImage1, inImage2, outImage);
   //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
   
-  WriteFile<ImageType3D>(outImage,"iy-4d.nii.gz");
+  WriteFile<ImageType3D>(outImage,"iy-3d.nii.gz");
 
+  /*
   std::vector<int> labelIdx;
   GetRegionIndexList(inImage2,labelIdx);
 
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]){
   std::cout << std::endl;
 
   GetSyntheticPETImage(inImage1,inImage2,valList,labelIdx,outImage);
-  WriteFile<ImageType3D>(outImage,"iy-synth.nii.gz");
+  WriteFile<ImageType3D>(outImage,"iy-synth.nii.gz");*/
 
 
 

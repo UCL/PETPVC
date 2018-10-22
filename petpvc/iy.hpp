@@ -25,7 +25,7 @@ void GetSyntheticPETImage(const ImageType3D::Pointer input, const typename MaskI
     castFilter->SetInput(regionImage);
     castFilter->Update();
 
-    std::cout <<"\tInserting " << valList[n] << " into " << n << std::endl;
+    //std::cout <<"\tInserting " << valList[n] << " into " << n << std::endl;
     Multiply(castFilter->GetOutput(),valList[n],tmpImage);
 
     Add(tmpOutputImage,tmpImage,tmpOutputImage);
@@ -50,6 +50,8 @@ void IterativeYang(const typename TInputImage::Pointer pet,
                    typename TInputImage::Pointer &output,
                    int niter=10) {
 
+  //TODO: Add 4D processing
+
   const int numOfPETVols = GetNumberOfVolumes<TInputImage>(pet);
   std::cout << "Number of vols. to PV-correct = " << numOfPETVols << std::endl;
 
@@ -63,6 +65,7 @@ void IterativeYang(const typename TInputImage::Pointer pet,
 
   ImageType3D::Pointer currentVolume = ImageType3D::New();
   ImageType3D::Pointer currentIteration = ImageType3D::New();
+  ImageType3D::Pointer synthPET = ImageType3D::New();
 
   for (int n=0; n < numOfPETVols; n++){
     //For each PET volume
@@ -71,16 +74,20 @@ void IterativeYang(const typename TInputImage::Pointer pet,
     currentIteration = currentVolume;
 
     for (int k=1; k <= niter; k++) {
+      std::cout << "Iteration " << k << " : ";
       ImageType3D::Pointer tmp = ImageType3D::New();
-      //Calculate regional means
-      GetRegionalMeans(pet,mask,regionMeanList);
-      //Create synthetic PET
-      //Smooth synthetic PET
-      ApplySmoothing<TInputImage, TBlurFilter>(currentIteration, blur, tmp);
+      // Calculate regional means
+      GetRegionalMeans(currentIteration,mask,regionMeanList);
+      // Create synthetic PET
+      GetSyntheticPETImage(currentIteration,mask,regionMeanList, labelIndexList,synthPET);
+      // Smooth synthetic PET
+      ApplySmoothing<ImageType3D, TBlurFilter>(synthPET, blur, tmp);
+      // s' = s/[s(x)*h(x)]
+      Divide<ImageType3D>(synthPET,tmp,tmp);
+      // Multiply pet by s'
+      Multiply<ImageType3D>(pet,tmp,tmp);
+      // Store result for next iter
       Duplicate<ImageType3D>(tmp, currentIteration);
-      //Div s/(s*h)
-      //mult pet by div
-      //store result for next iter
     }
     //Paste into output volume
   }
