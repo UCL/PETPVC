@@ -23,6 +23,8 @@
 #include "itkPasteImageFilter.h"
 #include "itkSubtractImageFilter.h"
 
+//TODO: Create unit tests for package.
+
 namespace petpvc {
 
 typedef itk::Image<float, 3> ImageType3D;
