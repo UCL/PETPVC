@@ -50,7 +50,8 @@ float CalculateContribution(const ImageType3D::Pointer input,
 template<typename TInputImage, typename TMaskImage, typename TBlurFilter>
 void GTM(const typename TInputImage::Pointer pet,
         const typename TMaskImage::Pointer mask,
-        const typename TBlurFilter::Pointer blur){
+        const typename TBlurFilter::Pointer blur,
+        std::vector<float> &outputMeans){
 
   //TODO: Add 4D processing for PET and masks
 
@@ -77,6 +78,9 @@ void GTM(const typename TInputImage::Pointer pet,
   MaskImageType3D::Pointer rI = MaskImageType3D::New();
   MaskImageType3D::Pointer rJ = MaskImageType3D::New();
   ImageType3D::Pointer rJsmooth = ImageType3D::New();
+
+  std::vector<float> finalMeans;
+  //finalMeans.reserve(numOfLabels);
 
   std::cout << std::endl;
 
@@ -126,8 +130,14 @@ void GTM(const typename TInputImage::Pointer pet,
     vnl_regionMeanListUpdated = vnl_matrix_inverse<float>(weights) * vnl_regionMeanList;
 
     std::cout << "Corrected means: " << std::fixed << std::setprecision(4) << vnl_regionMeanListUpdated << std::endl;
+
+    for (int n=0; n < numOfLabels; n++){
+      finalMeans.push_back(vnl_regionMeanListUpdated[n]);
+    }
+
   }
 
+  outputMeans = finalMeans;
 }
 
 } // end namespace petpvc
