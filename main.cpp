@@ -3,6 +3,7 @@
 
 #include "petpvc/petpvc.hpp"
 #include "petpvc/iy.hpp"
+#include "petpvc/gtm.hpp"
 
 using namespace petpvc;
 
@@ -15,16 +16,16 @@ int main(int argc, char *argv[]){
   ReadFile<ImageType3D>(argv[1],inImage1);
   ReadFile<MaskImageType3D>(argv[2],inImage2);
 
-  //IterativeYang<ImageType3D, MaskImageType3D>(inImage1, inImage2, outImage);
-
   BlurringImageFilterType::Pointer gaussian = BlurringImageFilterType::New();
   ConfigureGaussian(gaussian,5,6,7);
 
-  IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,50);
+  GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian);
+
+  //IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,50);
   //IterativeYang<ImageType3D, MaskImageType4D>(inImage1, inImage2, outImage);
   //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
   
-  WriteFile<ImageType3D>(outImage,"iy-3d.nii.gz");
+  //WriteFile<ImageType3D>(outImage,"iy-3d.nii.gz");
 
   /*
   std::vector<int> labelIdx;

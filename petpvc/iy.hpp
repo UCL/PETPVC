@@ -39,7 +39,7 @@ void GetSyntheticPETImage(const ImageType3D::Pointer input, const typename Image
                                     const std::vector<float> &valList, const std::vector<int> &idxList,
                                     ImageType3D::Pointer &output) {
 
-  //TODO: Implement synthetic PET image generation for 4D.
+  //TODO: Implement synthetic PET image generation for 4D mask.
 
 }
 

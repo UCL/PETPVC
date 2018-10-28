@@ -478,12 +478,12 @@ int GetNumberOfVolumes(const typename T::Pointer img ){
 }
 
 void ConfigureGaussian(typename BlurringImageFilterType::Pointer &gaussian,
-                        const float x_in_mm, float y_in_mm=0, float z_in_mm=0){
+                        const float x_in_mm, float y_in_mm = -1.0f, float z_in_mm = -1.0f){
 
-  if (y_in_mm == 0)
+  if (y_in_mm == -1.0f)
     y_in_mm = x_in_mm;
 
-  if (z_in_mm == 0)
+  if (z_in_mm == -1.0f)
     z_in_mm = x_in_mm;
 
   //Calculate the variance for a given FWHM.
@@ -498,14 +498,19 @@ void ConfigureGaussian(typename BlurringImageFilterType::Pointer &gaussian,
 }
 
 template<typename TInputImage, typename TBlurFilter>
-  void ApplySmoothing(const typename TInputImage::Pointer pet,
+void ApplySmoothing(const typename TInputImage::Pointer pet,
                       const typename TBlurFilter::Pointer blur,
-                      typename TInputImage::Pointer &output){
+                      typename ImageType3D::Pointer &output){
 
-    blur->SetInput( pet );
-    blur->Update();
+  typedef itk::CastImageFilter< TInputImage, ImageType3D > CastImageFilterType;
+  typename CastImageFilterType::Pointer castFilter = CastImageFilterType::New();
+  castFilter->SetInput( pet );
+  castFilter->Update();
 
-    output->Graft(blur->GetOutput());
+  blur->SetInput( castFilter->GetOutput() );
+  blur->Update();
+
+  output->Graft(blur->GetOutput());
 
 }
 
