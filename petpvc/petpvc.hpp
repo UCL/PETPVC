@@ -6,7 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <itkStatisticsImageFilter.h>
+
 
 #include "itkAddImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
@@ -21,7 +21,9 @@
 #include "itkLabelStatisticsImageFilter.h"
 #include "itkMultiplyImageFilter.h"
 #include "itkPasteImageFilter.h"
+#include "itkStatisticsImageFilter.h"
 #include "itkSubtractImageFilter.h"
+#include "itkThresholdImageFilter.h"
 
 //TODO: Create unit tests for package.
 
@@ -141,6 +143,22 @@ void Duplicate(const typename TInputImage::Pointer input,
   output = duplicator->GetOutput();
 
 }
+
+template<typename TImageType=ImageType3D>
+void RemoveNegativeNumbers(const typename TImageType::Pointer a,
+                           typename TImageType::Pointer outputImage) {
+
+  typedef typename itk::ThresholdImageFilter<TImageType> FilterType;
+  typename FilterType::Pointer thresholdFilter = FilterType::New();
+
+  thresholdFilter->ThresholdBelow( 0.0f );
+  thresholdFilter->SetOutsideValue( 0.0f );
+  thresholdFilter->SetInput(a);
+  thresholdFilter->Update();
+
+  outputImage->Graft(thresholdFilter->GetOutput());
+}
+
 
 template<typename TImageType=ImageType3D, typename TOutputImage=TImageType>
 void CreateBlankImageFromExample(const typename TImageType::Pointer input, typename TOutputImage::Pointer &output)
@@ -513,6 +531,66 @@ void ApplySmoothing(const typename TInputImage::Pointer pet,
   blur->Update();
 
   output->Graft(blur->GetOutput());
+
+}
+
+template<typename TInputImage=ImageType3D>
+float CalculateSum(const typename TInputImage::Pointer input) {
+
+  itk::ImageRegionIterator<TInputImage> it(input, input->GetLargestPossibleRegion());
+
+  float imageSum = 0.0f;
+
+  it.GoToBegin();
+
+  while (!it.IsAtEnd()){
+    imageSum += it.Get();
+    ++it;
+  }
+
+  return imageSum;
+
+}
+
+template<typename TInputImage=ImageType3D>
+float CalculateSumOfSquares(const typename TInputImage::Pointer a) {
+
+  itk::ImageRegionIterator<TInputImage> it1(a, a->GetLargestPossibleRegion());
+  float imageSumSq = 0.0f;
+
+  it1.GoToBegin();
+
+  float val;
+
+  while (!it1.IsAtEnd()){
+    val = it1.Get();
+    imageSumSq += val*val;
+    ++it1;
+  }
+
+  return imageSumSq;
+}
+
+template<typename TInputImage=ImageType3D>
+float CalculateSumOfSquareDiff(const typename TInputImage::Pointer a,
+                               const typename TInputImage::Pointer b) {
+
+  itk::ImageRegionIterator<TInputImage> it1(a, a->GetLargestPossibleRegion());
+  itk::ImageRegionIterator<TInputImage> it2(b, b->GetLargestPossibleRegion());
+
+  float imageSumSqDiff = 0.0f;
+
+  it1.GoToBegin(); it2.GoToBegin();
+
+  float diff;
+
+  while (!it1.IsAtEnd()){
+    diff = it1.Get() - it2.Get();
+    imageSumSqDiff += diff*diff;
+    ++it1; ++it2;
+  }
+
+  return imageSumSqDiff;
 
 }
 

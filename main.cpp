@@ -5,6 +5,7 @@
 #include "petpvc/iy.hpp"
 #include "petpvc/gtm.hpp"
 #include "petpvc/rbv.hpp"
+#include "petpvc/vc.hpp"
 
 using namespace petpvc;
 
@@ -20,15 +21,18 @@ int main(int argc, char *argv[]){
   BlurringImageFilterType::Pointer gaussian = BlurringImageFilterType::New();
   ConfigureGaussian(gaussian,5,6,7);
 
+  VanCittert<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,1.5,1e-8,30);
+  WriteFile<ImageType3D>(outImage,"vc-3d.nii.gz");
+
   //GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian);
 
-  RBV<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
+  //RBV<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
 
   //IterativeYang<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage,50);
   //IterativeYang<ImageType3D, MaskImageType4D>(inImage1, inImage2, outImage);
   //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
   
-  WriteFile<ImageType3D>(outImage,"rbv-3d.nii.gz");
+  //WriteFile<ImageType3D>(outImage,"rbv-3d.nii.gz");
 
   /*
   std::vector<int> labelIdx;

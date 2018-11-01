@@ -13,23 +13,6 @@
 
 namespace petpvc {
 
-template<typename TInputImage=ImageType3D>
-float CalculateSum(const typename TInputImage::Pointer input) {
-
-  itk::ImageRegionIterator<TInputImage> it(input, input->GetLargestPossibleRegion());
-
-  float imageSum = 0.0f;
-
-  it.GoToBegin();
-
-  while (!it.IsAtEnd()){
-    imageSum += it.Get();
-    ++it;
-  }
-
-  return imageSum;
-
-}
 float CalculateContribution(const ImageType3D::Pointer input,
                             const typename MaskImageType3D::Pointer regionMask) {
 
