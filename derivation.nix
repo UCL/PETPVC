@@ -53,9 +53,7 @@
 { stdenv
 , fetchFromGitHub
 , cmake
-, boost
 , itk
-, glog
 }:
 
 stdenv.mkDerivation {
