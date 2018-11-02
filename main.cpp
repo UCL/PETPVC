@@ -5,6 +5,7 @@
 #include "petpvc/iy.hpp"
 #include "petpvc/gtm.hpp"
 #include "petpvc/rbv.hpp"
+#include "petpvc/rl.hpp"
 #include "petpvc/vc.hpp"
 
 using namespace petpvc;
@@ -21,8 +22,11 @@ int main(int argc, char *argv[]){
   BlurringImageFilterType::Pointer gaussian = BlurringImageFilterType::New();
   ConfigureGaussian(gaussian,5,6,7);
 
-  VanCittert<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,1.5,1e-8,30);
-  WriteFile<ImageType3D>(outImage,"vc-3d.nii.gz");
+  //VanCittert<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,1.5,1e-8,30);
+  //WriteFile<ImageType3D>(outImage,"vc-3d.nii.gz");
+
+  RichardsonLucy<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,-3e+06,10);
+  WriteFile<ImageType3D>(outImage,"rl-3d.nii.gz");
 
   //GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian);
 
