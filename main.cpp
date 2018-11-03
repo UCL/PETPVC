@@ -4,6 +4,7 @@
 #include "petpvc/petpvc.hpp"
 #include "petpvc/iy.hpp"
 #include "petpvc/gtm.hpp"
+#include "petpvc/labbe.hpp"
 #include "petpvc/rbv.hpp"
 #include "petpvc/rl.hpp"
 #include "petpvc/vc.hpp"
@@ -25,10 +26,12 @@ int main(int argc, char *argv[]){
   //VanCittert<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,1.5,1e-8,30);
   //WriteFile<ImageType3D>(outImage,"vc-3d.nii.gz");
 
-  RichardsonLucy<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,-3e+06,10);
-  WriteFile<ImageType3D>(outImage,"rl-3d.nii.gz");
+  //RichardsonLucy<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,-3e+06,10);
+  //WriteFile<ImageType3D>(outImage,"rl-3d.nii.gz");
 
-  //GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian);
+  std::vector<float> outputMeans;
+  //GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outputMeans);
+  Labbe<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outputMeans);
 
   //RBV<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
 

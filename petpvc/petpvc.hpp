@@ -6,7 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-
+#include <cassert>
 
 #include "itkAddImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
@@ -530,7 +530,7 @@ void ApplySmoothing(const typename TInputImage::Pointer pet,
   blur->SetInput( castFilter->GetOutput() );
   blur->Update();
 
-  output->Graft(blur->GetOutput());
+  Duplicate<ImageType3D>(blur->GetOutput(),output);
 
 }
 
