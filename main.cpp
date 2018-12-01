@@ -5,6 +5,7 @@
 #include "petpvc/iy.hpp"
 #include "petpvc/gtm.hpp"
 #include "petpvc/labbe.hpp"
+#include "petpvc/mg.hpp"
 #include "petpvc/rbv.hpp"
 #include "petpvc/rl.hpp"
 #include "petpvc/vc.hpp"
@@ -29,9 +30,9 @@ int main(int argc, char *argv[]){
   //RichardsonLucy<ImageType3D,BlurringImageFilterType>(inImage1,gaussian,outImage,-3e+06,10);
   //WriteFile<ImageType3D>(outImage,"rl-3d.nii.gz");
 
-  std::vector<float> outputMeans;
+  //std::vector<float> outputMeans;
   //GTM<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outputMeans);
-  Labbe<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outputMeans);
+  //Labbe<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outputMeans);
 
   //RBV<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
 
@@ -40,6 +41,11 @@ int main(int argc, char *argv[]){
   //IterativeYang<ImageType4D, MaskImageType4D>(inImage1, inImage2, outImage);
   
   //WriteFile<ImageType3D>(outImage,"rbv-3d.nii.gz");
+
+
+  MullerGartner<ImageType3D, MaskImageType3D, BlurringImageFilterType>(inImage1, inImage2, gaussian, outImage);
+  WriteFile<ImageType3D>(outImage,"mg-3d.nii.gz");
+
 
   /*
   std::vector<int> labelIdx;
