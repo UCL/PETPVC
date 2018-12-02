@@ -212,7 +212,8 @@ int main(int argc, char *argv[])
     vVariance[2] = pow(vVariance[2], 2);
 
 	//Create output image
-	PETImageType::Pointer outputImage = NULL;
+	PETImageType::Pointer outputImage;
+	bool isOutputImageReady = false;
 
 	//Create reader for mask image.
     MaskReaderType::Pointer maskReader = MaskReaderType::New();
@@ -243,6 +244,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -278,6 +280,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -315,6 +318,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = rbvFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -344,6 +348,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = iyFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -368,6 +373,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = mtcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -396,6 +402,7 @@ int main(int argc, char *argv[])
 					}
 
 					outputImage = stcFilter->GetOutput();
+					isOutputImageReady = true;
 
 					break;
 		}
@@ -469,6 +476,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = mgFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -580,7 +588,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
-
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -682,6 +690,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -706,6 +715,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = lrbvFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -730,6 +740,7 @@ int main(int argc, char *argv[])
 			    }
 
 				outputImage = lmtcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -786,6 +797,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -832,6 +844,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -888,6 +901,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -935,6 +949,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -992,6 +1007,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1039,6 +1055,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1094,6 +1111,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1140,6 +1158,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1201,6 +1220,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = vcFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1252,6 +1272,7 @@ int main(int argc, char *argv[])
 				}
 
 				outputImage = rlFilter->GetOutput();
+				isOutputImageReady = true;
 
 				break;
 			}
@@ -1262,7 +1283,7 @@ int main(int argc, char *argv[])
 
 		}
 
-	if ( outputImage ) {
+	if ( isOutputImageReady == true ) {
     	PETWriterType::Pointer petWriter = PETWriterType::New();
     	petWriter->SetFileName(sOutputFileName);
     	petWriter->SetInput( outputImage );
