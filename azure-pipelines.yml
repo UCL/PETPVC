@@ -1,0 +1,117 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+jobs:
+- job: ubuntu
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+  - script: |
+      sudo apt-get install -y ninja-build libinsighttoolkit4-dev
+    displayName: Apt install dependencies
+  - script: |
+      mkdir build.debug
+      mkdir build.release
+    displayName: Make Build Directories
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.debug'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug ..'
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.release'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release ..'
+  - script: |
+      cd build.debug
+      ninja
+    displayName: 'Run ninja, debug'
+  - script: |
+      cd build.debug
+      ctest
+    displayName: 'Run tests, debug'
+  - script: |
+      cd build.release
+      ninja
+    displayName: 'Run ninja, release'
+  - script: |
+      cd build.release
+      ctest
+    displayName: 'Run tests, release'
+- job: macos
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - script: |
+      brew tap bathomas/homebrew-bat
+      brew install ninja insighttoolkit
+    displayName: Brew install dependencies
+  - script: |
+      mkdir build.debug
+      mkdir build.release
+    displayName: Make Build Directories
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.debug'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug ..'
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.release'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release ..'
+  - script: |
+      cd build.debug
+      ninja
+    displayName: 'Run ninja, debug'
+  - script: |
+      cd build.debug
+      ctest
+    displayName: 'Run tests, debug'
+  - script: |
+      cd build.release
+      ninja
+    displayName: 'Run ninja, release'
+  - script: |
+      cd build.release
+      ctest
+    displayName: 'Run tests, release'
+- job: Windows_VS2017_x64
+  pool:
+      vmImage: 'vs2017-win2016'
+  steps:
+    - script: |
+        git clone -b v4.13.1 --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
+        mkdir build.ITK
+        cd build.ITK
+        cmake -G "Visual Studio 15 Win64" -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DModule_ITKReview=ON ../ITK
+      displayName: Configure ITK
+    - task: MSBuild@1
+      inputs:
+        solution: 'build.ITK/INSTALL.vcxproj'
+        maximumCpuCount: true
+        platform: 'x64'
+        configuration: 'Release'
+      displayName: Build ITK
+    - script: mkdir build.common
+      displayName: Make Build Directory
+    - script: |
+        cd build.common
+        cmake -G "Visual Studio 15 Win64" -DCMAKE_BUILD_TYPE=Release ..
+      displayName: Configure PETPVC
+    - task: MSBuild@1
+      inputs:
+        solution: 'build.common/ALL_BUILD.vcxproj'
+        maximumCpuCount: true
+        platform: 'x64'
+        configuration: 'Release'
+      displayName: 'Build PETPVC'
+    - task: MSBuild@1
+      inputs:
+        solution: 'build.common/RUN_TESTS.vcxproj'
+        maximumCpuCount: true
+        platform: 'x64'
+        configuration: 'Release'
+      displayName: 'Run tests'
