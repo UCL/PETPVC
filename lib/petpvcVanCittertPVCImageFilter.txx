@@ -3,7 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2015 Institute of Nuclear Medicine, University College London.
+   Copyright 2015-2019 Institute of Nuclear Medicine, University College London.
    Copyright 2015 Clinical Imaging Research Centre, A*STAR-NUS.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,7 @@ VanCittertPVCImageFilter< TInputImage >
     this->m_bVerbose = false;
     this->m_fAlpha = 1.5;
     this->m_fStopCriterion = 0.01;
+    this->m_bDisableNonNeg = false;
 }
 
 template< class TInputImage >
@@ -116,10 +117,17 @@ void VanCittertPVCImageFilter< TInputImage >
             multiplyFilter->SetInput( blurFilter2->GetOutput() );
             addFilter->SetInput1( imageEstimate );
             addFilter->SetInput2( multiplyFilter->GetOutput() );
-            thresholdFilter->SetInput( addFilter->GetOutput() );  
-            thresholdFilter->Update();
+            
+            if (!m_bDisableNonNeg) {
+                thresholdFilter->SetInput( addFilter->GetOutput() );  
+                thresholdFilter->Update();
+                imageEstimate = thresholdFilter->GetOutput();
+            }
+            else {
+                addFilter->Update();
+                imageEstimate = addFilter->GetOutput();
+            }
 
-            imageEstimate = thresholdFilter->GetOutput();
             imageEstimate->DisconnectPipeline();
             
             ConstImageIterator currIt( imageEstimate, imageEstimate->GetLargestPossibleRegion() );

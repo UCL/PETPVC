@@ -3,6 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
+   Copyright 2019 Institute of Nuclear Medicine, University College London.
    Copyright 2015 Clinical Imaging Research Centre, A*STAR-NUS.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,6 +100,9 @@ int main(int argc, char *argv[])
     command.SetOptionLongTag("Stop", "stop");
     command.AddOptionField("Stop", "stopval", MetaCommand::FLOAT, false, "0.01");
 
+    command.SetOption("NonNeg", "0", false,"Turns off non-negativity constraint");
+    command.SetOptionLongTag("NonNeg", "disable-non-neg");
+
     command.SetOption("debug", "d", false,"Prints debug information");
     command.SetOptionLongTag("debug", "debug");
 
@@ -134,6 +138,9 @@ int main(int argc, char *argv[])
     //Toggle debug mode
     bool bDebug = command.GetValueAsBool("debug");
 
+    //Toggle non-negativity constraint
+    const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+
     //Create reader for PET image.
     PETReaderType::Pointer petReader = PETReaderType::New();
     petReader->SetFileName(sPETFileName);
@@ -166,6 +173,7 @@ int main(int argc, char *argv[])
 	vcFilter->SetAlpha( fAlpha );
     vcFilter->SetStoppingCond( fStop );
     vcFilter->SetVerbose ( bDebug );
+    vcFilter->SetDisableNonNegativity( bDisableNonNeg );
 
     //Perform VC.
     try {

@@ -3,7 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2015 Institute of Nuclear Medicine, University College London.
+   Copyright 2015-2019 Institute of Nuclear Medicine, University College London.
    Copyright 2015 Clinical Imaging Research Centre, A*STAR-NUS.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,6 +130,9 @@ public:
         this->m_bVerbose = bVerbose;
     }
 
+    void SetDisableNonNegativity( bool bDisableNonNeg ) {
+        this->m_bDisableNonNeg = bDisableNonNeg;
+    }
 
 protected:
     IntraRegVCImageFilter();
@@ -143,6 +146,7 @@ protected:
     float m_fAlpha;
     float m_fStopCriterion;
     bool m_bVerbose;
+    bool m_bDisableNonNeg;
 
 private:
     IntraRegVCImageFilter(const Self &); //purposely not implemented

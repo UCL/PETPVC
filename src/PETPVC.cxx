@@ -3,6 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
+   Copyright 2019 Institute of Nuclear Medicine, University College London.
    Copyright 2015 Clinical Imaging Research Centre, A*STAR-NUS.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -147,6 +148,9 @@ int main(int argc, char *argv[])
     command.SetOptionLongTag("Stop", "stop");
     command.AddOptionField("Stop", "stopval", MetaCommand::FLOAT, false, "0.01");
 
+	command.SetOption("NonNeg", "0", false,"Turns off non-negativity constraint");
+    command.SetOptionLongTag("NonNeg", "disable-non-neg");
+
     //Parse command line.
     if (!command.Parse(argc, argv)) {
 		printPVCMethodList();
@@ -267,6 +271,10 @@ int main(int argc, char *argv[])
     			//Get value for stopping criterion.
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
+
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
 
 		    	vcFilter->SetVerbose ( bDebug );
 
@@ -576,6 +584,10 @@ int main(int argc, char *argv[])
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
 
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
+
 		    	vcFilter->SetVerbose ( bDebug );
 
     			//Perform VC.
@@ -785,6 +797,10 @@ int main(int argc, char *argv[])
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
 
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
+
 		    	vcFilter->SetVerbose ( bDebug );
 
     			//Perform VC.
@@ -888,6 +904,10 @@ int main(int argc, char *argv[])
     			//Get value for stopping criterion.
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
+
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
 
 		    	vcFilter->SetVerbose ( bDebug );
 
@@ -995,6 +1015,10 @@ int main(int argc, char *argv[])
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
 
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
+
 		    	vcFilter->SetVerbose ( bDebug );
 
     			//Perform VC.
@@ -1098,6 +1122,10 @@ int main(int argc, char *argv[])
     			//Get value for stopping criterion.
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
+
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
 
 		    	vcFilter->SetVerbose ( bDebug );
 
@@ -1207,6 +1235,10 @@ int main(int argc, char *argv[])
     			//Get value for stopping criterion.
 			    float fStop = command.GetValueAsFloat("Stop", "stopval");
 		    	vcFilter->SetStoppingCond( fStop );
+
+				//Toggle non-negativity constraint for VC
+    			const bool bDisableNonNeg = command.GetValueAsBool("NonNeg");
+				vcFilter->SetDisableNonNegativity( bDisableNonNeg );
 
 		    	vcFilter->SetVerbose ( bDebug );
 
