@@ -51,12 +51,21 @@ make install
 
 ## Usage
 
+Although there are currently executables for every method, it is based to use
+`petpvc` which has options to specify the method and parameters. Type
+`petpvc` without arguments to get a usage message.
+
 An example of running iterative Yang with a 6mm PSF:
 
 ```
 	petpvc -i <PET> -m <MASK> -o <OUTPUT> --pvc IY -x 6.0 -y 6.0 -z 6.0 [--debug]
 ```
 where ```<PET>``` is the PET image file, ```<MASK>``` is the 4-D mask image file and ```<OUTPUT>``` is the destination file for the PV-corrected image.
+
+In addition, there are some utilities that you might find useful:
+- `pvc_simulate` allows you to blur an image with a Gaussian (e.g. to simulate
+resolution effects)
+- some [mask related tools](parc/README.md)
 
 ---
 ## Notes on input and output files
