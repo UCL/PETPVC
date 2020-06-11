@@ -133,11 +133,11 @@ int main(int argc, char *argv[])
     command.SetOption("debug", "d", false,"Prints debug information");
     command.SetOptionLongTag("debug", "debug");
 
-    command.SetOption("Iterations", "n", false, "Number of iterations");
+    command.SetOption("Iterations", "n", false, "Number of iterations (used for iterative Yang)");
     command.SetOptionLongTag("Iterations", "iter");
     command.AddOptionField("Iterations", "Val", MetaCommand::INT, false, "10");
 
-    command.SetOption("Deconvolution", "k", false, "Number of deconvolution iterations");
+    command.SetOption("Deconvolution", "k", false, "Number of deconvolution iterations (used for RL and others)");
     command.AddOptionField("Deconvolution", "Val", MetaCommand::INT, false, "10");
 
     command.SetOption("Alpha", "a", false, "Alpha value");
