@@ -44,6 +44,18 @@ using namespace itk;
 
 namespace petpvc
 {
+
+  /*! Single Target Correction (STC)
+
+    An Implementation of the STC Method, see<br>
+    Sari H, Erlandsson K, Law I, Larsson HB, Ourselin S, Arridge S, Atkinson D, Hutton BF.
+    Estimation of an image derived input function with MR-defined carotid arteries in FDG-PET human studies using a novel partial volume correction method. 
+    J Cereb Blood Flow Metab. 2017;37(4): 1398--409
+    <br>
+    Erlanddsson K and Hutton BF.
+    A novel voxel-based partial volume correction method for single regions of interest.
+    J Nucl Med Meeting Abstr 2014; 55: 2023.
+  */
 template< class TInputImage, typename TMaskImage>
 class STCPVCImageFilter:public ImageToImageFilter< TInputImage, TInputImage >
 {
