@@ -3,7 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2017 Institute of Nuclear Medicine, University College London.
+   Copyright 2017, 2020 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -125,6 +125,9 @@ int main(int argc, char *argv[])
     maskReader->SetFileName(sMaskFileName);
 
     //Try to read mask.
+    if ( bDebug )
+      std::cout << "Reading mask (making it binary by thresholding if it isn't yet)\n";
+
     try {
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
