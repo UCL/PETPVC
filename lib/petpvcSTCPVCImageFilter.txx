@@ -26,6 +26,7 @@
 #include "itkObjectFactory.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
+#include <stdexcept>
 
 using namespace itk;
 
@@ -64,6 +65,7 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
     if (imageSize.Dimension != 3) {
         std::cerr << "[Error]\tMask file must be 3-D!"
                   << std::endl;
+        throw std::runtime_error("Mask file must be 3-D");
     }
 
     MaskSizeType desiredStart;
@@ -92,6 +94,11 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
     int numOfLabels = labelStatsFilter->GetNumberOfLabels();
     nClasses = numOfLabels;
 
+    if ( numOfLabels < 2 ) {
+        std::cerr << "[Error]\tMask file contains only 1 label, implying zero voxels in the ROI"
+                << std::endl;
+        throw std::runtime_error("Mask file should contain at least 2 labels");
+    }
     if ( this->m_bVerbose )
         std::cout << "Number of labels: " << nClasses << std::endl;
 
@@ -230,6 +237,22 @@ void STCPVCImageFilter< TInputImage, TMaskImage>
             {
 
                 LabelPixelType labelValue = *vIt;
+
+                //checks on ROI size
+                if ( k == 1 ) {
+                    const typename LabelStatisticsFilterType::MapSizeType numOfVoxels = labelStatsFilter->GetCount( labelValue );
+                    if ( numOfVoxels == 0) {
+                        std::cerr << "[Error]\tMask file contains zero voxels in the ROI for label " << labelValue << "!"
+                                  << std::endl;
+                        throw std::runtime_error("Mask file contains zero voxels in the ROI");
+
+                    } else if ( numOfVoxels < 10 ) {
+                        std::cerr << "[Warning]\nMask file contains less than 10 voxels in the ROI. That is unlikely to work well.\n";
+                    }
+                    if ( this->m_bVerbose )
+                      std::cout << "Number of voxels in the ROI of label " << labelValue << ": " << numOfVoxels << std::endl;
+                }
+
                 binThreshFilter->SetLowerThreshold( labelValue );
                 binThreshFilter->SetUpperThreshold( labelValue );
 

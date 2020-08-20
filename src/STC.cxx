@@ -3,7 +3,7 @@
 
    Author:      Benjamin A. Thomas
 
-   Copyright 2017 Institute of Nuclear Medicine, University College London.
+   Copyright 2017, 2020 Institute of Nuclear Medicine, University College London.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,7 +18,15 @@
    limitations under the License.
 
    This program implements the Single Target Correction (STC) partial volume correction
-   (PVC) technique. Please cite the following paper:
+   (PVC) technique. Please cite the following:
+
+   Sari H, Erlandsson K, Law I, Larsson HB, Ourselin S, Arridge S, Atkinson D, Hutton BF.
+   Estimation of an image derived input function with MR-defined carotid arteries in FDG-PET human studies using a novel partial volume correction method. 
+   J Cereb Blood Flow Metab. 2017;37(4): 1398--409
+
+   Erlanddsson K and Hutton BF.
+   A novel voxel-based partial volume correction method for single regions of interest.
+   J Nucl Med Meeting Abstr 2014; 55: 2023.
 
  */
 
@@ -125,6 +133,9 @@ int main(int argc, char *argv[])
     maskReader->SetFileName(sMaskFileName);
 
     //Try to read mask.
+    if ( bDebug )
+      std::cout << "Reading mask (making it binary by thresholding if it isn't yet)\n";
+
     try {
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
@@ -195,7 +206,13 @@ int main(int argc, char *argv[])
 std::string getAcknowledgments(void)
 {
     //Produces acknowledgments string for 3DSlicer.
-    std::string sAck = "This program implements the Single Target Correction (STC) partial volume correction (PVC) technique. Please cite the following paper:\n";
+    std::string sAck = "This program implements the Single Target Correction (STC) partial volume correction (PVC) technique. Please cite the following:\n"
+      "Sari H, Erlandsson K, Law I, Larsson HB, Ourselin S, Arridge S, Atkinson D, Hutton BF.\n"
+      "Estimation of an image derived input function with MR-defined carotid arteries in FDG-PET human studies using a novel partial volume correction method.\n"
+      "J Cereb Blood Flow Metab. 2017;37(4): 1398--409\n\n"
+      "Erlanddsson K and Hutton BF.\n"
+      "A novel voxel-based partial volume correction method for single regions of interest.\n"
+      "J Nucl Med Meeting Abstr 2014; 55: 2023.\n";
 
     return sAck;
 }
