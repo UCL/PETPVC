@@ -44,7 +44,7 @@ jobs:
     displayName: 'Run tests, release'
 - job: macos
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-latest'
   steps:
   - script: |
       brew tap bathomas/homebrew-bat
