@@ -47,8 +47,9 @@ jobs:
     vmImage: 'macOS-latest'
   steps:
   - script: |
-      brew tap bathomas/homebrew-bat
-      brew install ninja insighttoolkit
+      #brew tap bathomas/homebrew-bat
+      #brew install ninja insighttoolkit
+      brew install ninja itk
     displayName: Brew install dependencies
   - script: |
       mkdir build.debug
