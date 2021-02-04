@@ -29,4 +29,4 @@
 
 { pkgs ? import <nixpkgs> {} }:
 
-pkgs.callPackage ./derivation.nix {}
+pkgs.callPackage ./derivation.nix { itk = pkgs.itk4; }
