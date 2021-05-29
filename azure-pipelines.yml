@@ -84,7 +84,7 @@ jobs:
       vmImage: 'vs2017-win2016'
   steps:
     - script: |
-        git clone -b v4.13.1 --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
+        git clone -b v5.2.0 --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
         mkdir build.ITK
         cd build.ITK
         cmake -G "Visual Studio 15 Win64" -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DModule_ITKReview=ON ../ITK
