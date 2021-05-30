@@ -72,7 +72,7 @@ protected:
     ~FuzzyCorrectionFilter();
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
 
 private:

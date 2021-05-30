@@ -119,7 +119,7 @@ protected:
     ~VanCittertPVCImageFilter() {};
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
     ITKVectorType m_vecVariance;
     unsigned int m_nIterations;

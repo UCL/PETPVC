@@ -82,7 +82,7 @@ protected:
     ~LabbeImageFilter();
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
 private:
     LabbeImageFilter(const Self &); //purposely not implemented

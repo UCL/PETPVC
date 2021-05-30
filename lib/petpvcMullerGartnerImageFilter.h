@@ -154,7 +154,7 @@ protected:
     }
 
     //void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
-    void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
 protected:
 

@@ -81,7 +81,7 @@ protected:
     ~GTMImageFilter();
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
 private:
     GTMImageFilter(const Self &); //purposely not implemented
