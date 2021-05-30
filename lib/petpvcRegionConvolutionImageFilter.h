@@ -114,7 +114,7 @@ protected:
     ~RegionConvolutionPVCImageFilter() {};
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
     ITKVectorType m_vecVariance;
     bool m_bVerbose;

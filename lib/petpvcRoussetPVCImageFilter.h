@@ -122,7 +122,7 @@ protected:
     ~RoussetPVCImageFilter() {}
 
     /** Does the real work. */
-    virtual void GenerateData();
+    virtual void GenerateData() ITK_OVERRIDE;
 
     VectorType m_vecRegMeansPVCorr;
     MatrixType m_matGTM;
