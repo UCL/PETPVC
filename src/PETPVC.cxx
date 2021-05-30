@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     //Parse command line.
     if (!command.Parse(argc, argv)) {
 		printPVCMethodList();
-        return EXIT_FAILURE;
+		return EXIT_SUCCESS;
     }
 
     //Get image filenames
