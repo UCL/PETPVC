@@ -48,10 +48,11 @@ build_script:
 deploy:
   - provider: GitHub
     auth_token:
-        secure: jQkp3YvSjfaSMMSh8XqUZfGKsztNVsuSgrmxxm9cpU3hpNfup9b8+7yhajzbNfb9
+        secure: rAhVQ15Ngn/wGthOvIkrQqrMi9jEjFbKwSUan4OxblikIglipPmQTnzZUViYpbmw
     release: PETPVC-$(appveyor_build_version)
     description: 'Binary release - $(appveyor_build_version)'
     artifact: /.*\.exe/
     draft: true
     on:
         appveyor_repo_tag: true
+
