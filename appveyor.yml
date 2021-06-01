@@ -53,4 +53,6 @@ deploy:
     description: 'Binary release - $(appveyor_build_version)'
     artifact: /.*\.exe/
     draft: true
+    on:
+        appveyor_repo_tag: true
 
