@@ -42,6 +42,6 @@ deploy:
     file: "*.tar.gz"
     file_glob: true
     draft: true
+    skip_cleanup: true
     on:
-      tags: true
       all_branches: true
