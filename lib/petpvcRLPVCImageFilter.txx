@@ -43,6 +43,25 @@ RichardsonLucyPVCImageFilter< TInputImage >
 }
 
 template< class TInputImage >
+float RichardsonLucyPVCImageFilter< TInputImage >
+::GetZeroThreshold( typename TInputImage::ConstPointer img )
+{
+    // Default threshold to zero values at:
+    const float fZeroThreshold = 1e-4f;
+
+    // Calculate image statistics
+    typename StatisticsFilterType::Pointer statsFilter = StatisticsFilterType::New();
+    statsFilter->SetInput( img );
+    statsFilter->Update();
+    
+    // Return default or (image max * default ) as new threshold
+    const float fNewThreshold = std::min( fZeroThreshold, statsFilter->GetMaximum() * fZeroThreshold );
+
+    // Set to zero if somehow new threshold is negative!
+    return std::max( fNewThreshold , 0.0f );
+}
+
+template< class TInputImage >
 void RichardsonLucyPVCImageFilter< TInputImage >
 ::GenerateData()
 {
@@ -124,9 +143,12 @@ void RichardsonLucyPVCImageFilter< TInputImage >
             denomIt.GoToBegin();
             divIt.GoToBegin();
 
+            // Get zero threshold
+            const float fSmallNum = this->GetZeroThreshold( blurFilter->GetOutput() );
+
             while ( !divIt.IsAtEnd() )
     	    {
-				if (denomIt.Get() > 1e-4)
+				if ( denomIt.Get() > fSmallNum )
                     divIt.Set(numeratorIt.Get() / denomIt.Get());
                 else
                     divIt.Set(itk::NumericTraits< PixelType >::Zero);
