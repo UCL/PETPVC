@@ -79,30 +79,78 @@ void RichardsonLucyPVCImageFilter< TInputImage >
     typename TInputImage::Pointer imageEstimate;
     //Set image estimate to the original non-negative PET data for the first iteration.
     imageEstimate = duplicator->GetOutput();
+    imageEstimate->DisconnectPipeline();
+
+    // Create a blank image with same dimensions as input to use for division
+    duplicator->SetInputImage(imageEstimate);
+    duplicator->Update();
+
+    typedef itk::CastImageFilter< TInputImage, TInputImage > CastImageFilterType;
+    typename CastImageFilterType::Pointer castFilter = CastImageFilterType::New();
+    castFilter->SetInput( duplicator->GetOutput() );
+    castFilter->Update();
+    typename TInputImage::Pointer blankImage = castFilter->GetOutput();
+
+    typedef typename TInputImage::PixelType PixelType;
+    blankImage->FillBuffer( itk::NumericTraits< PixelType >::Zero );
+
+    // Image to store result of division
+    typename TInputImage::Pointer dividedImage;
 
     int nMaxNumOfIters =  this->m_nIterations;
     int n=1;
 
     bool bStopped = false;
-
 	
     while ( ( n <= nMaxNumOfIters ) && ( !bStopped ) ) {
-         float fLog = 0.0;   
+         float fLog = 0.0;  
+            // f_k * h
             blurFilter->SetInput( imageEstimate );
-			divideFilter->SetInput1( thresholdFilter->GetOutput() );
-			divideFilter->SetInput2( blurFilter->GetOutput() );
-			multiplyFilter->SetInput1( imageEstimate );
-			multiplyFilter->SetInput2( divideFilter->GetOutput() );
-            multiplyFilter->Update();
+            blurFilter->Update();
 
+            // Perform f(x) / [ f_k(x) * h ] voxel-by-voxel as itk::DivideFilterType sets image
+            // to max if denominator is 0.
+            ConstImageIterator numeratorIt( thresholdFilter->GetOutput(),  thresholdFilter->GetOutput()->GetLargestPossibleRegion() );
+            ConstImageIterator denomIt( blurFilter->GetOutput(),  blurFilter->GetOutput()->GetLargestPossibleRegion() );
+
+            duplicator->SetInputImage(blankImage);
+            duplicator->Update();
+            dividedImage = duplicator->GetOutput();
+            dividedImage->DisconnectPipeline();
+
+            ImageRegionIterator<TInputImage> divIt( dividedImage, dividedImage->GetLargestPossibleRegion() );
+
+            numeratorIt.GoToBegin();
+            denomIt.GoToBegin();
+            divIt.GoToBegin();
+
+            while ( !divIt.IsAtEnd() )
+    	    {
+				if (denomIt.Get() > 1e-4)
+                    divIt.Set(numeratorIt.Get() / denomIt.Get());
+                else
+                    divIt.Set(itk::NumericTraits< PixelType >::Zero);
+			
+        		++numeratorIt;
+                ++denomIt;
+                ++divIt;
+        	}
+
+            // Reblur correction factors            
+            blurFilter2->SetInput( dividedImage );
+            blurFilter2->Update();
+
+            // Multiply current image estimate by reblurred correction factors
+			multiplyFilter->SetInput1( imageEstimate );
+			multiplyFilter->SetInput2( blurFilter2->GetOutput() );
+            multiplyFilter->Update();
+            
+            // Update image estimate 
             imageEstimate = multiplyFilter->GetOutput();
             imageEstimate->DisconnectPipeline();
-            
-			blurFilter2->SetInput( imageEstimate );
-			blurFilter2->Update();
 
             ConstImageIterator origIt( thresholdFilter->GetOutput(),  thresholdFilter->GetOutput()->GetLargestPossibleRegion() );
-            ConstImageIterator currIt(  blurFilter2->GetOutput(), blurFilter2->GetOutput()->GetLargestPossibleRegion() );
+            ConstImageIterator currIt( imageEstimate, imageEstimate->GetLargestPossibleRegion() );
 
             origIt.GoToBegin();
             currIt.GoToBegin();
@@ -110,9 +158,9 @@ void RichardsonLucyPVCImageFilter< TInputImage >
             while ( !currIt.IsAtEnd() )
     	    {
 				if (currIt.Get() > 0.0) {
-                	float diff = origIt.Get() * log(currIt.Get()) - currIt.Get();
-	                fLog += diff;
+                    fLog += origIt.Get() * log(currIt.Get()) - currIt.Get();
 				}
+
         		++currIt;
                 ++origIt;
         	}
@@ -120,9 +168,6 @@ void RichardsonLucyPVCImageFilter< TInputImage >
             float fCurrentEval = fLog;
             std::cout << n << "\t" << fCurrentEval << std::endl;         
 			n++;
-
-            //if ( fCurrentEval < this->m_fStopCriterion )
-            //   bStopped = true;
     }
     std::cout << std::endl;
 

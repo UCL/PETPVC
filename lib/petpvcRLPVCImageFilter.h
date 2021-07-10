@@ -29,6 +29,7 @@
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
 #include <itkDivideImageFilter.h>
+#include <itkCastImageFilter.h>
 #include <itkAddImageFilter.h>
 #include <itkSubtractImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
