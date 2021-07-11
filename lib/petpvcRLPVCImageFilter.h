@@ -29,6 +29,7 @@
 #include <itkExtractImageFilter.h>
 #include <itkMultiplyImageFilter.h>
 #include <itkDivideImageFilter.h>
+#include <itkCastImageFilter.h>
 #include <itkAddImageFilter.h>
 #include <itkSubtractImageFilter.h>
 #include <itkDiscreteGaussianImageFilter.h>
@@ -89,7 +90,6 @@ public:
         this->m_vecVariance = vec;
     }
 
-
     ITKVectorType GetPSF() {
         return this->m_vecVariance;
     }
@@ -113,6 +113,9 @@ protected:
 
     /** Does the real work. */
     virtual void GenerateData() ITK_OVERRIDE;
+
+    // Calculate threshold at which a value is zeroed
+    float GetZeroThreshold( typename TInputImage::ConstPointer img );
 
     ITKVectorType m_vecVariance;
     unsigned int m_nIterations;
