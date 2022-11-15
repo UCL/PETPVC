@@ -9,7 +9,7 @@ trigger:
 jobs:
 - job: ubuntu
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-20.04'
   steps:
   - script: |
       sudo apt-get install -y ninja-build libinsighttoolkit4-dev
@@ -49,20 +49,55 @@ jobs:
   - script: |
       #brew tap bathomas/homebrew-bat
       #brew install ninja insighttoolkit
-      brew install ninja itk
+      brew install ninja qt5
+      # brew install itk
+      Qt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+      echo "Qt5_DIR = $Qt5_DIR"
+      ls $Qt5_DIR
+      echo "##vso[task.setvariable variable=Qt5_DIR;isOutput=true]$Qt5_DIR"
     displayName: Brew install dependencies
+  - script: |
+      git clone -b release --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
+      mkdir build.ITK
+      mkdir install
+      cdir=`pwd`
+      cd build.ITK
+      ITK_CMAKE_FLAGS="-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF
+                -DITKGroup_IO:BOOL=OFF
+                -DModule_ITKIOBMP:BOOL=ON
+                -DModule_ITKIOGDCM:BOOL=ON
+                -DModule_ITKIOGIPL:BOOL=ON
+                -DModule_ITKIOJPEG:BOOL=ON
+                -DModule_ITKIOJPEG2000:BOOL=ON
+                -DModule_ITKIOMeta:BOOL=ON
+                -DModule_ITKIONIFTI:BOOL=ON
+                -DModule_ITKIONRRD:BOOL=ON
+                -DModule_ITKIOPNG:BOOL=ON
+                -DModule_ITKIORAW:BOOL=ON
+                -DModule_ITKIOTIFF:BOOL=ON
+                -DModule_ITKImageGrid:BOOL=ON
+                -DITKGroup_Filtering:BOOL=ON
+                -DModule_ITKReview:BOOL=ON"
+
+      cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${cdir}/install -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF $ITK_CMAKE_FLAGS ../ITK
+    displayName: Configure ITK
   - script: |
       mkdir build.debug
       mkdir build.release
     displayName: Make Build Directories
+  - script: |
+        cd build.ITK
+        ninja && ninja install
+    displayName: 'Build ITK with ninja, release'
   - task: CMake@1
     inputs:
       workingDirectory: 'build.debug'
-      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug ..'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug -DQt5_DIR=/usr/local/opt/qt@5/lib/cmake/Qt5 -DCMAKE_INSTALL_PREFIX=../install ..'
   - task: CMake@1
     inputs:
       workingDirectory: 'build.release'
-      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release ..'
+      runInsideShell: true
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release -DQt5_DIR=/usr/local/opt/qt@5/lib/cmake/Qt5 -DCMAKE_INSTALL_PREFIX=../install ..'
   - script: |
       cd build.debug
       ninja
@@ -79,15 +114,32 @@ jobs:
       cd build.release
       ctest
     displayName: 'Run tests, release'
-- job: Windows_VS2017_x64
+- job: Windows_VS2022_x64
   pool:
-      vmImage: 'vs2017-win2016'
+      vmImage: 'windows-2022'
   steps:
     - script: |
-        git clone -b v4.13.1 --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
+        git clone -b release --single-branch https://github.com/InsightSoftwareConsortium/ITK.git
         mkdir build.ITK
         cd build.ITK
-        cmake -G "Visual Studio 15 Win64" -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DModule_ITKReview=ON ../ITK
+        set ITK_CMAKE_FLAGS=-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF ^
+                -DITKGroup_IO:BOOL=OFF ^
+                -DModule_ITKIOBMP:BOOL=ON ^
+                -DModule_ITKIOGDCM:BOOL=ON ^
+                -DModule_ITKIOGIPL:BOOL=ON ^
+                -DModule_ITKIOJPEG:BOOL=ON ^
+                -DModule_ITKIOJPEG2000:BOOL=ON ^
+                -DModule_ITKIOMeta:BOOL=ON ^
+                -DModule_ITKIONIFTI:BOOL=ON ^
+                -DModule_ITKIONRRD:BOOL=ON ^
+                -DModule_ITKIOPNG:BOOL=ON ^
+                -DModule_ITKIORAW:BOOL=ON ^
+                -DModule_ITKIOTIFF:BOOL=ON ^
+                -DModule_ITKImageGrid:BOOL=ON ^
+                -DITKGroup_Filtering:BOOL=ON ^
+                -DModule_ITKReview:BOOL=ON
+
+        cmake -G "Visual Studio 17" -A "x64" -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF %ITK_CMAKE_FLAGS% ../ITK
       displayName: Configure ITK
     - task: MSBuild@1
       inputs:
@@ -100,7 +152,7 @@ jobs:
       displayName: Make Build Directory
     - script: |
         cd build.common
-        cmake -G "Visual Studio 15 Win64" -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G "Visual Studio 17" -A "x64" -DCMAKE_BUILD_TYPE=Release ..
       displayName: Configure PETPVC
     - task: MSBuild@1
       inputs:
