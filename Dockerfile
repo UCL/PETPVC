@@ -1,6 +1,6 @@
 # PETPVC
 
-FROM alpine:3.12
+FROM alpine:3.16
 
 MAINTAINER Benjamin A. Thomas <b.a.thomas@ucl.ac.uk>
 LABEL Description="PETPVC" 
