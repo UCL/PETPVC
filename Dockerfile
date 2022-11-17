@@ -1,13 +1,14 @@
 # PETPVC
 
-FROM alpine:3.6
+FROM alpine:3.16
 
 MAINTAINER Benjamin A. Thomas <b.a.thomas@ucl.ac.uk>
 LABEL Description="PETPVC" 
 
 RUN apk --update add ca-certificates && apk upgrade
 
-RUN apk add alpine-sdk cmake && \
+RUN apk add alpine-sdk cmake &&\ 
+    apk add linux-headers &&\
     mkdir -p /opt/ITK/BUILD && cd /opt/ITK && \
     git clone -b 'release' --single-branch --depth=1 https://github.com/InsightSoftwareConsortium/ITK.git && \
     cd /opt/ITK/BUILD && \
@@ -19,4 +20,3 @@ RUN apk add alpine-sdk cmake && \
     make && make install && ctest && cd ~ && \
     rm -rf /opt/PETPVC && rm -rf /opt/ITK && \
     apk del --purge alpine-sdk cmake && apk add libstdc++
-    
