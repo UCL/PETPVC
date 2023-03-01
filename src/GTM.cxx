@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
         maskReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read mask input file: " << sMaskFileName
-                  << std::endl;
+                  << err << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         petReader->Update();
     } catch (itk::ExceptionObject & err) {
         std::cerr << "[Error]\tCannot read PET input file: " << sPETFileName
-                  << std::endl;
+                  << err << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -151,7 +151,14 @@ int main(int argc, char *argv[])
     vVariance = vFWHM / (2.0 * sqrt(2.0 * log(2.0)));
     //std::cout << vVariance << std::endl;
 
-    VectorType vVoxelSize = petReader->GetOutput()->GetSpacing();
+    try {
+      VectorType vVoxelSize = petReader->GetOutput()->GetSpacing();;
+    } catch (itk::ExceptionObject& err) {
+      std::cerr << "[Error]\tCannot read PET voxel sizes from input file: " << sPETFileName
+        << err
+        << std::endl;
+      return EXIT_FAILURE;
+      }
     //std::cout << vVoxelSize << std::endl;
 
     vVariance[0] = pow(vVariance[0], 2);
@@ -163,7 +170,13 @@ int main(int argc, char *argv[])
     roussetFilter->SetMaskInput( maskReader->GetOutput() );
     roussetFilter->SetPSF( vVariance );
     roussetFilter->SetVerbose( bDebug );
-    roussetFilter->Update();
+    try {
+      roussetFilter->Update();
+      }
+    catch (itk::ExceptionObject& err) {
+      std::cerr << err << std::endl;
+      return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
