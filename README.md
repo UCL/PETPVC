@@ -10,7 +10,7 @@ When using this toolbox, please include a reference to the paper:
 ---
 ## Pre-built binaries
 
-Binaries for Linux, Mac and Windows are provided in the 'Release' section on Github. When running the Windows version, you must have installed the ***Visual C++ Redistributable Packages for Visual Studio 2019*** ([link](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)). For 64-bit Windows, you might have to install both ```vcredist_x86.exe``` and ```vcredist_x64.exe```.
+Binaries for Linux, Mac and Windows are provided in the ['Releases' section on Github](https://github.com/UCL/PETPVC/releases). When running the Windows version, you must have installed the ***Visual C++ Redistributable Packages for Visual Studio 2019*** ([link](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)). For 64-bit Windows, you might have to install both ```vcredist_x86.exe``` and ```vcredist_x64.exe```.
 
 Alternatively, PETPVC can also be installed via `conda`, see https://anaconda.org/conda-forge/petpvc.
 
