@@ -107,6 +107,7 @@ jobs:
               fi
               # other dependencies
               sudo apt install libinsighttoolkit5-dev
+              ;;
             (macOS*)
               brew install itk
               ;;
@@ -173,4 +174,4 @@ jobs:
           set -vx
           cd ${GITHUB_WORKSPACE}/build
           cpack
-      
+          # outputs PETPVC-1.*.*.sh, .tar.gz and .tar.Z
