@@ -54,7 +54,11 @@ public:
 
     itkNewMacro(Self);
 
+#if ITK_VERSION_MAJOR < 6
     itkTypeMacro(GTMImageFilter, ImageToImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(GTMImageFilter);
+#endif
 
     //Returns correction factors.
     vnl_matrix<float> GetMatrix() {

@@ -77,7 +77,11 @@ public:
 
     itkNewMacro(Self);
 
+#if ITK_VERSION_MAJOR < 6
     itkTypeMacro(MullerGartnerImageFilter, InPlaceImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(MullerGartnerImageFilter);
+#endif
 
     //PET image
     typedef TInputImage1 Input1ImageType;

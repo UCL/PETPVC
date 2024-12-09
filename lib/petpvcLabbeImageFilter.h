@@ -55,7 +55,11 @@ public:
 
     itkNewMacro(Self);
 
+#if ITK_VERSION_MAJOR < 6
     itkTypeMacro(LabbeImageFilter, ImageToImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(LabbeImageFilter);
+#endif
 
     //Returns correction factors.
     vnl_matrix<float> GetMatrix() {

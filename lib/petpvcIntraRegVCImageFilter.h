@@ -53,7 +53,11 @@ public:
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
+#if ITK_VERSION_MAJOR < 6
     itkTypeMacro(IntraRegVCImageFilter, ImageToImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(IntraRegVCImageFilter);
+#endif
 
     /** Image related typedefs. */
     typedef TInputImage             InputImageType;
