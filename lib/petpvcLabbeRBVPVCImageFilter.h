@@ -52,7 +52,11 @@ public:
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
+#if ITK_VERSION_MAJOR < 6
     itkTypeMacro(LabbeRBVPVCImageFilter, ImageToImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(LabbeRBVPVCImageFilter);
+#endif
 
     /** Image related typedefs. */
     typedef TInputImage             InputImageType;
