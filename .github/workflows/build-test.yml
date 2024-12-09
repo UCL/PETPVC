@@ -1,4 +1,4 @@
-name: Build and ctest and recon_test_pack CI
+name: Build and ctest CI
 
 on:
   push:
