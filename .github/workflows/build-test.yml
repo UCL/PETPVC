@@ -106,7 +106,8 @@ jobs:
                   sudo apt install $CXX
               fi
               # other dependencies
-              sudo apt install libinsighttoolkit5-dev
+              # note: v5 is distributed without the REVIEW module
+              sudo apt install libinsighttoolkit4-dev
               ;;
             (macOS*)
               brew install itk
