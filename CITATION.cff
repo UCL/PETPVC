@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: PETPVC PET Partial Volume Correction
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+    - family-names: Thomas
+      given-names:  Benjamin
+      orcid:        'https://orcid.org/0000-0002-9784-1177'
+      affiliation:  University College London
+    - family-names: Thielemans
+      given-names:  Kris
+      orcid:        'https://orcid.org/0000-0002-5514-199X'
+      affiliation:   University College London
+identifiers:
+    - type: doi
+      value: 10.1088/0031-9155/61/22/7975
+repository-code: 'https://github.com/UCL/PETPVC'
+keywords:
+  - pet
+  - spect
+  - medical imaging
+  - partial volume correction
+  - open-source software
+license: Apache-2.0
