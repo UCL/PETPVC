@@ -178,3 +178,11 @@ jobs:
           cd ${GITHUB_WORKSPACE}/build
           cpack
           # outputs PETPVC-1.*.*.sh, .tar.gz and .tar.Z
+
+    - name: Upload cpack output
+      uses: actions/upload-artifact@v4
+      with:
+        name: cpack_files-${{ matrix.os }}-${{ matrix.compiler }}${{ matrix.compiler_version }}-${{ matrix.BUILD_TYPE }}
+        path: |
+          ${{ github.workspace }}/build/PETPVC-*.*.*.*
+        retention-days: 10
