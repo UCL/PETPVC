@@ -1,11 +1,12 @@
-name: Build and ctest and recon_test_pack CI
+name: Build and ctest CI
 
 on:
   push:
     branches: 
       - master
     paths-ignore:
-      - '.appveyor.yml'
+      - 'appveyor.yml'
+      - 'azure-pipelines.yml'
       - 'CITATION.cff'
       - '**/*.md'
       - '**/*.html'
@@ -16,7 +17,8 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.appveyor.yml'
+      - 'appveyor.yml'
+      - 'azure-pipelines.yml'
       - 'CITATION.cff'
       - '**/*.md'
       - '**/*.html'
@@ -40,7 +42,7 @@ jobs:
           BUILD_TYPE: "Debug"
         - os: ubuntu-latest
           compiler: gcc
-          compiler_version: 13
+          compiler_version: 12
           BUILD_TYPE: "Release"
         - os: ubuntu-latest
           compiler: clang
@@ -106,7 +108,9 @@ jobs:
                   sudo apt install $CXX
               fi
               # other dependencies
-              sudo apt install libinsighttoolkit5-dev
+              # note: v5 is distributed without the REVIEW module
+              sudo apt install libinsighttoolkit4-dev
+              ;;
             (macOS*)
               brew install itk
               ;;
@@ -173,4 +177,12 @@ jobs:
           set -vx
           cd ${GITHUB_WORKSPACE}/build
           cpack
-      
+          # outputs PETPVC-1.*.*.sh, .tar.gz and .tar.Z
+
+    - name: Upload cpack output
+      uses: actions/upload-artifact@v4
+      with:
+        name: cpack_files-${{ matrix.os }}-${{ matrix.compiler }}${{ matrix.compiler_version }}-${{ matrix.BUILD_TYPE }}
+        path: |
+          ${{ github.workspace }}/build/PETPVC-*.*.*.*
+        retention-days: 10
