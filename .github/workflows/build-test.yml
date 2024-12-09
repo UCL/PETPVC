@@ -1,0 +1,176 @@
+name: Build and ctest and recon_test_pack CI
+
+on:
+  push:
+    branches: 
+      - master
+    paths-ignore:
+      - '.appveyor.yml'
+      - 'CITATION.cff'
+      - '**/*.md'
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.tex'
+
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.appveyor.yml'
+      - 'CITATION.cff'
+      - '**/*.md'
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.tex'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-latest
+          compiler: gcc
+          compiler_version: 9
+          BUILD_TYPE: "Release"
+        - os: ubuntu-latest
+          compiler: gcc
+          compiler_version: 9
+          BUILD_TYPE: "Debug"
+        - os: ubuntu-latest
+          compiler: gcc
+          compiler_version: 13
+          BUILD_TYPE: "Release"
+        - os: ubuntu-latest
+          compiler: clang
+          BUILD_TYPE: "Release"
+
+      # let's run all of them, as opposed to aborting when one fails
+      fail-fast: false
+
+    name: ${{ matrix.os }}-${{ matrix.compiler }}${{ matrix.compiler_version }}-${{ matrix.BUILD_TYPE }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: set_compiler_variables
+      shell: bash
+      run: |
+          set -ex
+          if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
+            CC="clang"
+            CXX="clang++"
+          elif test 'XX${{ matrix.compiler }}' = 'XXgcc'; then
+            CC="gcc"
+            CXX="g++"
+          fi
+          if test 'XX${{ matrix.compiler_version }}' != 'XX'; then
+            CC=${CC}-${{ matrix.compiler_version }}
+            CXX=${CXX}-${{ matrix.compiler_version }}            
+          fi
+          if test 'XX${{ matrix.os }}' = 'XXmacOS-latest'; then
+            if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
+              brew install llvm@${{ matrix.compiler_version }}
+              if test XX${HOMEBREW_PREFIX} = XX; then
+                HOMEBREW_PREFIX=/usr/local
+              fi
+              LDFLAGS="-L$HOMEBREW_PREFIX/opt/llvm/lib/c++ -Wl,-rpath,$HOMEBREW_PREFIX/opt/llvm/lib/c++"
+              # make available to jobs below
+              echo LDFLAGS="$LDFLAGS" >> $GITHUB_ENV
+              CC="$HOMEBREW_PREFIX/opt/llvm/bin/clang"
+              CXX="$HOMEBREW_PREFIX/opt/llvm/bin/clang++"
+            fi
+          fi
+          export CC CXX
+          # make available to jobs below
+          echo CC="$CC" >> $GITHUB_ENV
+          echo CXX="$CXX" >> $GITHUB_ENV
+
+    - name: install_dependencies
+      shell: bash
+      run: |
+          set -ex
+          # We will install some external dependencies here
+          CMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install
+          case ${{matrix.os}} in
+            (ubuntu*)
+              sudo apt update
+              # install compiler
+              if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
+                  # package is called clang, need libomp-dev for OpenMP support
+                  sudo apt install $CC libomp-dev
+              else
+                  sudo apt install $CXX
+              fi
+              # other dependencies
+              sudo apt install libinsighttoolkit5-dev
+            (macOS*)
+              brew install itk
+              ;;
+          esac
+          echo PYTHON_EXECUTABLE="$PYTHON_EXECUTABLE" >> $GITHUB_ENV
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ matrix.os }}-${{ matrix.compiler }}${{ matrix.compiler_version }}-${{ matrix.BUILD_TYPE }}
+
+    - name: configure
+      shell: bash
+      env:
+          BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+          BUILD_FLAGS: ${{ matrix.BUILD_FLAGS }}
+      run: |
+          set -ex
+          cmake --version
+          if test "XX$CC" != "XX"; then
+              $CC --version
+              $CXX --version
+          fi
+          CMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install
+          # make available to jobs below
+          echo CMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX" >> $GITHUB_ENV
+          EXTRA_BUILD_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
+          echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"          
+          mkdir build
+          cd build
+          cmake -S .. ${BUILD_FLAGS} ${EXTRA_BUILD_FLAGS}
+
+    - name: build
+      shell: bash
+      env:
+          BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+      run: |
+          cd ${GITHUB_WORKSPACE}/build;
+          cmake --build . -j 2 --config ${BUILD_TYPE}} --target install
+
+    - name: ctest
+      shell: bash
+      env:
+          BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+      run: |
+          set -vx
+          cd ${GITHUB_WORKSPACE}/build
+          ctest --output-on-failure -C ${BUILD_TYPE}
+
+    - name: Upload ctest log files for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: ctest_log_files-${{ matrix.os }}-${{ matrix.compiler }}${{ matrix.compiler_version }}-${{ matrix.BUILD_TYPE }}
+        path: |
+          ${{ github.workspace }}/build/**/*.log
+        retention-days: 7
+
+    - name: CPack
+      shell: bash
+      env:
+          BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+      run: |
+          set -vx
+          cd ${GITHUB_WORKSPACE}/build
+          cpack
+      
