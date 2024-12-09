@@ -40,7 +40,7 @@ jobs:
           BUILD_TYPE: "Debug"
         - os: ubuntu-latest
           compiler: gcc
-          compiler_version: 13
+          compiler_version: 12
           BUILD_TYPE: "Release"
         - os: ubuntu-latest
           compiler: clang
