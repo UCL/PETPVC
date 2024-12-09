@@ -5,7 +5,8 @@ on:
     branches: 
       - master
     paths-ignore:
-      - '.appveyor.yml'
+      - 'appveyor.yml'
+      - 'azure-pipelines.yml'
       - 'CITATION.cff'
       - '**/*.md'
       - '**/*.html'
@@ -16,7 +17,8 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.appveyor.yml'
+      - 'appveyor.yml'
+      - 'azure-pipelines.yml'
       - 'CITATION.cff'
       - '**/*.md'
       - '**/*.html'

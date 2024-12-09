@@ -1,3 +1,13 @@
+skip_commits:
+  files:
+    - .github/**/*
+    - 'azure-pipelines.yml'
+    - 'CITATION.cff'
+    - '**/*.md'
+    - '**/*.html'
+    - '**/*.htm'
+    - '**/*.tex'
+
 # version format
 version: "{build}"
 
