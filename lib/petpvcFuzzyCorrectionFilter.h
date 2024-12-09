@@ -53,7 +53,11 @@ public:
 
     itkNewMacro(Self);
 
-    itkTypeMacro(FuzzyCorrFilter, ImageToImageFilter);
+#if ITK_VERSION_MAJOR < 6
+    itkTypeMacro(FuzzyCorrectionFilter, ImageToImageFilter);
+#else
+    itkOverrideGetNameOfClassMacro(FuzzyCorrectionFilter);
+#endif
 
     //Returns correction factors.
 
