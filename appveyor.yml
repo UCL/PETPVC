@@ -20,24 +20,24 @@ clone_folder: C:\projects\PETPVC
 
 environment:
   ITKSRC: C:\projects\deps\ITK
-  ITKINSTALL: C:\projects\deps\ITK-5.2.0
+  ITKINSTALL: C:\projects\deps\ITK-5.4.0
   ITKBUILD: C:\projects\deps\ITK-BUILD
 
 install:
   - IF NOT EXIST C:\projects\deps mkdir C:\projects\deps
   - cd C:\projects\deps
-  - set ITK_URL="https://github.com/InsightSoftwareConsortium/ITK/archive/v5.2.0.zip"
-  - IF NOT EXIST C:\projects\deps\ITK-5.2.0.zip appveyor DownloadFile %ITK_URL% -FileName ITK-5.2.0.zip
-  - IF NOT EXIST %ITKINSTALL% ( 7z x ITK-5.2.0.zip -oC:\projects\deps\ITK > nul &&
+  - set ITK_URL="https://github.com/InsightSoftwareConsortium/ITK/archive/v5.4.0.zip"
+  - IF NOT EXIST C:\projects\deps\ITK-5.4.0.zip appveyor DownloadFile %ITK_URL% -FileName ITK-5.4.0.zip
+  - IF NOT EXIST %ITKINSTALL% ( 7z x ITK-5.4.0.zip -oC:\projects\deps\ITK > nul &&
       mkdir %ITKBUILD% &&
       cd %ITKBUILD% &&
-      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% -DModule_ITKReview=ON ..\ITK\ITK-5.2.0 &&
+      cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%ITKINSTALL% -DModule_ITKReview=ON ..\ITK\ITK-5.4.0 &&
       msbuild INSTALL.vcxproj
     )
 
 cache:
-  - C:\projects\deps\ITK-5.2.0.zip
-  - C:\projects\deps\ITK-5.2.0 -> appveyor.yml
+  - C:\projects\deps\ITK-5.4.0.zip
+  - C:\projects\deps\ITK-5.4.0 -> appveyor.yml
 
 build_script:
   - cd C:\projects\PETPVC
